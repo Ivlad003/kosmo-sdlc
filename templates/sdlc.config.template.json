@@ -1,0 +1,48 @@
+{
+  "$schema": "https://github.com/code-store-platform/agentic-sdlc/schemas/sdlc-config.schema.json",
+  "detected_at": "{{TODAY}}",
+  "project": {
+    "type": "{{PROJECT_TYPE}}",
+    "package_manager": "{{PACKAGE_MANAGER}}",
+    "node_version": "{{NODE_VERSION_OR_NULL}}",
+    "workspaces": []
+  },
+  "scripts": {
+    "dev": "{{SCRIPT_DEV_OR_NULL}}",
+    "build": "{{SCRIPT_BUILD_OR_NULL}}",
+    "lint": "{{SCRIPT_LINT_OR_NULL}}",
+    "typecheck": "{{SCRIPT_TYPECHECK_OR_NULL}}",
+    "test": "{{SCRIPT_TEST_OR_NULL}}",
+    "pipeline": "{{SCRIPT_PIPELINE_OR_NULL}}"
+  },
+  "playwright": {
+    "present": false,
+    "config": null,
+    "base_url": null,
+    "credentials": "_/demo/credentials.json"
+  },
+  "git": {
+    "default_branch": "{{DEFAULT_BRANCH}}",
+    "branch_pattern": null,
+    "pr_template": null
+  },
+  "ci": {
+    "workflows": [],
+    "required_checks": []
+  },
+  "ticketing": {
+    "system": "none",
+    "prefix": null,
+    "mcp": null
+  },
+  "spec": {
+    "convention": "freeform",
+    "default_dir": null
+  },
+  "conventions": {
+    "commit_style": "conventional",
+    "track_dir": "_/tracks",
+    "demo_dir": "_/demo",
+    "recordings_dir": "_/recordings"
+  }
+}

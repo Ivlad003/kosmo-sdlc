@@ -1,0 +1,22 @@
+{
+  "name": "agentic-sdlc",
+  "version": "0.1.0",
+  "description": "Deterministic, gated SDLC loop for full-stack JavaScript projects. Track-driven, Playwright-validated, security-reviewed, PR-completed.",
+  "author": {
+    "name": "Vlad Kosmach",
+    "email": "vkosmach@code.store"
+  },
+  "homepage": "https://github.com/code-store-platform/agentic-sdlc",
+  "repository": "https://github.com/code-store-platform/agentic-sdlc",
+  "license": "MIT",
+  "keywords": [
+    "sdlc",
+    "workflow",
+    "playwright",
+    "code-review",
+    "security-review",
+    "pr-automation",
+    "full-stack",
+    "javascript"
+  ]
+}

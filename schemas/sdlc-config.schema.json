@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/code-store-platform/agentic-sdlc/schemas/sdlc-config.schema.json",
+  "title": "agentic-sdlc project profile",
+  "description": "Schema for _/sdlc.config.json — written by /sdlc-init, read by every other /sdlc-* command. Encodes the host project's commands, Playwright setup, ticketing system, and CI gates so commands stop hardcoding paths.",
+  "type": "object",
+  "required": ["detected_at", "project", "scripts", "git", "conventions"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "detected_at": { "type": "string", "format": "date" },
+    "project": {
+      "type": "object",
+      "required": ["type", "package_manager"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "enum": ["monorepo", "single-app"] },
+        "package_manager": {
+          "type": "string",
+          "enum": ["npm", "pnpm", "yarn", "bun"]
+        },
+        "node_version": { "type": ["string", "null"] },
+        "workspaces": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "scripts": {
+      "type": "object",
+      "description": "Resolved commands (always strings; commands run with the detected package manager).",
+      "additionalProperties": false,
+      "properties": {
+        "dev": { "type": ["string", "null"] },
+        "build": { "type": ["string", "null"] },
+        "lint": { "type": ["string", "null"] },
+        "typecheck": { "type": ["string", "null"] },
+        "test": { "type": ["string", "null"] },
+        "pipeline": {
+          "type": ["string", "null"],
+          "description": "Aggregate gate (lint + typecheck + test + build). Falls back to chaining the four when absent."
+        }
+      }
+    },
+    "playwright": {
+      "type": "object",
+      "required": ["present"],
+      "additionalProperties": false,
+      "properties": {
+        "present": { "type": "boolean" },
+        "config": { "type": ["string", "null"] },
+        "base_url": { "type": ["string", "null"] },
+        "credentials": {
+          "type": ["string", "null"],
+          "description": "Path to the gitignored credentials file (defaults to _/demo/credentials.json)."
+        }
+      }
+    },
+    "git": {
+      "type": "object",
+      "required": ["default_branch"],
+      "additionalProperties": false,
+      "properties": {
+        "default_branch": { "type": "string" },
+        "branch_pattern": {
+          "type": ["string", "null"],
+          "description": "Template like '<type>/<TICKET-ID>'. Used by /sdlc-implement to suggest a branch name."
+        },
+        "pr_template": { "type": ["string", "null"] }
+      }
+    },
+    "ci": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "workflows": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "required_checks": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "ticketing": {
+      "type": "object",
+      "required": ["system"],
+      "additionalProperties": false,
+      "properties": {
+        "system": {
+          "type": "string",
+          "enum": ["jira", "linear", "github", "none"]
+        },
+        "prefix": { "type": ["string", "null"] },
+        "mcp": {
+          "type": ["string", "null"],
+          "description": "MCP server name to use for fetching ticket bodies (e.g. 'atlassian', 'linear')."
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "convention": {
+          "type": "string",
+          "enum": ["ticket-references-path", "fixed-dir", "freeform"]
+        },
+        "default_dir": { "type": ["string", "null"] }
+      }
+    },
+    "conventions": {
+      "type": "object",
+      "required": ["track_dir", "demo_dir", "recordings_dir"],
+      "additionalProperties": false,
+      "properties": {
+        "commit_style": {
+          "type": "string",
+          "enum": ["conventional", "freeform"]
+        },
+        "track_dir": { "type": "string" },
+        "demo_dir": { "type": "string" },
+        "recordings_dir": { "type": "string" }
+      }
+    }
+  }
+}

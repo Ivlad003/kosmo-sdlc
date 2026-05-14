@@ -1,0 +1,48 @@
+{
+  "$schema": "https://github.com/code-store-platform/agentic-sdlc/schemas/sdlc-config.schema.json",
+  "detected_at": "2026-05-14",
+  "project": {
+    "type": "monorepo",
+    "package_manager": "npm",
+    "node_version": "22",
+    "workspaces": ["apps/*", "packages/*"]
+  },
+  "scripts": {
+    "dev": "npm run dev",
+    "build": "npm run build",
+    "lint": "npm run lint",
+    "typecheck": "npm run check-types",
+    "test": "npm run test",
+    "pipeline": "npm run pipeline"
+  },
+  "playwright": {
+    "present": true,
+    "config": "apps/frontend/playwright.config.ts",
+    "base_url": "http://localhost:3000",
+    "credentials": "_/demo/credentials.json"
+  },
+  "git": {
+    "default_branch": "trunk",
+    "branch_pattern": "<type>/<TICKET>",
+    "pr_template": ".github/pull_request_template.md"
+  },
+  "ci": {
+    "workflows": [".github/workflows/test.yml", ".github/workflows/db-reset-seed.yml"],
+    "required_checks": ["build", "lint", "test", "knip"]
+  },
+  "ticketing": {
+    "system": "jira",
+    "prefix": "PICTO",
+    "mcp": "atlassian"
+  },
+  "spec": {
+    "convention": "ticket-references-path",
+    "default_dir": null
+  },
+  "conventions": {
+    "commit_style": "conventional",
+    "track_dir": "_/tracks",
+    "demo_dir": "_/demo",
+    "recordings_dir": "_/recordings"
+  }
+}

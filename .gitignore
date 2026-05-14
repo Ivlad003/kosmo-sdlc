@@ -1,0 +1,20 @@
+# agentic-sdlc working directory (created on host projects, not on this repo;
+# kept here so contributors testing locally don't commit scratch artifacts)
+_/
+
+# Editor / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Node (if contributors run tooling locally)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Coverage / build artifacts
+coverage/
+dist/
+build/
+.turbo/
