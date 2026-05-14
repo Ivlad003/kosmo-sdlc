@@ -43,8 +43,8 @@ Dispatch all firing agents **in parallel**.
 Each sub-agent receives:
 
 ```yaml
-ticket: PICTO-594
-track_path: _/tracks/PICTO-594.md
+ticket: TICKET-1
+track_path: _/tracks/TICKET-1.md
 base_sha: <BASE>
 head_sha: HEAD
 impact_files: [...]
@@ -77,10 +77,10 @@ The orchestrator never edits the sub-agents' findings — only consolidates.
 Write `_/recordings/<TICKET>.review.md`:
 
 ```markdown
-# Review report — PICTO-594
+# Review report — TICKET-1
 
 Base: <sha> (origin/trunk)
-Head: <sha> (feat/PICTO-594)
+Head: <sha> (feat/TICKET-1)
 Files reviewed: 12
 Sub-agents dispatched: code, security, standards
 
@@ -127,9 +127,9 @@ When applying:
 ### 7. Report
 
 ```
-Review complete — _/recordings/PICTO-594.review.md
+Review complete — _/recordings/TICKET-1.review.md
 1 CRITICAL applied · 2 HIGH applied · 1 HIGH deferred · 11 MEDIUM/LOW remaining
-Next: /sdlc-pr PICTO-594
+Next: /sdlc-pr TICKET-1
 ```
 
 ## Hard rules

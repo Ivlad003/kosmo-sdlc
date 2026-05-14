@@ -1,5 +1,5 @@
 ---
-ticket: PICTO-594
+ticket: TICKET-1
 title: Add prices grid to customer page
 status: planned
 created: 2026-05-13
@@ -118,17 +118,17 @@ acs:
 phase_log:
   - phase: intake
     at: 2026-05-13T15:40:00Z
-    note: "Track created from PICTO-594 + spec rows 1-21 of Client - Grille tariffaires.md."
+    note: "Track created from TICKET-1 + spec rows 1-21 of Client - Grille tariffaires.md."
     outcome: pass
 ---
 
 # Where we at on this track
 
-Intake just completed. 18 requirements identified across 4 acceptance criteria (10 frontend, 8 backend). Spec hash captured for drift detection. Next: run `/sdlc-implement PICTO-594` to begin shipping the requirements, starting with the backend table + endpoints.
+Intake just completed. 18 requirements identified across 4 acceptance criteria (10 frontend, 8 backend). Spec hash captured for drift detection. Next: run `/sdlc-implement TICKET-1` to begin shipping the requirements, starting with the backend table + endpoints.
 
 ## §1 Scope
 
-**In (PICTO-594):**
+**In (TICKET-1):**
 - Render a price-grid table on the client detail page (AC1).
 - Excel template download (AC2).
 - Drawer for creating a new price grid with name, dates, file (AC3).
@@ -142,7 +142,7 @@ Intake just completed. 18 requirements identified across 4 acceptance criteria (
 ## §2 Ticket (verbatim)
 
 ```
-PICTO-594
+TICKET-1
 
 # Services - Add prices grid to the customer page
 

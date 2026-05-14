@@ -71,10 +71,10 @@ If something fails:
 ### 5. Report
 
 ```
-Revalidation complete — _/recordings/PICTO-594.revalidation.md
+Revalidation complete — _/recordings/TICKET-1.revalidation.md
 ✅ All 7 requirements pass · ✅ Spec unchanged · ✅ PR approved · ✅ CI green
 Status: ready_to_merge
-Demo: _/recordings/PICTO-594.20260513-220500.final.webm
+Demo: _/recordings/TICKET-1.20260513-220500.final.webm
 ```
 
 ## Hard rules

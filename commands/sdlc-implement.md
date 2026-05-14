@@ -95,10 +95,10 @@ When all in-scope requirements are `done`:
 - Print:
 
 ```
-PICTO-594 — implementation complete
+TICKET-1 — implementation complete
 Done: R1.1, R1.2, R1.3, R1.4, R2.1, R2.2, R3.1
-Branch: feat/PICTO-594 (12 commits ahead of trunk)
-Next: /sdlc-validate PICTO-594
+Branch: feat/TICKET-1 (12 commits ahead of trunk)
+Next: /sdlc-validate TICKET-1
 ```
 
 ## Hard rules

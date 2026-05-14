@@ -71,7 +71,7 @@ For each phase in order: intake → implement → validate → review → pr →
 ### 3. Final report
 
 ```
-PICTO-594 — cycle complete
+TICKET-1 — cycle complete
 intake     ✅ (4 ACs → 7 requirements)
 implement  ✅ (7 requirements done · 12 commits · pipeline green)
 validate   ✅ (7/7 pass · 1 console warning surfaced)
@@ -80,15 +80,15 @@ pr         ✅ https://github.com/<org>/<repo>/pull/123
 revalidate ✅ (CI green · PR approved · spec unchanged)
 
 Status: ready_to_merge
-Track:  _/tracks/PICTO-594.md
+Track:  _/tracks/TICKET-1.md
 ```
 
 If a gate failed:
 
 ```
-PICTO-594 — cycle stopped at validate
+TICKET-1 — cycle stopped at validate
 Reason: 1 requirement failed (R1.4 — drawer remained open on submit; toast 'Erreur réseau')
-Next:   /sdlc-implement PICTO-594 --requirement R1.4
+Next:   /sdlc-implement TICKET-1 --requirement R1.4
 ```
 
 ## Hard rules

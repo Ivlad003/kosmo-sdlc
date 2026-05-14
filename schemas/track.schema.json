@@ -1,6 +1,5 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/code-store-platform/agentic-sdlc/schemas/track.schema.json",
   "title": "agentic-sdlc track file frontmatter",
   "description": "YAML frontmatter contract for _/tracks/<TICKET>.md. Every cycle command reads and writes this frontmatter — the body of the markdown file is for humans.",
   "type": "object",

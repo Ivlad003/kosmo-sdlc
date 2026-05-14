@@ -139,7 +139,7 @@ Append a phase_log entry: `{ phase: pr-comments, at: <iso>, note: "Processed N t
 PR #295 — 3 of 5 comments addressed
 - Applied: 2 (Zod trim, missing tooLong message)
 - Rejected: 1 (controller is intentionally CRUD)
-- Deferred: 1 (pricing fields out of scope, tracked in PICTO-XXX)
+- Deferred: 1 (pricing fields out of scope, tracked in TICKET-XXX)
 - Stale: 1 (PR description updated)
 
 Code changes:

@@ -81,7 +81,7 @@ Title format derives from the track's commit type (feat / fix / refactor / chore
 
 ```
 PR opened: https://github.com/<org>/<repo>/pull/123
-Title: feat(PICTO-594): Add prices grid to customer page
+Title: feat(TICKET-1): Add prices grid to customer page
 Status: ready for review · 7/7 requirements done · 0 CRITICAL findings
 Next: /sdlc-pr-comments 123 (when reviewers comment)
 ```

@@ -44,19 +44,19 @@ A common failure mode for agentic dev tools is "produces code, claims success, r
 _/
 ├── sdlc.config.json
 ├── tracks/
-│   └── PICTO-594.md
+│   └── TICKET-1.md
 ├── demo/
 │   ├── credentials.json              # never commit
-│   ├── scenarios/PICTO-594.md
-│   └── PICTO-594.spec.mjs            # generated Playwright script
+│   ├── scenarios/TICKET-1.md
+│   └── TICKET-1.spec.mjs            # generated Playwright script
 └── recordings/
-    ├── PICTO-594.20260513-211900.webm
-    ├── PICTO-594.20260513-211900.log
-    ├── PICTO-594.20260513-211900.zip   # Playwright trace
-    ├── PICTO-594.validation.md
-    ├── PICTO-594.revalidation.md
-    ├── PICTO-594.review.md
-    └── PICTO-594.latest.webm           # symlink to most recent passing demo
+    ├── TICKET-1.20260513-211900.webm
+    ├── TICKET-1.20260513-211900.log
+    ├── TICKET-1.20260513-211900.zip   # Playwright trace
+    ├── TICKET-1.validation.md
+    ├── TICKET-1.revalidation.md
+    ├── TICKET-1.review.md
+    └── TICKET-1.latest.webm           # symlink to most recent passing demo
 ```
 
 The whole `_/` directory is gitignored. Nothing the cycle produces lands in git history. The exception is the PR body, which is reproducible from the track at any time.

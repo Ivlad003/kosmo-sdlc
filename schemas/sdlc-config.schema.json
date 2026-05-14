@@ -1,6 +1,5 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/code-store-platform/agentic-sdlc/schemas/sdlc-config.schema.json",
   "title": "agentic-sdlc project profile",
   "description": "Schema for _/sdlc.config.json — written by /sdlc-init, read by every other /sdlc-* command. Encodes the host project's commands, Playwright setup, ticketing system, and CI gates so commands stop hardcoding paths.",
   "type": "object",

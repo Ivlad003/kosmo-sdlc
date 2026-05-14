@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/code-store-platform/agentic-sdlc/schemas/sdlc-config.schema.json",
+  "$schema": "../schemas/sdlc-config.schema.json",
   "detected_at": "{{TODAY}}",
   "project": {
     "type": "{{PROJECT_TYPE}}",

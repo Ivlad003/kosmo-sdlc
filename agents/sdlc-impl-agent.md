@@ -24,13 +24,13 @@ Follow the [/sdlc-implement](../commands/sdlc-implement.md) workflow:
 
 ```yaml
 status: in_review  # after all requirements done
-branch: feat/PICTO-594
+branch: feat/TICKET-1
 acs:
   # full acs[] with updated statuses + evidence
 phase_log_entry:
   phase: implement
   at: <ISO>
-  note: "Implemented 7/7 requirements. Pipeline green. 12 commits on feat/PICTO-594."
+  note: "Implemented 7/7 requirements. Pipeline green. 12 commits on feat/TICKET-1."
   outcome: pass  # or 'partial' / 'fail'
 ```
 

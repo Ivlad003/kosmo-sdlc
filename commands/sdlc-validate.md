@@ -45,7 +45,7 @@ Write to `_/demo/<TICKET>.spec.mjs` (a node-runnable Playwright script — not a
 
 ```js
 import { chromium, expect } from 'playwright';
-// Helpers ported from picto/.claude/commands/demo-video.md:
+// Standard demo helpers (define inline or import from a shared module):
 //   ensureStyles, showSection, hideSection, showOverlay, pointAt, demoClick,
 //   demoGoto, hideNextjsOverlay, attachConsoleLogger, log
 ```
@@ -76,7 +76,7 @@ Two-pass execution:
 Write `_/recordings/<TICKET>.validation.md`:
 
 ```markdown
-# Validation report — PICTO-594
+# Validation report — TICKET-1
 
 Run id: 20260513-211900
 Base URL: http://localhost:3000
@@ -100,9 +100,9 @@ Outcome: 7 passed, 0 failed, 0 skipped
 
 ## Artifacts
 
-- Playwright log: `_/recordings/PICTO-594.20260513-211900.log`
-- Trace: `_/recordings/PICTO-594.20260513-211900.zip`
-- Failed-run video: `_/recordings/PICTO-594.20260513-211900.failed.webm`
+- Playwright log: `_/recordings/TICKET-1.20260513-211900.log`
+- Trace: `_/recordings/TICKET-1.20260513-211900.zip`
+- Failed-run video: `_/recordings/TICKET-1.20260513-211900.failed.webm`
 ```
 
 ### 5. Produce the stakeholder demo

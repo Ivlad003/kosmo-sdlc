@@ -6,7 +6,7 @@
 
 ```yaml
 ---
-ticket: PICTO-594                    # ticket id or freeform slug
+ticket: TICKET-1                    # ticket id or freeform slug
 title: Add prices grid to customer page
 status: planned                      # planned | in_progress | in_review | ready_to_merge | merged | abandoned
 created: 2026-05-13
@@ -36,7 +36,7 @@ acs:
 phase_log:                            # append-only
   - phase: intake                     # intake | implement | validate | review | pr | pr-comments | revalidate
     at: 2026-05-13T15:40:00Z
-    note: "Track created from PICTO-594 + spec slice 1-21."
+    note: "Track created from TICKET-1 + spec slice 1-21."
     outcome: pass                     # pass | fail | partial | skipped
 ---
 ```

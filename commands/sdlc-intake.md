@@ -10,7 +10,7 @@ Phase 1 of the cycle. Produces a track file an agent can drop into cold and act 
 
 ## Arguments
 
-- `$1` (required): ticket ID (`PICTO-594`), ticket URL, or a freeform feature description when `ticketing.system: "none"`.
+- `$1` (required): ticket ID (`TICKET-1`), ticket URL, or a freeform feature description when `ticketing.system: "none"`.
 - `$2` (optional): spec path or URL. If the ticket body references one and `$2` is missing, the user gets prompted.
 
 ## Preconditions
@@ -93,10 +93,10 @@ If `_/tracks/<TICKET>.md` already exists:
 ### 7. Report
 
 ```
-Track created: _/tracks/PICTO-594.md
+Track created: _/tracks/TICKET-1.md
 Status: planned · 4 requirements (3 frontend, 1 backend)
 Spec: /Users/.../Client - Grille tariffaires.md (rows 1-21) · sha256 a7f3…
-Next: /sdlc-implement PICTO-594
+Next: /sdlc-implement TICKET-1
 ```
 
 ## Hard rules

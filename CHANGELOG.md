@@ -11,4 +11,4 @@ All notable changes to `agentic-sdlc` are documented here. Format follows [Keep 
 - `commit-work` skill ported.
 - Sub-agent definitions for the orchestrator.
 - Documentation: cycle walkthrough, track format, init detection, project adaptation, design rationale.
-- Reference example for a Turborepo/NestJS/Next.js project (`examples/picto/`).
+- Reference example for a Turborepo/NestJS/Next.js project (`examples/sample/`).

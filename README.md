@@ -22,8 +22,10 @@ The track file is the source of truth. Sections are for humans; YAML frontmatter
 
 ## Install
 
+Until a public marketplace URL is published, install from a local clone of this repo:
+
 ```
-/plugin marketplace add code-store-platform/agentic-sdlc
+/plugin marketplace add /path/to/sdlc
 /plugin install agentic-sdlc@agentic-sdlc
 ```
 
@@ -58,7 +60,7 @@ Or step through manually:
 | `schemas/` | JSON Schemas for the track file and project config |
 | `templates/` | Scaffolds rendered by `/sdlc-init` and `/sdlc-intake` |
 | `docs/` | The cycle, the track format, init detection rules, how to adapt |
-| `examples/picto/` | A reference track + config from a real Turborepo project |
+| `examples/sample/` | A reference track + config from a real Turborepo project |
 
 ## Documentation
 

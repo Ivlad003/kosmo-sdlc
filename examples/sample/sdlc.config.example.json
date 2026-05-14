@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/code-store-platform/agentic-sdlc/schemas/sdlc-config.schema.json",
+  "$schema": "../../schemas/sdlc-config.schema.json",
   "detected_at": "2026-05-14",
   "project": {
     "type": "monorepo",
@@ -32,7 +32,7 @@
   },
   "ticketing": {
     "system": "jira",
-    "prefix": "PICTO",
+    "prefix": "TICKET",
     "mcp": "atlassian"
   },
   "spec": {

@@ -84,18 +84,20 @@ Out of scope for v0.x. The detection logic, Playwright assumptions, and the `com
 If you can't use `/plugin install` (older Claude Code, locked harness):
 
 ```bash
-git clone https://github.com/code-store-platform/agentic-sdlc ~/.claude/agentic-sdlc
+# Clone this repo somewhere (URL TBD once published)
+SDLC_HOME=~/.claude/agentic-sdlc
+# e.g. git clone <repo-url> "$SDLC_HOME"
 
 # Symlink the commands
-for cmd in ~/.claude/agentic-sdlc/commands/*.md; do
+for cmd in "$SDLC_HOME"/commands/*.md; do
   ln -sf "$cmd" ~/.claude/commands/"$(basename "$cmd")"
 done
 
 # Symlink the skill
-ln -sf ~/.claude/agentic-sdlc/skills/commit-work ~/.claude/skills/commit-work
+ln -sf "$SDLC_HOME"/skills/commit-work ~/.claude/skills/commit-work
 
 # Symlink agents (optional — only needed for /sdlc-cycle)
-for agent in ~/.claude/agentic-sdlc/agents/*.md; do
+for agent in "$SDLC_HOME"/agents/*.md; do
   ln -sf "$agent" ~/.claude/agents/"$(basename "$agent")"
 done
 ```
@@ -104,6 +106,6 @@ Re-run after `git pull` to pick up updates.
 
 ## Reporting issues
 
-- Open an issue at <https://github.com/code-store-platform/agentic-sdlc/issues>.
+- Open an issue at the project's issue tracker (URL TBD once published).
 - Include: project type (monorepo/single), package manager, Node version, the command that failed, and the `_/sdlc.config.json` (redact paths/secrets).
 - For schema validation failures, include the failing frontmatter (redact ticket bodies if confidential).

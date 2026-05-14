@@ -47,7 +47,7 @@ Detection rules:
   - `lint` → `scripts.lint`.
   - `typecheck` → `scripts.typecheck`, else `check-types`, else `tsc --noEmit` if `tsconfig.json` exists.
   - `test` → `scripts.test`.
-  - `pipeline` → `scripts.pipeline` (Picto convention) or `scripts.ci` or `scripts.check`; else `null` (commands chain individually).
+  - `pipeline` → `scripts.pipeline` or `scripts.ci` or `scripts.check`; else `null` (commands chain individually).
 - **Default branch**: `git symbolic-ref refs/remotes/origin/HEAD` first; fall back to `git config --get init.defaultBranch`; fall back to current branch if neither resolves.
 - **Ticketing**: detect from PR template or recent commit prefix. If commit messages match `^[A-Z]+-\d+`, ticketing.prefix = first match.
   - If no signal → `ticketing.system: "none"`. Ask user if they want to set Jira/Linear/GitHub manually.
@@ -75,7 +75,7 @@ Scripts:      dev=npm run dev · build=npm run build · pipeline=npm run pipelin
 Playwright:   detected at apps/frontend/playwright.config.ts (base_url http://localhost:3000)
 Git:          default branch 'trunk' · PR template ✓
 CI:           .github/workflows/test.yml (build, lint, test, knip)
-Ticketing:    jira (prefix PICTO) via Atlassian MCP
+Ticketing:    jira (prefix TICKET) via Atlassian MCP
 Spec:         ticket-references-path (no default dir)
 
 Missing signals:
