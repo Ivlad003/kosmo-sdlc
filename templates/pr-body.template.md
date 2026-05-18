@@ -3,7 +3,6 @@
 {{ONE_PARAGRAPH_SUMMARY}}
 
 **Ticket:** {{TICKET_LINK}}
-**Track file:** [`_/tracks/{{TICKET}}.md`]({{TRACK_PATH}})
 
 ## Acceptance criteria
 
@@ -11,12 +10,17 @@
 
 ## Validation
 
-- Assertions report: [`_/recordings/{{TICKET}}.validation.md`]({{VALIDATION_REPORT_PATH}})
-- Stakeholder demo: `_/recordings/{{TICKET}}.{{RUN_ID}}.webm` (not committed — pull from local `_/`)
+{{VALIDATION_OUTCOME_LINE}}
 
-## Review artifacts
+{{VALIDATION_PER_REQUIREMENT_TABLE}}
 
-- Code + security review report: [`_/recordings/{{TICKET}}.review.md`]({{REVIEW_REPORT_PATH}})
+{{VALIDATION_CONSOLE_NETWORK_TABLE_OR_NONE}}
+
+## Review
+
+{{REVIEW_SEVERITY_TABLE}}
+
+{{REVIEW_RESOLUTION_LINE}}
 
 ## Test plan
 

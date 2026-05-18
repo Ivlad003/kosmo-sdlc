@@ -45,16 +45,16 @@ If the branch already exists upstream, push without `-u`.
 
 ### 4. Build the PR body
 
-Render `templates/pr-body.template.md` from the track:
+Render `templates/pr-body.template.md` from the track. **Inline** all reviewer-facing content — never reference paths under `_/` (track files, recordings, scenarios, demos). Those artifacts are local-only by design; reviewers cannot open them and even mentioning the paths leaks the working directory layout.
 
-- **Summary**: derived from track's "Where we at on this track" paragraph + a one-line "what this PR does" generated from the title + commits.
+- **Summary**: derived from track's "Where we at on this track" paragraph + a one-line "what this PR does" generated from the title + commits. Do not quote the file path of the track.
 - **Ticket link**: built from `ticketing.system` config (Jira URL pattern, Linear URL, GitHub issue, or `None`).
 - **AC checklist**: for each `requirement` in `acs[].requirements[]`:
   - `[x] <text>` if `status: done`
   - `[ ] <text>` (with `_(blocked)_` suffix) if `status: blocked`
   - `[~] <text> (n/a)` if `status: na`
-- **Validation**: link to `_/recordings/<TICKET>.validation.md`. Note that the .webm is not committed; reviewers pull from local `_/`. Optionally upload the .webm as a PR comment attachment (ask the user).
-- **Review artifacts**: link to `_/recordings/<TICKET>.review.md` and summary table (CRITICAL/HIGH/MEDIUM/LOW counts).
+- **Validation**: inline the outcome line ("✅ N passed · M failed · K skipped") and the per-requirement table from the local validation report. Inline the console/network defects table if non-empty, else write `_No console errors or network 4xx/5xx detected._`. **Never** link to `_/recordings/<TICKET>.validation.md`. The demo .webm is not referenced in the body; if the user wants to share it, attach via `gh pr comment` after the PR is open — and even then, upload the file as a GitHub attachment, don't quote the local path.
+- **Review**: inline the consolidated severity table (CRITICAL/HIGH/MEDIUM/LOW counts per sub-agent) and one line stating resolution ("1 CRITICAL applied · 2 HIGH applied · 1 HIGH deferred to <follow-up>"). **Never** link to `_/recordings/<TICKET>.review.md`.
 - **Test plan**: bulleted list reviewers can check. Derived from the requirements + any open §5 questions tagged `DEFERRED`.
 - **Notes for reviewers**: §5 `DECIDE` items still open. Things the user wants the reviewer to weigh in on.
 
@@ -92,6 +92,7 @@ Next: /sdlc-pr-comments 123 (when reviewers comment)
 - Never open a PR with unaddressed CRITICAL review findings.
 - Never `--force` push; never push to `default_branch`.
 - The PR body must be derived from the track — don't paraphrase the AC table; quote it. Reviewers need to see the same text the implementer worked from.
+- **Never expose the existence of `_/` artifacts on any github-visible surface** — no `_/tracks/...`, `_/recordings/...`, `_/demo/...`, `_/sdlc.config.json`, or any other path under `_/` in the PR title, PR body, commit messages, or PR comments. Inline the content (tables, summaries) instead of linking to local files. The working directory is a private contract between the user and these commands; reviewers must never see it referenced.
 - Don't auto-add `[skip ci]` to commits.
 - Don't assign reviewers without explicit `--reviewers` flag — different teams have different ownership conventions.
 - If the GitHub repo lacks a PR template at `.github/pull_request_template.md`, just use the `templates/pr-body.template.md` render. Don't try to create one for the user.
