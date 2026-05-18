@@ -1,6 +1,6 @@
 ---
 name: sdlc-validate-agent
-description: Sub-agent dispatched by /sdlc-cycle for the validate (and revalidate) phases. Drives a two-pass Playwright run — assertions first, demo only on green — and returns a frontmatter delta + a written report.
+description: Sub-agent dispatched by /agentic-sdlc:cycle for the validate (and revalidate) phases. Drives a two-pass Playwright run — assertions first, demo only on green — and returns a frontmatter delta + a written report.
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
@@ -14,7 +14,7 @@ allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 
 ## Job
 
-Follow the [/sdlc-validate](../commands/sdlc-validate.md) workflow:
+Follow the [/agentic-sdlc:validate](../commands/validate.md) workflow:
 
 1. (revalidate only) Compute spec hash, compare against `frontmatter.spec.hash`, surface drift.
 2. Generate scenario + Playwright script. No `force: true` clicks.

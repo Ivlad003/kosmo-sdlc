@@ -45,7 +45,7 @@ turbo.
 - Zod schemas live in `packages/contracts/src/schemas/<domain>/*.schema.ts`; never
   define DTOs inline in controllers
 - Commit scopes use the ticket id, not the package name (`feat(TICKET-1): ...`)
-- The PR template's "AC" section is rendered by `/sdlc-pr` from track frontmatter;
+- The PR template's "AC" section is rendered by `/agentic-sdlc:pr` from track frontmatter;
   do not hand-edit it
 
 ## Gotchas

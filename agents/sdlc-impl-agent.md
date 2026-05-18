@@ -1,6 +1,6 @@
 ---
 name: sdlc-impl-agent
-description: Sub-agent dispatched by /sdlc-cycle for the implement phase. Plans against §6, implements requirements, runs the pipeline gate per requirement, returns a frontmatter delta with updated statuses and journal rows.
+description: Sub-agent dispatched by /agentic-sdlc:cycle for the implement phase. Plans against §6, implements requirements, runs the pipeline gate per requirement, returns a frontmatter delta with updated statuses and journal rows.
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
@@ -13,7 +13,7 @@ allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 
 ## Job
 
-Follow the [/sdlc-implement](../commands/sdlc-implement.md) workflow:
+Follow the [/agentic-sdlc:implement](../commands/implement.md) workflow:
 
 1. Branch hygiene (create or checkout per `conventions.branch_pattern`).
 2. Plan against §6 — fill it in if empty, ask for user confirmation if assumptions are large.

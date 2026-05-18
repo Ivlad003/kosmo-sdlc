@@ -1,6 +1,6 @@
 ---
 name: sdlc-pr-agent
-description: Sub-agent dispatched by /sdlc-cycle for the PR creation phase. Re-runs the pipeline, commits via the commit-work skill, pushes the branch, opens the PR with a body built from the track frontmatter, and returns a frontmatter delta.
+description: Sub-agent dispatched by /agentic-sdlc:cycle for the PR creation phase. Re-runs the pipeline, commits via the commit-work skill, pushes the branch, opens the PR with a body built from the track frontmatter, and returns a frontmatter delta.
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
@@ -13,7 +13,7 @@ allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 
 ## Job
 
-Follow the [/sdlc-pr](../commands/sdlc-pr.md) workflow:
+Follow the [/agentic-sdlc:pr](../commands/pr.md) workflow:
 
 1. Re-run the pipeline command. Resolve it as: `overrides.pipeline_command` → `package.json:scripts.pipeline|ci|check` → chained `lint && typecheck && test && build` (each resolved from package.json scripts; typecheck falls back to `tsc --noEmit` when a `tsconfig.json` exists). Prefix with the detected package manager.
 2. Stage and commit any unstaged work via the [commit-work](../skills/commit-work/SKILL.md) skill — multiple Conventional Commits when appropriate, never a kitchen-sink commit.
@@ -37,7 +37,7 @@ phase_log_entry:
   outcome: pass
 ```
 
-Plus a one-paragraph summary with PR URL, title, requested reviewers (if any), and the next concrete action (wait for review, or run `/sdlc-revalidate` if CI fast).
+Plus a one-paragraph summary with PR URL, title, requested reviewers (if any), and the next concrete action (wait for review, or run `/agentic-sdlc:revalidate` if CI fast).
 
 ## Hard rules
 

@@ -5,10 +5,10 @@ All notable changes to `agentic-sdlc` are documented here. Format follows [Keep 
 ## [Unreleased]
 
 ### Added
-- Initial scaffold: cycle commands `/sdlc-init`, `/sdlc-intake`, `/sdlc-implement`, `/sdlc-validate`, `/sdlc-review`, `/sdlc-pr`, `/sdlc-pr-comments`, `/sdlc-revalidate`, `/sdlc-cycle`.
+- Initial scaffold: cycle commands `/agentic-sdlc:init`, `/agentic-sdlc:intake`, `/agentic-sdlc:implement`, `/agentic-sdlc:validate`, `/agentic-sdlc:review`, `/agentic-sdlc:pr`, `/agentic-sdlc:pr-comments`, `/agentic-sdlc:revalidate`, `/agentic-sdlc:cycle`.
 - Track file format with YAML frontmatter (`schemas/track.schema.json`).
 - Project profile (`schemas/sdlc-config.schema.json`) as markdown-with-frontmatter (`_/sdlc-config.md`), with a freeform Notes body every command reads verbatim and inlines into sub-agent prompts.
-- Interactive wizard in `/sdlc-init` for first-run setup (ticketing, spec convention, validation mode, branch pattern, free-text agent notes). Detection feeds defaults; the user confirms or overrides per question.
+- Interactive wizard in `/agentic-sdlc:init` for first-run setup (ticketing, spec convention, validation mode, branch pattern, free-text agent notes). Detection feeds defaults; the user confirms or overrides per question.
 - `validation.mode: standalone-playwright` — sdlc installs and drives its own Playwright when the host project has none, so projects without a `playwright.config.*` still get assertion reports and stakeholder demos.
 - `overrides` block (`default_branch`, `pipeline_command`, `dev_command`) as escape hatches when auto-detection picks the wrong value.
 - `commit-work` skill ported.

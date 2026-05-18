@@ -4,7 +4,7 @@ argument-hint: "<ticket-id> [--strict]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
 
-# /sdlc-review
+# /agentic-sdlc:review
 
 Phase 4 of the cycle. Pre-emptive review — fixes issues before reviewers see them, not after. Produces `_/recordings/<TICKET>.review.md`.
 
@@ -94,7 +94,7 @@ Sub-agents dispatched: code, security, standards
 | MEDIUM   |    5 |        2 |         2 |     9 |
 | LOW      |    3 |        1 |         4 |     8 |
 
-> 1 CRITICAL finding must be addressed before advancing to /sdlc-pr.
+> 1 CRITICAL finding must be addressed before advancing to /agentic-sdlc:pr.
 
 ## Findings — code-review-agent
 ...
@@ -117,12 +117,12 @@ Group findings by severity and ask the user which to address now vs defer:
 When applying:
 - Make minimal, focused edits.
 - After each fix, re-read the relevant file to confirm.
-- Don't auto-commit. The user batches commits via the `commit-work` skill or `/sdlc-pr` runs `commit-work` itself.
+- Don't auto-commit. The user batches commits via the `commit-work` skill or `/agentic-sdlc:pr` runs `commit-work` itself.
 
 ### 6. Update the track
 
 - Append journal row: `Review pass — 1 CRITICAL applied, 2 HIGH applied, 1 HIGH deferred (logged in <followup>); 9 MEDIUM, 8 LOW.`
-- Update "Where we at": next step is `/sdlc-pr <TICKET>`.
+- Update "Where we at": next step is `/agentic-sdlc:pr <TICKET>`.
 - If CRITICAL findings remain unaddressed → set `status` back to `in_progress` and **refuse** to advance the cycle.
 
 ### 7. Report
@@ -130,7 +130,7 @@ When applying:
 ```
 Review complete — _/recordings/TICKET-1.review.md
 1 CRITICAL applied · 2 HIGH applied · 1 HIGH deferred · 11 MEDIUM/LOW remaining
-Next: /sdlc-pr TICKET-1
+Next: /agentic-sdlc:pr TICKET-1
 ```
 
 ## Hard rules

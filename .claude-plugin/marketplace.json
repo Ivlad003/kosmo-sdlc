@@ -13,7 +13,7 @@
     {
       "name": "agentic-sdlc",
       "source": "./",
-      "description": "Nine slash commands (/sdlc-init, /sdlc-intake, /sdlc-implement, /sdlc-validate, /sdlc-review, /sdlc-pr, /sdlc-pr-comments, /sdlc-revalidate, /sdlc-cycle) that turn a ticket into a merged PR with gated phases and a machine-readable track file.",
+      "description": "Nine slash commands (/agentic-sdlc:init, /agentic-sdlc:intake, /agentic-sdlc:implement, /agentic-sdlc:validate, /agentic-sdlc:review, /agentic-sdlc:pr, /agentic-sdlc:pr-comments, /agentic-sdlc:revalidate, /agentic-sdlc:cycle) that turn a ticket into a merged PR with gated phases and a machine-readable track file.",
       "version": "0.1.0",
       "author": {
         "name": "Vlad Kosmach",

@@ -40,7 +40,7 @@ Splitting them:
 
 ## Sub-agents in worktrees
 
-`/sdlc-cycle` dispatches each phase to a dedicated sub-agent running in a git worktree. Two benefits:
+`/agentic-sdlc:cycle` dispatches each phase to a dedicated sub-agent running in a git worktree. Two benefits:
 
 1. **Context isolation.** Each phase has its own context window. Intake's verbose ticket body doesn't pollute the implementer's window; the implementer's edit log doesn't push the reviewer out of context.
 2. **Phase independence.** Phases can be retried, swapped (e.g. a different review agent), or run by different models without coordination overhead.
@@ -59,7 +59,7 @@ Tracks, demos, recordings, scenarios, and the project config all live under `_/`
 
 **No bundled MCP servers.** The plugin documents which user MCPs improve which phase (Atlassian for intake, Playwright for validate) but doesn't ship them. Different teams use different ticketing systems; bundling locks users into one.
 
-**No knowledge-graph indexing.** `code-review-graph` is a great companion for `/sdlc-review` on large diffs, but it's a separate plugin with its own setup. Bundling would double the install surface.
+**No knowledge-graph indexing.** `code-review-graph` is a great companion for `/agentic-sdlc:review` on large diffs, but it's a separate plugin with its own setup. Bundling would double the install surface.
 
 **No hooks.** Everything is on-demand. Hooks (pre-commit, post-edit) are tempting but increase the failure surface and slow developer feedback. The cycle's gates are explicit invocations, not background processes. Open door for v1.x.
 
@@ -71,9 +71,9 @@ Tracks, demos, recordings, scenarios, and the project config all live under `_/`
 
 ## What we'd add in v1.x
 
-- Spec-pressure-testing as an opt-in `/sdlc-prespec` phase (zero gate, advisory only).
+- Spec-pressure-testing as an opt-in `/agentic-sdlc:prespec` phase (zero gate, advisory only).
 - Hooks: pre-commit pipeline gate, post-merge revalidation trigger.
-- Multi-track view: a `/sdlc-status` command that summarizes all tracks across `_/tracks/`.
+- Multi-track view: a `/agentic-sdlc:status` command that summarizes all tracks across `_/tracks/`.
 - Release notes generator from the journal entries since the last release tag.
 - Multi-harness manifests for Codex / Cursor / Gemini.
 
@@ -88,11 +88,11 @@ Tracks, demos, recordings, scenarios, and the project config all live under `_/`
 - **`/feature-track`** (the predecessor) — verbatim-everything discipline, append-only journal, TBD-not-omitted. Kept all of it.
 - **`/pr-comments`** — verdict-first replies, read-before-decide, no auto-resolve on `Applied`. Kept verbatim.
 - **`/demo-video`** — Playwright helpers, log capture, fake-cursor overlays. Kept the helpers; split the demo from the assertions.
-- **`/qa-test-backend`** — parallel sub-agent phases with consolidated reporting. Adopted for `/sdlc-review`.
-- **`/visual-qa`** — console + network log scanning. Adopted for `/sdlc-validate`.
+- **`/qa-test-backend`** — parallel sub-agent phases with consolidated reporting. Adopted for `/agentic-sdlc:review`.
+- **`/visual-qa`** — console + network log scanning. Adopted for `/agentic-sdlc:validate`.
 - **`commit-work` skill** — staging discipline, Conventional Commits, sanity checks. Kept and added the pipeline gate the original lacked.
 - **`superpowers`** (obra) — skill-as-curriculum philosophy. Took the modularity, skipped the multi-harness fragmentation.
 - **`everything-claude-code`** (affaan-m) — marketplace.json schema, command frontmatter conventions. Direct borrowings.
-- **`oh-my-claudecode`** — `/team` and `/autopilot` orchestrator patterns. Inspired `/sdlc-cycle` but with explicit gates rather than autonomous best-effort.
-- **`vibe-testing`** — scenario-driven validation. Adapted into the assertions half of `/sdlc-validate`; the full pressure-testing pattern is recommended as a separate companion.
+- **`oh-my-claudecode`** — `/team` and `/autopilot` orchestrator patterns. Inspired `/agentic-sdlc:cycle` but with explicit gates rather than autonomous best-effort.
+- **`vibe-testing`** — scenario-driven validation. Adapted into the assertions half of `/agentic-sdlc:validate`; the full pressure-testing pattern is recommended as a separate companion.
 - **`code-review-graph`** — blast-radius queries. Documented as an optional pairing; not bundled to keep the install surface small.

@@ -4,7 +4,7 @@ argument-hint: "<ticket-id-or-description> [spec-path-or-url] [--resume] [--auto
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
 
-# /sdlc-cycle
+# /agentic-sdlc:cycle
 
 The orchestrator. One invocation, end-to-end loop. Each phase runs as a sub-agent in its own context window, returns a track-frontmatter delta, and the orchestrator validates and persists the delta before dispatching the next phase.
 
@@ -46,7 +46,7 @@ Each sub-agent runs in a git worktree (see `~/.agents/skills/using-git-worktrees
 
 ### 1. Bootstrap
 
-- Read `_/sdlc-config.md` (frontmatter + Notes body). If missing → run `/sdlc-init` first; abort the cycle if user declines.
+- Read `_/sdlc-config.md` (frontmatter + Notes body). If missing → run `/agentic-sdlc:init` first; abort the cycle if user declines.
 - Resolve the track filename from `$1`. If a track already exists and `--resume` not set → ask whether to update or start fresh.
 
 ### 2. Dispatch loop
@@ -60,14 +60,14 @@ For each phase in order: intake → implement → validate → review → pr →
    The Notes body of _/sdlc-config.md is project-specific guidance — treat it as
    binding instructions, not flavour. Do your phase per agents/<agent>.md. Return
    ONLY the updated track frontmatter (YAML) and a one-paragraph summary. Do not
-   commit. Do not push (except /sdlc-pr-agent).
+   commit. Do not push (except /agentic-sdlc:pr-agent).
    ```
 3. Dispatch via the `Agent` tool with the appropriate sub-agent definition.
 4. Receive the frontmatter delta. Validate against `schemas/track.schema.json`.
 5. Merge into the track file. Append the agent's summary to §7 Journal.
 6. Check the gate.
    - Pass → continue to the next phase.
-   - Fail → stop the cycle. Surface the report. Tell the user the concrete next action (run `/sdlc-implement` again, address CRITICAL findings, etc.).
+   - Fail → stop the cycle. Surface the report. Tell the user the concrete next action (run `/agentic-sdlc:implement` again, address CRITICAL findings, etc.).
 7. If not `--auto`, ask "advance to <next-phase>?" before dispatching the next sub-agent.
 
 ### 3. Final report
@@ -90,7 +90,7 @@ If a gate failed:
 ```
 TICKET-1 — cycle stopped at validate
 Reason: 1 requirement failed (R1.4 — drawer remained open on submit; toast 'Erreur réseau')
-Next:   /sdlc-implement TICKET-1 --requirement R1.4
+Next:   /agentic-sdlc:implement TICKET-1 --requirement R1.4
 ```
 
 ## Hard rules
@@ -100,4 +100,4 @@ Next:   /sdlc-implement TICKET-1 --requirement R1.4
 - Frontmatter delta must validate against the schema before being merged.
 - On failure, surface the **specific** next action. No "consider re-running" generalities.
 - If a sub-agent returns malformed YAML or out-of-schema fields, retry once with a corrective prompt. On second failure → abort and surface the raw output.
-- `/sdlc-pr-comments` is **not** part of the initial cycle — reviewers haven't commented yet. The user invokes it later, reactively.
+- `/agentic-sdlc:pr-comments` is **not** part of the initial cycle — reviewers haven't commented yet. The user invokes it later, reactively.

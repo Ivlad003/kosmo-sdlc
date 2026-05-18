@@ -4,7 +4,7 @@ argument-hint: "<ticket-id> [--requirement R1.1] [--no-pipeline]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
 
-# /sdlc-implement
+# /agentic-sdlc:implement
 
 Phase 2 of the cycle. Reads the track, plans against §6, implements requirements one by one, runs the pipeline gate, and updates frontmatter as it goes. Refuses to mark a requirement `done` without test evidence when the project has a test script configured.
 
@@ -17,8 +17,8 @@ Phase 2 of the cycle. Reads the track, plans against §6, implements requirement
 
 ## Preconditions
 
-1. `_/sdlc-config.md` exists. If not → fail with "run /sdlc-init first". Read both the frontmatter and the Notes body — the Notes body often carries workspace-specific commands and gotchas that affect how requirements get implemented.
-2. `_/tracks/<TICKET>.md` exists and validates against `schemas/track.schema.json`. If not → fail with "run /sdlc-intake <TICKET> first".
+1. `_/sdlc-config.md` exists. If not → fail with "run /agentic-sdlc:init first". Read both the frontmatter and the Notes body — the Notes body often carries workspace-specific commands and gotchas that affect how requirements get implemented.
+2. `_/tracks/<TICKET>.md` exists and validates against `schemas/track.schema.json`. If not → fail with "run /agentic-sdlc:intake <TICKET> first".
 3. Git working tree is clean. If not → ask whether to stash or proceed.
 
 ## Workflow
@@ -52,7 +52,7 @@ For each requirement in order:
 2. Make the code change. Prefer editing existing files. Add tests in the same commit-able unit.
 3. Run targeted verification:
    - Backend requirement → service unit test, controller test if applicable.
-   - Frontend requirement → component test (Vitest), and a Playwright assertion will land in `/sdlc-validate`.
+   - Frontend requirement → component test (Vitest), and a Playwright assertion will land in `/agentic-sdlc:validate`.
    - Shared requirement → typecheck + unit test.
    - Infra/docs requirement → manual check + commit.
 4. Run the pipeline gate (unless `--no-pipeline`). Resolve the pipeline command in this order:
@@ -110,14 +110,14 @@ Per the project's conventions (detected at init):
 When all in-scope requirements are `done`:
 
 - Set `frontmatter.status: in_review` (the act of finishing implementation moves us toward review).
-- Append journal row: `Implementation complete. <N> requirements done. Next: /sdlc-validate <TICKET>.`
+- Append journal row: `Implementation complete. <N> requirements done. Next: /agentic-sdlc:validate <TICKET>.`
 - Print:
 
 ```
 TICKET-1 — implementation complete
 Done: R1.1, R1.2, R1.3, R1.4, R2.1, R2.2, R3.1
 Branch: feat/TICKET-1 (12 commits ahead of trunk)
-Next: /sdlc-validate TICKET-1
+Next: /agentic-sdlc:validate TICKET-1
 ```
 
 ## Hard rules

@@ -1,6 +1,6 @@
 ---
 name: sdlc-review-agent
-description: Sub-agent dispatched by /sdlc-cycle for the review phase. Coordinates three parallel reviewers (code, security, standards), consolidates findings into a CRITICAL/HIGH/MEDIUM/LOW report, and returns a frontmatter delta.
+description: Sub-agent dispatched by /agentic-sdlc:cycle for the review phase. Coordinates three parallel reviewers (code, security, standards), consolidates findings into a CRITICAL/HIGH/MEDIUM/LOW report, and returns a frontmatter delta.
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
 
@@ -14,7 +14,7 @@ allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 
 ## Job
 
-Follow the [/sdlc-review](../commands/sdlc-review.md) workflow:
+Follow the [/agentic-sdlc:review](../commands/review.md) workflow:
 
 1. Compute the diff (`$BASE...HEAD`), build the impact set.
 2. Decide which reviewers fire:
@@ -43,5 +43,5 @@ Plus a paragraph summary: counts per severity per reviewer, what was applied, wh
 - Reviewers fire in parallel, never sequentially.
 - CRITICAL findings must be addressed before the phase can return `outcome: pass`.
 - Don't fabricate findings. Empty severity buckets are fine.
-- Don't auto-commit fixes — the orchestrator dispatches `/sdlc-pr` next, which staged via `commit-work`.
+- Don't auto-commit fixes — the orchestrator dispatches `/agentic-sdlc:pr` next, which staged via `commit-work`.
 - Pre-existing issues outside the diff are informational notes, never blocking findings.

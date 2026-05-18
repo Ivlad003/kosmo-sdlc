@@ -6,7 +6,7 @@ The plugin defaults assume a "modern full-stack JS monorepo with a Jira ticket a
 
 Set `ticketing.system: "none"` in `_/sdlc-config.md` (init's wizard asks; pick "none" when prompted).
 
-- `/sdlc-intake` will prompt for a freeform feature description.
+- `/agentic-sdlc:intake` will prompt for a freeform feature description.
 - Track filenames become `feat-<slug>.md` instead of `<TICKET>.md`.
 - PR titles drop the `(TICKET)` scope.
 - The journal still anchors decisions; there's just no upstream tracker to sync with.
@@ -15,8 +15,8 @@ Set `ticketing.system: "none"` in `_/sdlc-config.md` (init's wizard asks; pick "
 
 Set `spec.convention: "freeform"`.
 
-- `/sdlc-intake` skips §3 "Spec slice" (writes `TBD`) and pulls scope entirely from the ticket / description.
-- `frontmatter.spec` is `null`; `/sdlc-revalidate` skips drift detection.
+- `/agentic-sdlc:intake` skips §3 "Spec slice" (writes `TBD`) and pulls scope entirely from the ticket / description.
+- `frontmatter.spec` is `null`; `/agentic-sdlc:revalidate` skips drift detection.
 
 ## Non-monorepo (single-app)
 
@@ -26,31 +26,31 @@ Detected on the fly when there's no workspaces config — nothing to set in `_/s
 
 Set `validation.mode: standalone-playwright` (init's wizard picks this by default when it can't find a `playwright.config.*`). sdlc installs and drives its own Playwright; the host project needs only a reachable `validation.base_url`.
 
-- `/sdlc-validate` still runs assertions + records the stakeholder .webm.
+- `/agentic-sdlc:validate` still runs assertions + records the stakeholder .webm.
 - The first invocation runs `npx --yes playwright@latest install --with-deps chromium` if no Playwright binary is on the PATH.
 - No `playwright.config.ts` needed in the project.
 
-If the feature is genuinely non-UI (CLI, library, pure backend), pick `validation.mode: manual` instead — the validation phase is skipped and unit/E2E tests from `/sdlc-implement` become the only gate.
+If the feature is genuinely non-UI (CLI, library, pure backend), pick `validation.mode: manual` instead — the validation phase is skipped and unit/E2E tests from `/agentic-sdlc:implement` become the only gate.
 
-To switch later: re-run `/sdlc-init` and pick a different mode in the wizard, or edit `validation.mode` directly in `_/sdlc-config.md`.
+To switch later: re-run `/agentic-sdlc:init` and pick a different mode in the wizard, or edit `validation.mode` directly in `_/sdlc-config.md`.
 
 ## No CI workflows
 
 Without `.github/workflows/`:
 
-- `/sdlc-revalidate` skips the CI check.
+- `/agentic-sdlc:revalidate` skips the CI check.
 - The local pipeline (re-detected from `package.json:scripts.pipeline|ci|check` or pinned via `overrides.pipeline_command`) becomes the only build gate. Make sure it's comprehensive.
 
 ## Different default branch name
 
-`/sdlc-review` and `/sdlc-pr` resolve the default branch via `git symbolic-ref refs/remotes/origin/HEAD` on each run. If that returns the wrong thing (shallow clone, mirrored repo), pin it: set `overrides.default_branch: trunk` (or whatever) in `_/sdlc-config.md`.
+`/agentic-sdlc:review` and `/agentic-sdlc:pr` resolve the default branch via `git symbolic-ref refs/remotes/origin/HEAD` on each run. If that returns the wrong thing (shallow clone, mirrored repo), pin it: set `overrides.default_branch: trunk` (or whatever) in `_/sdlc-config.md`.
 
 ## Different branch pattern
 
 If your team uses `release/v1.2.x/PROJ-123` or `firstname/PROJ-123`:
 
 - Set `conventions.branch_pattern` to a template, e.g. `"release/v1.2.x/<TICKET>"` or `"<author>/<TICKET>"`.
-- `/sdlc-implement` substitutes `<TICKET>`, `<type>`, and `<author>` (from `git config user.name`).
+- `/agentic-sdlc:implement` substitutes `<TICKET>`, `<type>`, and `<author>` (from `git config user.name`).
 
 ## Different package manager
 
@@ -70,9 +70,9 @@ Out of scope for v0.x. The detection logic, Playwright assumptions, and the `com
 
 `agentic-sdlc` is deliberately minimal. Useful companions:
 
-- **`code-review-graph`** — build a Tree-sitter knowledge graph for token-efficient impact analysis. `/sdlc-review`'s impact-set computation works without it but benefits substantially when it's installed. Pair when reviewing diffs > 30 files.
-- **`everything-claude-code`** — bundles `code-reviewer`, `security-reviewer`, and `e2e-runner` sub-agents that `/sdlc-review` and `/sdlc-validate` reference by name. If you don't have them installed, the sub-agents fall back to ad-hoc Agent calls without the specialised prompts.
-- **`vibe-testing`** — pressure-test specs before intake. Run it on the spec document before `/sdlc-intake` to catch architectural gaps early.
+- **`code-review-graph`** — build a Tree-sitter knowledge graph for token-efficient impact analysis. `/agentic-sdlc:review`'s impact-set computation works without it but benefits substantially when it's installed. Pair when reviewing diffs > 30 files.
+- **`everything-claude-code`** — bundles `code-reviewer`, `security-reviewer`, and `e2e-runner` sub-agents that `/agentic-sdlc:review` and `/agentic-sdlc:validate` reference by name. If you don't have them installed, the sub-agents fall back to ad-hoc Agent calls without the specialised prompts.
+- **`vibe-testing`** — pressure-test specs before intake. Run it on the spec document before `/agentic-sdlc:intake` to catch architectural gaps early.
 - **Atlassian / Linear MCP** — improves intake quality dramatically. Without an MCP, intake falls back to user-pasted ticket bodies.
 
 ## Manual install (without the plugin marketplace)
@@ -92,7 +92,7 @@ done
 # Symlink the skill
 ln -sf "$SDLC_HOME"/skills/commit-work ~/.claude/skills/commit-work
 
-# Symlink agents (optional — only needed for /sdlc-cycle)
+# Symlink agents (optional — only needed for /agentic-sdlc:cycle)
 for agent in "$SDLC_HOME"/agents/*.md; do
   ln -sf "$agent" ~/.claude/agents/"$(basename "$agent")"
 done

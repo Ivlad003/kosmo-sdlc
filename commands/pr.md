@@ -4,7 +4,7 @@ argument-hint: "<ticket-id> [--draft] [--reviewers user1,user2]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
-# /sdlc-pr
+# /agentic-sdlc:pr
 
 Phase 5 of the cycle. Turns the track + branch into a PR with a body the reviewer doesn't need to ask questions about.
 
@@ -27,7 +27,7 @@ Phase 5 of the cycle. Turns the track + branch into a PR with a body the reviewe
 
 ### 1. Re-run the pipeline gate
 
-Resolve the pipeline command (same order as `/sdlc-implement`: `overrides.pipeline_command` → `package.json:scripts.pipeline|ci|check` → chained `lint && typecheck && test && build`). Run it. On failure → abort with the output. The user fixes and re-runs.
+Resolve the pipeline command (same order as `/agentic-sdlc:implement`: `overrides.pipeline_command` → `package.json:scripts.pipeline|ci|check` → chained `lint && typecheck && test && build`). Run it. On failure → abort with the output. The user fixes and re-runs.
 
 ### 2. Stage and commit if there are unstaged changes
 
@@ -75,7 +75,7 @@ Title format derives from the track's commit type (feat / fix / refactor / chore
 - `frontmatter.pr` → the PR URL.
 - `frontmatter.status` → `in_review`.
 - Append journal row: `PR opened: <url>. Awaiting review.`
-- Update "Where we at": "PR open; waiting for review. Run `/sdlc-pr-comments <PR>` to walk reviewer threads."
+- Update "Where we at": "PR open; waiting for review. Run `/agentic-sdlc:pr-comments <PR>` to walk reviewer threads."
 
 ### 7. Report
 
@@ -84,8 +84,8 @@ PR opened: https://github.com/<org>/<repo>/pull/123
 Title: feat(TICKET-1): Add prices grid to customer page
 Status: ready for review · 7/7 requirements done · 0 CRITICAL findings
 Next:
-  - /sdlc-pr-comments 123 — when reviewers (human or bot) comment
-  - /sdlc-revalidate TICKET-1 — once the PR is approved and CI is green, before merge
+  - /agentic-sdlc:pr-comments 123 — when reviewers (human or bot) comment
+  - /agentic-sdlc:revalidate TICKET-1 — once the PR is approved and CI is green, before merge
 ```
 
 ## Hard rules

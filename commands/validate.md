@@ -4,14 +4,14 @@ argument-hint: "<ticket-id> [--no-demo] [--update-baseline]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
-# /sdlc-validate
+# /agentic-sdlc:validate
 
 Phase 3 of the cycle. Two outputs in one command:
 
 1. **Assertions report** (`_/recordings/<TICKET>.validation.md`) — real `expect()` calls per UI requirement; console + network log scan; pass/fail table.
 2. **Stakeholder demo** (`_/recordings/<TICKET>.<run-id>.webm`) — narrated overlays, fake cursor, highlights. Recorded **only if assertions pass**.
 
-If `frontmatter.demo.applicable: false` or all requirements have `owner: backend|shared|infra|docs`, the command writes a `na` report and exits. Backend-only changes are validated by `/sdlc-implement`'s test runs, not Playwright.
+If `frontmatter.demo.applicable: false` or all requirements have `owner: backend|shared|infra|docs`, the command writes a `na` report and exits. Backend-only changes are validated by `/agentic-sdlc:implement`'s test runs, not Playwright.
 
 ## Arguments
 
@@ -126,11 +126,11 @@ Only if Pass 1 is 100% green:
 
 - Per requirement: set `evidence` to "validated by `R1.1` in _/recordings/<TICKET>.validation.md" when `evidence` was previously null.
 - Append journal row: `Validation pass — 7/7 requirements green; 1 console warning; demo recorded.`
-- Update "Where we at": next step is `/sdlc-review <TICKET>`.
+- Update "Where we at": next step is `/agentic-sdlc:review <TICKET>`.
 
 If Pass 1 fails:
 - Append journal row with the failing requirement ids and the new console/network defects.
-- Set the relevant requirements back to `in_progress`. The user re-runs `/sdlc-implement` to fix.
+- Set the relevant requirements back to `in_progress`. The user re-runs `/agentic-sdlc:implement` to fix.
 
 ### 7. Report
 
@@ -140,7 +140,7 @@ On pass:
 Validation complete — _/recordings/TICKET-1.validation.md
 ✅ 7 passed · 0 failed · 0 skipped · 1 console warning
 Demo: _/recordings/TICKET-1.20260513-211900.webm
-Next: /sdlc-review TICKET-1
+Next: /agentic-sdlc:review TICKET-1
 ```
 
 On fail — name the failing requirements and point at the fix command:
@@ -148,7 +148,7 @@ On fail — name the failing requirements and point at the fix command:
 ```
 Validation failed — _/recordings/TICKET-1.validation.md
 ❌ 6 passed · 1 failed (R1.4)
-Next: /sdlc-implement TICKET-1 --requirement R1.4
+Next: /agentic-sdlc:implement TICKET-1 --requirement R1.4
 ```
 
 ## Hard rules
@@ -158,5 +158,5 @@ Next: /sdlc-implement TICKET-1 --requirement R1.4
 - Console errors and network 4xx/5xx fail the report (warnings are surfaced but don't fail by default; the user can promote them via config).
 - The .webm is regenerated only when assertions pass. A demo of a broken state is worse than no demo.
 - The Playwright script is generated under `_/`, never under `apps/*/playwright/` or any other project-test directory. The script is throw-away; the report is the artifact.
-- When `validation.mode: manual` → exit with a `na` report; the validation phase is opted out at the project level. The user can re-run `/sdlc-init` to change the mode if they later want UI checks.
+- When `validation.mode: manual` → exit with a `na` report; the validation phase is opted out at the project level. The user can re-run `/agentic-sdlc:init` to change the mode if they later want UI checks.
 - `standalone-playwright` mode means the host project does **not** need a `playwright.config.*`. A reachable `validation.base_url` is the only requirement. Don't refuse to validate just because the project lacks a Playwright setup.

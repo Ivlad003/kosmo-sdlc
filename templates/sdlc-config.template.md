@@ -2,7 +2,7 @@
 # Frontmatter validates against ../schemas/sdlc-config.schema.json
 # Captures user decisions only. Project state (package manager, Node version,
 # default branch, CI workflows, root scripts) is re-detected at use site by
-# each /sdlc-* command, so this file stays small and doesn't go stale.
+# each /agentic-sdlc:* command, so this file stays small and doesn't go stale.
 detected_at: {{TODAY}}
 
 ticketing:
@@ -37,7 +37,7 @@ overrides:
 # Notes for agents
 
 <!--
-  Every /sdlc-* command reads this section verbatim and inlines it into
+  Every /agentic-sdlc:* command reads this section verbatim and inlines it into
   sub-agent prompts. Capture anything the agents should know that doesn't fit
   the frontmatter above. Free-form markdown — no required structure.
 

@@ -4,9 +4,9 @@ argument-hint: "<ticket-id>"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
-# /sdlc-revalidate
+# /agentic-sdlc:revalidate
 
-Phase 6 of the cycle. The "final check before merge". Same engine as `/sdlc-validate`, plus drift detection.
+Phase 6 of the cycle. The "final check before merge". Same engine as `/agentic-sdlc:validate`, plus drift detection.
 
 ## Arguments
 
@@ -14,7 +14,7 @@ Phase 6 of the cycle. The "final check before merge". Same engine as `/sdlc-vali
 
 ## Preconditions
 
-1. `_/sdlc-config.md` exists. Re-read both frontmatter and Notes body; the Notes body may have changed since /sdlc-validate ran.
+1. `_/sdlc-config.md` exists. Re-read both frontmatter and Notes body; the Notes body may have changed since /agentic-sdlc:validate ran.
 2. `_/tracks/<TICKET>.md` exists, status is `in_review`.
 3. A PR exists (`frontmatter.pr` set), or the user is preparing to merge a branch directly.
 
@@ -28,12 +28,12 @@ If `frontmatter.spec.hash` is set:
 - Compute its current sha256.
 - If different from `frontmatter.spec.hash`:
   - Surface the drift. Show a diff if the spec is local.
-  - Ask the user: re-intake the ticket (`/sdlc-intake <TICKET> --refresh`), proceed despite drift, or abort.
+  - Ask the user: re-intake the ticket (`/agentic-sdlc:intake <TICKET> --refresh`), proceed despite drift, or abort.
   - Append journal row: `Spec drift detected: <old-hash> → <new-hash>. User chose <action>.`
 
 ### 2. Re-run validation
 
-Delegate to `/sdlc-validate <TICKET>`:
+Delegate to `/agentic-sdlc:validate <TICKET>`:
 
 - Same two-pass execution (assertions then demo).
 - Re-uses the existing `_/demo/<TICKET>.spec.mjs` if present; regenerates only if requirements changed since the last validate run.
@@ -85,15 +85,15 @@ On blocked — surface the specific blocker and point at its fix command:
 ```
 Revalidation blocked — _/recordings/TICKET-1.revalidation.md
 ❌ R1.4 regressed after review fixes
-Next: /sdlc-implement TICKET-1 --requirement R1.4
+Next: /agentic-sdlc:implement TICKET-1 --requirement R1.4
 ```
 
 Other common blockers and their next steps:
 
-- spec drift detected → `/sdlc-intake TICKET-1 --refresh`
-- new reviewer comments → `/sdlc-pr-comments <PR>`
-- CI still running → wait, then re-run `/sdlc-revalidate TICKET-1`
-- review not yet approved → ping reviewers; re-run `/sdlc-revalidate` once approved
+- spec drift detected → `/agentic-sdlc:intake TICKET-1 --refresh`
+- new reviewer comments → `/agentic-sdlc:pr-comments <PR>`
+- CI still running → wait, then re-run `/agentic-sdlc:revalidate TICKET-1`
+- review not yet approved → ping reviewers; re-run `/agentic-sdlc:revalidate` once approved
 
 ## Hard rules
 

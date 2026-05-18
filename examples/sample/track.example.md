@@ -124,7 +124,7 @@ phase_log:
 
 # Where we at on this track
 
-Intake just completed. 18 requirements identified across 4 acceptance criteria (10 frontend, 8 backend). Spec hash captured for drift detection. Next: run `/sdlc-implement TICKET-1` to begin shipping the requirements, starting with the backend table + endpoints.
+Intake just completed. 18 requirements identified across 4 acceptance criteria (10 frontend, 8 backend). Spec hash captured for drift detection. Next: run `/agentic-sdlc:implement TICKET-1` to begin shipping the requirements, starting with the backend table + endpoints.
 
 ## §1 Scope
 

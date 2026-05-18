@@ -1,6 +1,6 @@
 # Track file format
 
-`_/tracks/<TICKET>.md` is the single source of truth for one feature. Every `/sdlc-*` command queries the YAML frontmatter; the body of the file is for human readers. The frontmatter contract is enforced by `schemas/track.schema.json` — commands validate before writing.
+`_/tracks/<TICKET>.md` is the single source of truth for one feature. Every `/agentic-sdlc:*` command queries the YAML frontmatter; the body of the file is for human readers. The frontmatter contract is enforced by `schemas/track.schema.json` — commands validate before writing.
 
 ## Frontmatter — the contract
 
@@ -11,19 +11,19 @@ title: Add prices grid to customer page
 status: planned                      # planned | in_progress | in_review | ready_to_merge | merged | abandoned
 created: 2026-05-13
 updated: 2026-05-13
-branch: null                         # set by /sdlc-implement
+branch: null                         # set by /agentic-sdlc:implement
 spec:
   path: /abs/path/to/spec.md         # or null
   url: null                          # or null
   hash: sha256-…                     # set at intake; drift detector
   rows: "131-132"                    # row range when ticket points at a sub-section
 figma: null
-pr: null                             # set by /sdlc-pr
+pr: null                             # set by /agentic-sdlc:pr
 demo:
-  scenario: null                     # set by /sdlc-validate
+  scenario: null                     # set by /agentic-sdlc:validate
   recording: null
   report: null
-  applicable: true                   # false → /sdlc-validate skips, writes 'na' report
+  applicable: true                   # false → /agentic-sdlc:validate skips, writes 'na' report
 acs:
   - id: AC1
     text: "I can see a new price grid table on the client page"
@@ -45,9 +45,9 @@ phase_log:                            # append-only
 
 - **`ticket`** — opaque identifier. Doesn't have to match a known ticketing system if `ticketing.system: "none"`.
 - **`status`** — coarse state. Each phase transitions it deterministically: intake → `planned` → implement → `in_progress` → review → `in_review` → revalidate → `ready_to_merge` → user merges → `merged`.
-- **`spec.hash`** — sha256 of the captured slice at intake. `/sdlc-revalidate` recomputes and compares; mismatch = drift.
+- **`spec.hash`** — sha256 of the captured slice at intake. `/agentic-sdlc:revalidate` recomputes and compares; mismatch = drift.
 - **`acs[].requirements[]`** — the decomposition you do at intake. One AC may produce N requirements. Each is the smallest verifiable behavior. `evidence` is a `file:line` reference or short SHA recording where the requirement landed.
-- **`demo.applicable`** — set to `false` when the feature has no UI surface. `/sdlc-validate` writes a `na` report instead of running Playwright.
+- **`demo.applicable`** — set to `false` when the feature has no UI surface. `/agentic-sdlc:validate` writes a `na` report instead of running Playwright.
 - **`phase_log`** — every phase that runs appends an entry. The orchestrator uses this for `--resume`. The journal in §7 of the body is the human-readable mirror.
 
 ## AC decomposition

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "agentic-sdlc project profile (frontmatter)",
-  "description": "Schema for the YAML frontmatter of _/sdlc-config.md. Captures user decisions only — project state (package manager, node version, default branch, CI workflows) is re-detected at use site by each /sdlc-* command, so it stays fresh without re-running /sdlc-init. The freeform markdown body below the frontmatter is read verbatim by every /sdlc-* command and inlined into sub-agent prompts.",
+  "description": "Schema for the YAML frontmatter of _/sdlc-config.md. Captures user decisions only — project state (package manager, node version, default branch, CI workflows) is re-detected at use site by each /agentic-sdlc:* command, so it stays fresh without re-running /agentic-sdlc:init. The freeform markdown body below the frontmatter is read verbatim by every /agentic-sdlc:* command and inlined into sub-agent prompts.",
   "type": "object",
   "required": ["detected_at", "ticketing", "spec", "validation", "conventions"],
   "additionalProperties": false,
@@ -19,7 +19,7 @@
         "prefix": { "type": ["string", "null"] },
         "mcp": {
           "type": ["string", "null"],
-          "description": "MCP server name (e.g. 'atlassian', 'linear') used by /sdlc-intake to fetch ticket bodies."
+          "description": "MCP server name (e.g. 'atlassian', 'linear') used by /agentic-sdlc:intake to fetch ticket bodies."
         }
       }
     },
@@ -43,7 +43,7 @@
         "mode": {
           "type": "string",
           "enum": ["project-playwright", "standalone-playwright", "manual"],
-          "description": "How /sdlc-validate runs. 'project-playwright' reuses the host project's playwright config and dependencies. 'standalone-playwright' has sdlc install and run its own playwright instance against base_url — the project itself doesn't need any playwright setup. 'manual' skips the validation phase entirely (the assertions/demo are produced out-of-band, or the feature is non-UI)."
+          "description": "How /agentic-sdlc:validate runs. 'project-playwright' reuses the host project's playwright config and dependencies. 'standalone-playwright' has sdlc install and run its own playwright instance against base_url — the project itself doesn't need any playwright setup. 'manual' skips the validation phase entirely (the assertions/demo are produced out-of-band, or the feature is non-UI)."
         },
         "base_url": {
           "type": ["string", "null"],

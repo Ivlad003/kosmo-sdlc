@@ -4,9 +4,9 @@ argument-hint: "[--force] [--non-interactive]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "AskUserQuestion"]
 ---
 
-# /sdlc-init
+# /agentic-sdlc:init
 
-One-time per-project bootstrap. Produces `_/sdlc-config.md` — a markdown file with YAML frontmatter (the structured contract every `/sdlc-*` command queries) and a free-form **Notes for agents** body (read verbatim by every command, inlined into sub-agent prompts). Also appends `_/` to `.gitignore` and seeds `_/demo/credentials.template.json`.
+One-time per-project bootstrap. Produces `_/sdlc-config.md` — a markdown file with YAML frontmatter (the structured contract every `/agentic-sdlc:*` command queries) and a free-form **Notes for agents** body (read verbatim by every command, inlined into sub-agent prompts). Also appends `_/` to `.gitignore` and seeds `_/demo/credentials.template.json`.
 
 Idempotent. Re-running diffs detected values against the on-disk file and asks before overwriting.
 
@@ -138,7 +138,7 @@ Conventions: <type>/<TICKET> branches · conventional commits
 Notes:       8 lines captured (see _/sdlc-config.md)
 
 Next:
-  /sdlc-intake <TICKET-ID> [spec-path]
+  /agentic-sdlc:intake <TICKET-ID> [spec-path]
 ```
 
 Then the usage primer (same as before — kept verbatim except for the artifact name change):
@@ -147,39 +147,39 @@ Then the usage primer (same as before — kept verbatim except for the artifact 
 How to use agentic-sdlc
 -----------------------
 
-One ticket = one track file at _/tracks/<TICKET>.md. Every /sdlc-* command
+One ticket = one track file at _/tracks/<TICKET>.md. Every /agentic-sdlc:* command
 reads and writes that file. Run the phases in order, or run the whole cycle
-with /sdlc-cycle.
+with /agentic-sdlc:cycle.
 
 Phases (each suggests the next when it finishes):
 
-  1. /sdlc-intake     <TICKET> [spec]   build the track from the ticket + spec
-  2. /sdlc-implement  <TICKET>          code the requirements; pipeline-gated
-  3. /sdlc-validate   <TICKET>          Playwright assertions + stakeholder demo
-  4. /sdlc-review     <TICKET>          parallel code/security/standards review
-  5. /sdlc-pr         <TICKET>          push branch + open PR with inlined report
-  5b. /sdlc-pr-comments [PR]            walk reviewer threads; verdict-prefixed replies
-  6. /sdlc-revalidate <TICKET>          drift check + final green-light before merge
+  1. /agentic-sdlc:intake     <TICKET> [spec]   build the track from the ticket + spec
+  2. /agentic-sdlc:implement  <TICKET>          code the requirements; pipeline-gated
+  3. /agentic-sdlc:validate   <TICKET>          Playwright assertions + stakeholder demo
+  4. /agentic-sdlc:review     <TICKET>          parallel code/security/standards review
+  5. /agentic-sdlc:pr         <TICKET>          push branch + open PR with inlined report
+  5b. /agentic-sdlc:pr-comments [PR]            walk reviewer threads; verdict-prefixed replies
+  6. /agentic-sdlc:revalidate <TICKET>          drift check + final green-light before merge
 
 Shortcuts:
 
-  /sdlc-cycle <TICKET> [spec]           run all phases end-to-end, gated
-  /sdlc-cycle <TICKET> --resume         pick up at the last incomplete phase
-  /sdlc-cycle <TICKET> --auto           don't pause between phases (still stops on gate fails)
+  /agentic-sdlc:cycle <TICKET> [spec]           run all phases end-to-end, gated
+  /agentic-sdlc:cycle <TICKET> --resume         pick up at the last incomplete phase
+  /agentic-sdlc:cycle <TICKET> --auto           don't pause between phases (still stops on gate fails)
 
 Where things live:
 
   _/sdlc-config.md          this file — project profile + freeform notes,
-                            regenerate with /sdlc-init --force
+                            regenerate with /agentic-sdlc:init --force
   _/tracks/<TICKET>.md      per-ticket source of truth (gitignored)
   _/recordings/             validation reports, review reports, demo .webm
-  _/demo/credentials.json   fill this in before /sdlc-validate (template seeded for you)
+  _/demo/credentials.json   fill this in before /agentic-sdlc:validate (template seeded for you)
 
 First run from here:
 
   1. Open _/demo/credentials.template.json, save it as _/demo/credentials.json,
      fill in a non-production test account.
-  2. /sdlc-intake <TICKET-ID>          (or paste the ticket body inline)
+  2. /agentic-sdlc:intake <TICKET-ID>          (or paste the ticket body inline)
   3. Follow the "Next:" line each command prints.
 ```
 

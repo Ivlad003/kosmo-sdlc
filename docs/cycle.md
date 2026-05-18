@@ -3,20 +3,20 @@
 `agentic-sdlc` is a seven-phase loop that turns a ticket into a merged PR. Each phase has a gate; the cycle refuses to advance past a failing gate. The track file at `_/tracks/<TICKET>.md` is the single source of truth — every command reads its YAML frontmatter and writes a delta back.
 
 ```
-0  /sdlc-init           one-time per project — detect + wizard, write _/sdlc-config.md
-1  /sdlc-intake         ticket + spec → _/tracks/<TICKET>.md with decomposed requirements
-2  /sdlc-implement      code + tests + mocks per requirement; pipeline gate per requirement
-3  /sdlc-validate       Playwright: assertions report + stakeholder demo (only if green)
-4  /sdlc-review         parallel code + security + standards review; CRITICAL = blocker
-5  /sdlc-pr             create PR with body built from track; pipeline gate again
-5b /sdlc-pr-comments    walk reviewer threads, verdict-prefix replies; log to track
-6  /sdlc-revalidate     re-validate; detect spec drift; mark ready_to_merge
-*  /sdlc-cycle          orchestrator — runs 1→6 in dedicated sub-agents
+0  /agentic-sdlc:init           one-time per project — detect + wizard, write _/sdlc-config.md
+1  /agentic-sdlc:intake         ticket + spec → _/tracks/<TICKET>.md with decomposed requirements
+2  /agentic-sdlc:implement      code + tests + mocks per requirement; pipeline gate per requirement
+3  /agentic-sdlc:validate       Playwright: assertions report + stakeholder demo (only if green)
+4  /agentic-sdlc:review         parallel code + security + standards review; CRITICAL = blocker
+5  /agentic-sdlc:pr             create PR with body built from track; pipeline gate again
+5b /agentic-sdlc:pr-comments    walk reviewer threads, verdict-prefix replies; log to track
+6  /agentic-sdlc:revalidate     re-validate; detect spec drift; mark ready_to_merge
+*  /agentic-sdlc:cycle          orchestrator — runs 1→6 in dedicated sub-agents
 ```
 
 ## Phase gates
 
-A phase only "passes" when its gate is satisfied. `/sdlc-cycle` enforces gates between sub-agent dispatches; individual commands enforce their own gates when invoked manually.
+A phase only "passes" when its gate is satisfied. `/agentic-sdlc:cycle` enforces gates between sub-agent dispatches; individual commands enforce their own gates when invoked manually.
 
 | Phase | Gate |
 | ----- | ---- |
@@ -33,10 +33,10 @@ A common failure mode for agentic dev tools is "produces code, claims success, r
 
 ## When to skip a phase
 
-- **Backend-only changes**: `/sdlc-validate` writes a `na` report and skips Playwright. Unit/E2E tests from `/sdlc-implement` are the only gate.
-- **No spec**: `/sdlc-intake` runs in `freeform` mode (per `_/sdlc-config.md`); the user provides a description in their own words.
+- **Backend-only changes**: `/agentic-sdlc:validate` writes a `na` report and skips Playwright. Unit/E2E tests from `/agentic-sdlc:implement` are the only gate.
+- **No spec**: `/agentic-sdlc:intake` runs in `freeform` mode (per `_/sdlc-config.md`); the user provides a description in their own words.
 - **No Jira/Linear/GitHub**: `ticketing.system: "none"`; tracks are slug-named.
-- **Hot fixes** (skip intake): not officially supported in v0.1. The recommended path is still `/sdlc-intake` with a one-line description, then through the cycle. Time-pressure shortcuts hide the trail you'll wish you had two days later.
+- **Hot fixes** (skip intake): not officially supported in v0.1. The recommended path is still `/agentic-sdlc:intake` with a one-line description, then through the cycle. Time-pressure shortcuts hide the trail you'll wish you had two days later.
 
 ## Where artifacts live
 
@@ -66,7 +66,7 @@ The whole `_/` directory is gitignored. Nothing the cycle produces lands in git 
 Two ways to run the cycle:
 
 - **Manual**: invoke each phase yourself. Best when you want to read each phase's output before advancing, or when the project has unusual requirements that need on-the-fly judgement.
-- **Orchestrated**: `/sdlc-cycle <TICKET>`. Dispatches each phase as a sub-agent in a worktree, validates the frontmatter delta, persists, and advances. Pauses between phases (unless `--auto`). Stops on gate failures with a specific next-action message.
+- **Orchestrated**: `/agentic-sdlc:cycle <TICKET>`. Dispatches each phase as a sub-agent in a worktree, validates the frontmatter delta, persists, and advances. Pauses between phases (unless `--auto`). Stops on gate failures with a specific next-action message.
 
 Pick orchestrated for the happy path. Pick manual when you're learning the cycle, debugging, or working on something the orchestrator's defaults don't fit.
 
@@ -74,7 +74,7 @@ Pick orchestrated for the happy path. Pick manual when you're learning the cycle
 
 A cycle can be interrupted at any point — closing the terminal, switching branches, days of dormancy. Resuming:
 
-- `/sdlc-cycle <TICKET> --resume` picks up at the last phase whose `phase_log` entry is missing or has `outcome != pass`.
-- Individual commands are idempotent: running `/sdlc-implement` twice on the same track skips already-done requirements.
+- `/agentic-sdlc:cycle <TICKET> --resume` picks up at the last phase whose `phase_log` entry is missing or has `outcome != pass`.
+- Individual commands are idempotent: running `/agentic-sdlc:implement` twice on the same track skips already-done requirements.
 
 The journal (§7 of the track) is the audit trail. Append-only.
