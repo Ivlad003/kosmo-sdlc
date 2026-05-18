@@ -27,7 +27,7 @@ The first word of every posted reply MUST be one of these (capitalized, followed
 
 ## Preconditions
 
-1. `_/sdlc.config.json` exists.
+1. `_/sdlc-config.md` exists (frontmatter + Notes body).
 2. A track exists for the current branch (`_/tracks/<TICKET>.md`) — used to log threads back to the journal.
 3. `gh auth status` is logged in.
 
@@ -161,4 +161,4 @@ Next:
 - Bot and human comments follow the same ceremony. No special-casing.
 - If you can't tell whether a comment is resolved (no GraphQL access, ambiguous thread), surface it to the user instead of guessing.
 - Don't paraphrase the reviewer's comment back at them. They wrote it. Lead with the verdict and what changed.
-- **Never reference `_/` paths in posted replies** (no `_/tracks/...`, `_/recordings/...`, `_/demo/...`, `_/sdlc.config.json`). Those artifacts are local-only and reviewers cannot open them. Cite code files and lines in the actual repo. The track journal (step 8) is internal and stays in the gitignored track — never quote it in a github comment.
+- **Never reference `_/` paths in posted replies** (no `_/tracks/...`, `_/recordings/...`, `_/demo/...`, `_/sdlc-config.md`). Those artifacts are local-only and reviewers cannot open them. Cite code files and lines in the actual repo. The track journal (step 8) is internal and stays in the gitignored track — never quote it in a github comment.

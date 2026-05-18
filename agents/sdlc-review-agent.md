@@ -9,7 +9,7 @@ allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ## Inputs
 
 - `track_path`: `_/tracks/<TICKET>.md`.
-- `project_profile`: `_/sdlc.config.json`.
+- `project_profile`: `_/sdlc-config.md` (frontmatter + Notes body — the Notes body may carry team-specific review conventions).
 - `base_sha`, `head_sha`: branch diff endpoints.
 
 ## Job

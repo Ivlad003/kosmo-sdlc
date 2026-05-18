@@ -1,87 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "agentic-sdlc project profile",
-  "description": "Schema for _/sdlc.config.json — written by /sdlc-init, read by every other /sdlc-* command. Encodes the host project's commands, Playwright setup, ticketing system, and CI gates so commands stop hardcoding paths.",
+  "title": "agentic-sdlc project profile (frontmatter)",
+  "description": "Schema for the YAML frontmatter of _/sdlc-config.md. Captures user decisions only — project state (package manager, node version, default branch, CI workflows) is re-detected at use site by each /sdlc-* command, so it stays fresh without re-running /sdlc-init. The freeform markdown body below the frontmatter is read verbatim by every /sdlc-* command and inlined into sub-agent prompts.",
   "type": "object",
-  "required": ["detected_at", "project", "scripts", "git", "conventions"],
+  "required": ["detected_at", "ticketing", "spec", "validation", "conventions"],
   "additionalProperties": false,
   "properties": {
-    "$schema": { "type": "string" },
     "detected_at": { "type": "string", "format": "date" },
-    "project": {
-      "type": "object",
-      "required": ["type", "package_manager"],
-      "additionalProperties": false,
-      "properties": {
-        "type": { "type": "string", "enum": ["monorepo", "single-app"] },
-        "package_manager": {
-          "type": "string",
-          "enum": ["npm", "pnpm", "yarn", "bun"]
-        },
-        "node_version": { "type": ["string", "null"] },
-        "workspaces": {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      }
-    },
-    "scripts": {
-      "type": "object",
-      "description": "Resolved commands (always strings; commands run with the detected package manager).",
-      "additionalProperties": false,
-      "properties": {
-        "dev": { "type": ["string", "null"] },
-        "build": { "type": ["string", "null"] },
-        "lint": { "type": ["string", "null"] },
-        "typecheck": { "type": ["string", "null"] },
-        "test": { "type": ["string", "null"] },
-        "pipeline": {
-          "type": ["string", "null"],
-          "description": "Aggregate gate (lint + typecheck + test + build). Falls back to chaining the four when absent."
-        }
-      }
-    },
-    "playwright": {
-      "type": "object",
-      "required": ["present"],
-      "additionalProperties": false,
-      "properties": {
-        "present": { "type": "boolean" },
-        "config": { "type": ["string", "null"] },
-        "base_url": { "type": ["string", "null"] },
-        "credentials": {
-          "type": ["string", "null"],
-          "description": "Path to the gitignored credentials file (defaults to _/demo/credentials.json)."
-        }
-      }
-    },
-    "git": {
-      "type": "object",
-      "required": ["default_branch"],
-      "additionalProperties": false,
-      "properties": {
-        "default_branch": { "type": "string" },
-        "branch_pattern": {
-          "type": ["string", "null"],
-          "description": "Template like '<type>/<TICKET-ID>'. Used by /sdlc-implement to suggest a branch name."
-        },
-        "pr_template": { "type": ["string", "null"] }
-      }
-    },
-    "ci": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "workflows": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "required_checks": {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      }
-    },
     "ticketing": {
       "type": "object",
       "required": ["system"],
@@ -94,12 +19,13 @@
         "prefix": { "type": ["string", "null"] },
         "mcp": {
           "type": ["string", "null"],
-          "description": "MCP server name to use for fetching ticket bodies (e.g. 'atlassian', 'linear')."
+          "description": "MCP server name (e.g. 'atlassian', 'linear') used by /sdlc-intake to fetch ticket bodies."
         }
       }
     },
     "spec": {
       "type": "object",
+      "required": ["convention"],
       "additionalProperties": false,
       "properties": {
         "convention": {
@@ -107,6 +33,26 @@
           "enum": ["ticket-references-path", "fixed-dir", "freeform"]
         },
         "default_dir": { "type": ["string", "null"] }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["mode"],
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": ["project-playwright", "standalone-playwright", "manual"],
+          "description": "How /sdlc-validate runs. 'project-playwright' reuses the host project's playwright config and dependencies. 'standalone-playwright' has sdlc install and run its own playwright instance against base_url — the project itself doesn't need any playwright setup. 'manual' skips the validation phase entirely (the assertions/demo are produced out-of-band, or the feature is non-UI)."
+        },
+        "base_url": {
+          "type": ["string", "null"],
+          "description": "Required for project-playwright and standalone-playwright modes."
+        },
+        "credentials": {
+          "type": ["string", "null"],
+          "description": "Path to the gitignored credentials file (defaults to _/demo/credentials.json)."
+        }
       }
     },
     "conventions": {
@@ -118,9 +64,32 @@
           "type": "string",
           "enum": ["conventional", "freeform"]
         },
+        "branch_pattern": {
+          "type": ["string", "null"],
+          "description": "Template like '<type>/<TICKET>'. Supported substitutions: <type>, <TICKET>, <author> (from git config user.name)."
+        },
         "track_dir": { "type": "string" },
         "demo_dir": { "type": "string" },
         "recordings_dir": { "type": "string" }
+      }
+    },
+    "overrides": {
+      "type": "object",
+      "description": "Pinned values that bypass each command's auto-detection. null means re-detect on every run. Use only when detection picks the wrong value (e.g. multiple package.json scripts that could be 'the pipeline').",
+      "additionalProperties": false,
+      "properties": {
+        "default_branch": {
+          "type": ["string", "null"],
+          "description": "Pin when 'git symbolic-ref refs/remotes/origin/HEAD' returns the wrong branch (shallow clones, mirrored repos, etc.)."
+        },
+        "pipeline_command": {
+          "type": ["string", "null"],
+          "description": "Aggregate gate (lint + typecheck + test + build). Auto-detect order: scripts.pipeline -> scripts.ci -> scripts.check -> chain of lint+typecheck+test+build."
+        },
+        "dev_command": {
+          "type": ["string", "null"],
+          "description": "Pin when root scripts.dev isn't the right entry point (e.g. monorepo with per-app dev scripts)."
+        }
       }
     }
   }

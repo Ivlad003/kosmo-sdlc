@@ -14,7 +14,7 @@ Phase 6 of the cycle. The "final check before merge". Same engine as `/sdlc-vali
 
 ## Preconditions
 
-1. `_/sdlc.config.json` exists.
+1. `_/sdlc-config.md` exists. Re-read both frontmatter and Notes body; the Notes body may have changed since /sdlc-validate ran.
 2. `_/tracks/<TICKET>.md` exists, status is `in_review`.
 3. A PR exists (`frontmatter.pr` set), or the user is preparing to merge a branch directly.
 

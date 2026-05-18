@@ -1,149 +1,129 @@
-# What `/sdlc-init` detects
+# Detection rules
 
-The init command profiles a host JS/TS project once and writes `_/sdlc.config.json`. Every subsequent `/sdlc-*` command reads that file instead of re-scanning. This document is the source of truth for what the init command looks at and how it resolves each field.
+`/sdlc-init` writes `_/sdlc-config.md` once. The frontmatter captures **user decisions** (ticketing system, spec convention, validation strategy, branch pattern, commit style); the Notes body captures **project-specific guidance** the user wants every agent to read.
 
-## Files scanned (read-only)
+Project state that's cheap to re-read — package manager, Node version, default branch, root scripts, CI workflows — is **not** persisted. Each `/sdlc-*` command re-detects it at use site. This way the config never goes stale, and `/sdlc-init` doesn't have to be re-run after a `package.json` change.
 
-| Source | Used to populate |
-| ------ | ---------------- |
-| `package.json` (root) | `scripts.*`, `project.package_manager`, `project.node_version`, `project.workspaces` |
-| `.nvmrc` | `project.node_version` (preferred over `package.json:engines.node`) |
-| `package-lock.json` / `pnpm-lock.yaml` / `yarn.lock` / `bun.lockb` / `bun.lock` | `project.package_manager` fallback |
-| `turbo.json` | monorepo detection, task list |
-| `nx.json` | Nx monorepo detection |
-| `pnpm-workspace.yaml` | pnpm workspaces |
-| `lerna.json` | Lerna monorepo detection |
-| `apps/*/package.json` and `packages/*/package.json` | Workspace overrides for scripts |
-| `playwright.config.{ts,js,mjs,cjs}` (anywhere) | `playwright.present`, `playwright.config`, `playwright.base_url` |
-| `.github/workflows/*.yml` | `ci.workflows`, `ci.required_checks` |
-| `.github/pull_request_template.md` | `git.pr_template` |
-| `tsconfig.json` | typecheck fallback |
-| `biome.json` / `.eslintrc*` / `.prettierrc*` | lint fallback |
-| `.env.example`, `.env.dist`, `.env.test` (existence only) | flagged in summary |
-| `CLAUDE.md` / `AGENTS.md` / `.claude/rules/*.md` / `docs/conventions.md` | enables `standards-review-agent` later |
+This document describes both halves: what init asks (for the persisted decisions), and what each command re-detects (for the ephemeral state).
 
-## Field resolution
+## What init asks the user
 
-### `project.package_manager`
+The wizard pre-fills every option with a detected default and asks the user to confirm. Questions, in order:
 
-Priority:
+| Field | Detected from | Options |
+| --- | --- | --- |
+| `ticketing.system` | recent commit prefixes (`^[A-Z]+-\d+`), `.github/ISSUE_TEMPLATE/`, `.linearignore` | jira / linear / github / none |
+| `ticketing.prefix` | most common commit prefix in last 50 commits (≥ 5 hits) | free text |
+| `ticketing.mcp` | derived from system (jira → atlassian, linear → linear) | free text or null |
+| `spec.convention` | not detected — always asked | ticket-references-path / fixed-dir / freeform |
+| `spec.default_dir` | only for `fixed-dir` | free text |
+| `validation.mode` | `playwright.config.*` exists → `project-playwright`; else → `standalone-playwright` (recommended) | project-playwright / standalone-playwright / manual |
+| `validation.base_url` | parsed from `playwright.config.*:use.baseURL` | free text, default `http://localhost:3000` |
+| `conventions.branch_pattern` | recent branch names matching `<word>/<TICKET>` | free text, default `<type>/<TICKET>` |
+| `conventions.commit_style` | last 50 commits' Conventional Commits compliance ratio | conventional / freeform |
+| **Notes body** | not detected | freeform multi-line text |
 
-1. `package.json:packageManager` (canonical when present).
-2. Lockfile presence:
-   - `bun.lockb` or `bun.lock` → `bun`
-   - `pnpm-lock.yaml` → `pnpm`
-   - `yarn.lock` → `yarn`
-   - `package-lock.json` → `npm`
-3. Default: `npm`.
+The "Notes for agents" body is the killer feature: anything the user types lands verbatim under the heading and is read by every command going forward. Use it for "use `pnpm api:dev` in apps/api", "PR template's AC section is rendered, don't hand-edit", etc.
 
-### `project.node_version`
+## Validation modes
 
-Priority:
+| Mode | What it means | Host project needs |
+| --- | --- | --- |
+| `project-playwright` | sdlc reuses the host project's `playwright.config.*` and its installed `playwright`/`@playwright/test` dep. | `playwright.config.*`, installed Playwright dep, dev server at `base_url`. |
+| `standalone-playwright` | sdlc installs Playwright on its own (one-off `npx --yes playwright@latest install --with-deps chromium`) and runs the generated `_/demo/<TICKET>.spec.mjs` via plain `node`. | A reachable `base_url`. **Nothing else.** |
+| `manual` | Validation phase is skipped (`na` report). | — |
 
-1. `.nvmrc` contents.
-2. `package.json:engines.node` (parse range, take the floor).
-3. `null` if neither.
+`standalone-playwright` is the mode that lets sdlc produce Playwright video demos for projects that never adopted Playwright themselves. It was the missing piece in earlier versions — fixed by decoupling "can we drive a browser" from "does the project have a playwright config".
 
-### `project.type`
+## What each command re-detects at use site
 
-- `monorepo` if any of `turbo.json`, `nx.json`, `pnpm-workspace.yaml`, `lerna.json`, or `package.json:workspaces` is present.
-- `single-app` otherwise.
+These values are NOT in `_/sdlc-config.md`. Every command runs the same resolution at the start of its workflow, so the answers stay fresh.
 
-### `project.workspaces`
+### Default branch
 
-- From `package.json:workspaces` (array form).
-- From `pnpm-workspace.yaml:packages`.
-- From `turbo.json` patterns when explicit.
-
-### `scripts.*`
-
-Map common script aliases to canonical phases.
-
-| Phase | Source order |
-| ----- | ------------ |
-| `dev` | `scripts.dev` → `scripts.start` |
-| `build` | `scripts.build` |
-| `lint` | `scripts.lint` → `scripts["lint:fix"]` (read-only invocation: just `lint`) |
-| `typecheck` | `scripts.typecheck` → `scripts["check-types"]` → `scripts.tsc` → `tsc --noEmit` if `tsconfig.json` exists |
-| `test` | `scripts.test` |
-| `pipeline` | `scripts.pipeline` → `scripts.ci` → `scripts.check` → `null` (commands chain individually when absent) |
-
-Resolved values are always full command strings ("`npm run lint`"), not just the script name. They are package-manager-aware.
-
-### `playwright.*`
-
-- Search for `playwright.config.{ts,js,mjs,cjs}` from repo root downward (depth ≤ 4).
-- If found:
-  - `present: true`
-  - `config: <path>`
-  - `base_url`: parse the config file, look for `baseURL` in `use:` block.
-- If not found: `present: false`, others `null`.
-- `credentials` always defaults to `_/demo/credentials.json` (the user fills in the actual file).
-
-### `git.default_branch`
-
-Priority:
-
-1. `git symbolic-ref refs/remotes/origin/HEAD` (parse the trailing branch name).
-2. `git config --get init.defaultBranch`.
-3. Current branch (if it's `main` / `master` / `trunk` / `develop`).
+1. `overrides.default_branch` in `_/sdlc-config.md` if set.
+2. `git symbolic-ref refs/remotes/origin/HEAD` → parse trailing branch name.
+3. `git config --get init.defaultBranch`.
 4. Ask the user.
 
-### `git.branch_pattern`
+Used by `/sdlc-review`, `/sdlc-pr`, the impl/pr agents.
 
-- If recent commits match `feat/PROJ-123` / `fix/PROJ-123` pattern → `<type>/<TICKET-ID>`.
-- If `feature/PROJ-123` → `feature/<TICKET-ID>`.
-- Else → `null` (the user can fill it in by hand).
+### Package manager
 
-### `git.pr_template`
+1. `package.json:packageManager` field (canonical when present).
+2. Lockfile presence:
+   - `bun.lockb` / `bun.lock` → bun
+   - `pnpm-lock.yaml` → pnpm
+   - `yarn.lock` → yarn
+   - `package-lock.json` → npm
+3. Default: npm.
 
-- Path to `.github/pull_request_template.md` if it exists; else `null`.
+Used to prefix all `scripts.*` invocations.
 
-### `ci.workflows` / `ci.required_checks`
+### Pipeline command
 
-- All `.github/workflows/*.yml` files → `ci.workflows`.
-- Parse each `jobs.*.name` → `ci.required_checks` (best-effort; some jobs are matrix-named).
+1. `overrides.pipeline_command` in `_/sdlc-config.md` if set.
+2. `package.json:scripts.pipeline`.
+3. `package.json:scripts.ci`.
+4. `package.json:scripts.check`.
+5. Chain `lint && typecheck && test && build`, each resolved from `package.json:scripts.*`. `typecheck` falls back to `tsc --noEmit` when `tsconfig.json` exists and no script is defined. Skip steps whose script doesn't exist.
 
-### `ticketing.*`
+Used by `/sdlc-implement` per-requirement gate and by `/sdlc-pr` re-gate.
 
-Detection:
+### Dev command
 
-1. If commit messages on the current branch match `^[A-Z]+-\d+` consistently → `prefix` = the captured prefix, `system: "jira"` by default.
-2. If `.github/ISSUE_TEMPLATE/` exists with GitHub-style templates → `system: "github"`.
-3. If `.linearignore` or commits reference `LINEAR-` prefixes → `system: "linear"`.
-4. Otherwise → ask the user to pick or set `none`.
+1. `overrides.dev_command` in `_/sdlc-config.md` if set.
+2. `package.json:scripts.dev`.
+3. `package.json:scripts.start`.
 
-`mcp` is populated when the user confirms (defaults: `atlassian` for jira, `linear` for linear, none for github/none).
+Used by `/sdlc-validate` when it needs to launch the dev server before running Playwright.
 
-### `spec.*`
+### Project type / workspaces
 
-Always ask the user:
+Cheap to re-read on the rare command that needs it (intake's "where's the closest precedent" survey, implement's plan-against-§6):
 
-- "Where do feature specs live?"
-  - `ticket-references-path` — specs live in arbitrary paths, tickets carry the path reference.
-  - `fixed-dir` — specs live in a known directory; the user provides the path.
-  - `freeform` — no formal specs; `/sdlc-intake` falls back to user descriptions.
+- `monorepo` if any of `turbo.json`, `nx.json`, `pnpm-workspace.yaml`, `lerna.json`, or `package.json:workspaces` is present. Workspaces array comes from the matching source.
+- `single-app` otherwise.
 
-### `conventions.*`
+### CI workflows / required checks
 
-- `commit_style`: scan recent commits for Conventional Commits compliance (`<type>(<scope>): <summary>` ratio > 50%) → `conventional`. Else `freeform`. Always offered; user can override.
-- `track_dir`, `demo_dir`, `recordings_dir`: defaults to `_/tracks`, `_/demo`, `_/recordings`. User can change.
+Read `.github/workflows/*.yml` on demand (in `/sdlc-revalidate` and when the impact set heuristic in `/sdlc-review` wants to compare). Parse `jobs.*.name` for required check names. Best-effort — some matrices have dynamic names.
 
-## Handling missing signals
+### Standards-review eligibility
 
-A missing signal becomes `null` or `"none"` — never an invented value. The init summary surfaces "Missing signals" so the user knows what `_/sdlc.config.json` lacks. Examples:
+`standards-review-agent` fires in `/sdlc-review` when any of these exist: `CLAUDE.md`, `AGENTS.md`, `.claude/rules/*.md`, `docs/conventions.md`. Re-checked each run.
 
-- No `.nvmrc` → `project.node_version: null`, surfaced as "consider adding .nvmrc to pin Node version".
-- No Playwright config → `playwright.present: false`, surfaced as "validation phase will be skipped unless Playwright is added".
-- No PR template → `git.pr_template: null`, surfaced as "PR body will use the built-in template".
-- No ticketing system → `ticketing.system: "none"`, surfaced as "intake will run in freeform mode".
+### PR template
+
+Existence of `.github/pull_request_template.md` is checked at PR time. If absent, `/sdlc-pr` falls back to `templates/pr-body.template.md`.
+
+## Pinned overrides
+
+`overrides.{default_branch,pipeline_command,dev_command}` are escape hatches for cases where detection picks the wrong value:
+
+- Mirrored or shallow clone where `origin/HEAD` doesn't resolve.
+- A monorepo where the root `scripts.dev` boots the wrong thing (e.g. a docs site instead of the app).
+- Several plausible "pipeline" scripts and the user wants to lock one in.
+
+Leave them null otherwise. Re-detection is the simpler, less-stale answer.
 
 ## Re-running `/sdlc-init`
 
-Re-running diffs detected vs on-disk values:
+Re-running diffs:
 
-- **Conflict** (value changed) → ask whether to update.
-- **Added** (new signal found) → ask whether to apply.
-- **Removed** (signal disappeared) → ask whether to null the field.
+- **Frontmatter conflict** (on-disk value differs from detected) → ask whether to update.
+- **New high-confidence detection** (e.g. a ticketing prefix that wasn't there before) → ask whether to apply.
+- **Notes body** → never touched without explicit confirmation. Append-only mid-wizard if the user adds more.
 
-User-edited fields are respected by default; the user only sees prompts when init has higher-confidence info to offer. `--force` overwrites without prompting.
+User-edited fields are respected by default. `--force` overwrites frontmatter without prompting — but still preserves the Notes body.
+
+## Handling missing signals
+
+A missing detection signal stays null. The wizard surfaces what's missing so the user can decide whether to fill it in by hand or leave it for runtime resolution.
+
+Examples:
+
+- No `playwright.config.*` → validation mode defaults to `standalone-playwright` (sdlc handles its own Playwright). The user can still pick `manual` if the project is non-UI.
+- No commit prefix → `ticketing.system: "none"`, intake runs in freeform mode.
+- No PR template → PR body uses the built-in template; nothing to persist.
+- No `.nvmrc` and no `engines.node` → Node version isn't recorded anywhere. Commands trust whatever Node is on the PATH.

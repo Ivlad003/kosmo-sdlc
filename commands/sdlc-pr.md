@@ -16,18 +16,18 @@ Phase 5 of the cycle. Turns the track + branch into a PR with a body the reviewe
 
 ## Preconditions
 
-1. `_/sdlc.config.json` exists.
+1. `_/sdlc-config.md` exists (frontmatter + Notes body).
 2. `_/tracks/<TICKET>.md` exists, status is `in_review`.
 3. `_/recordings/<TICKET>.review.md` exists; has no unaddressed CRITICAL findings.
 4. `_/recordings/<TICKET>.validation.md` exists OR the track has `demo.applicable: false`.
 5. `gh auth status` is logged in.
-6. The current branch matches `frontmatter.branch` (or no branch is set, in which case create from `git.branch_pattern`).
+6. The current branch matches `frontmatter.branch` (or no branch is set, in which case create from `conventions.branch_pattern` in `_/sdlc-config.md`).
 
 ## Workflow
 
 ### 1. Re-run the pipeline gate
 
-Run `scripts.pipeline` (or chain lint + typecheck + test + build if `null`). On failure → abort with the output. The user fixes and re-runs.
+Resolve the pipeline command (same order as `/sdlc-implement`: `overrides.pipeline_command` → `package.json:scripts.pipeline|ci|check` → chained `lint && typecheck && test && build`). Run it. On failure → abort with the output. The user fixes and re-runs.
 
 ### 2. Stage and commit if there are unstaged changes
 
@@ -48,7 +48,7 @@ If the branch already exists upstream, push without `-u`.
 Render `templates/pr-body.template.md` from the track. **Inline** all reviewer-facing content — never reference paths under `_/` (track files, recordings, scenarios, demos). Those artifacts are local-only by design; reviewers cannot open them and even mentioning the paths leaks the working directory layout.
 
 - **Summary**: derived from track's "Where we at on this track" paragraph + a one-line "what this PR does" generated from the title + commits. Do not quote the file path of the track.
-- **Ticket link**: built from `ticketing.system` config (Jira URL pattern, Linear URL, GitHub issue, or `None`).
+- **Ticket link**: built from `_/sdlc-config.md:ticketing` (Jira URL pattern, Linear URL, GitHub issue, or `None`).
 - **AC checklist**: for each `requirement` in `acs[].requirements[]`:
   - `[x] <text>` if `status: done`
   - `[ ] <text>` (with `_(blocked)_` suffix) if `status: blocked`
@@ -68,7 +68,7 @@ gh pr create \
   ${REVIEWERS:+--reviewer "$REVIEWERS"}
 ```
 
-Title format derives from the track's commit type (feat / fix / refactor / chore / docs) and the ticket id. If `ticketing.system: "none"` → omit the `(<TICKET>)` scope.
+Title format derives from the track's commit type (feat / fix / refactor / chore / docs) and the ticket id. If `ticketing.system: "none"` in `_/sdlc-config.md` → omit the `(<TICKET>)` scope.
 
 ### 6. Update the track
 
@@ -92,9 +92,9 @@ Next:
 
 - Pipeline must pass before opening the PR. No exceptions.
 - Never open a PR with unaddressed CRITICAL review findings.
-- Never `--force` push; never push to `default_branch`.
+- Never `--force` push; never push to the resolved default branch.
 - The PR body must be derived from the track — don't paraphrase the AC table; quote it. Reviewers need to see the same text the implementer worked from.
-- **Never expose the existence of `_/` artifacts on any github-visible surface** — no `_/tracks/...`, `_/recordings/...`, `_/demo/...`, `_/sdlc.config.json`, or any other path under `_/` in the PR title, PR body, commit messages, or PR comments. Inline the content (tables, summaries) instead of linking to local files. The working directory is a private contract between the user and these commands; reviewers must never see it referenced.
+- **Never expose the existence of `_/` artifacts on any github-visible surface** — no `_/tracks/...`, `_/recordings/...`, `_/demo/...`, `_/sdlc-config.md`, or any other path under `_/` in the PR title, PR body, commit messages, or PR comments. Inline the content (tables, summaries) instead of linking to local files. The working directory is a private contract between the user and these commands; reviewers must never see it referenced.
 - Don't auto-add `[skip ci]` to commits.
 - Don't assign reviewers without explicit `--reviewers` flag — different teams have different ownership conventions.
 - If the GitHub repo lacks a PR template at `.github/pull_request_template.md`, just use the `templates/pr-body.template.md` render. Don't try to create one for the user.

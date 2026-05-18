@@ -18,7 +18,7 @@ Make commits that are easy to review and safe to ship:
 
 - Single commit or multiple commits? Default to multiple small commits when changes are unrelated.
 - Commit style: **Conventional Commits** required.
-- Project profile: read `_/sdlc.config.json` if present to discover `scripts.pipeline` (or chain `lint + typecheck + test + build` when absent).
+- Project profile: read `_/sdlc-config.md` if present. Use `overrides.pipeline_command` from its frontmatter if set; otherwise resolve the pipeline command at use site from `package.json:scripts.pipeline|ci|check` (first match), falling back to a chained `lint && typecheck && test && build`.
 
 ## Workflow
 
@@ -49,9 +49,10 @@ Make commits that are easy to review and safe to ship:
    - If you can't describe it cleanly, the commit is too big or mixed. Go back to step 2.
 
 6. **Run the pipeline gate**
-   - If `_/sdlc.config.json` exists and `scripts.pipeline` is set → run it.
-   - Else chain `scripts.lint && scripts.typecheck && scripts.test && scripts.build`.
-   - Else (no config) → run the project's known-good check command (ask if unsure).
+   - If `_/sdlc-config.md` exists and frontmatter has `overrides.pipeline_command` set → run it.
+   - Else read `package.json:scripts` and run the first of `pipeline`, `ci`, `check`.
+   - Else chain `lint && typecheck && test && build` (each from `package.json:scripts.*`; `typecheck` falls back to `tsc --noEmit` when `tsconfig.json` exists). Prefix every invocation with the detected package manager (npm/pnpm/yarn/bun).
+   - Else (no clues at all) → ask the user for the known-good check command.
    - **Don't commit on a red pipeline.** Fix and re-stage.
 
 7. **Write the commit message**

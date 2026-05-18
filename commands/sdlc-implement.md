@@ -17,7 +17,7 @@ Phase 2 of the cycle. Reads the track, plans against §6, implements requirement
 
 ## Preconditions
 
-1. `_/sdlc.config.json` exists. If not → fail with "run /sdlc-init first".
+1. `_/sdlc-config.md` exists. If not → fail with "run /sdlc-init first". Read both the frontmatter and the Notes body — the Notes body often carries workspace-specific commands and gotchas that affect how requirements get implemented.
 2. `_/tracks/<TICKET>.md` exists and validates against `schemas/track.schema.json`. If not → fail with "run /sdlc-intake <TICKET> first".
 3. Git working tree is clean. If not → ask whether to stash or proceed.
 
@@ -31,7 +31,7 @@ Phase 2 of the cycle. Reads the track, plans against §6, implements requirement
 
 ### 2. Branch hygiene
 
-- If `frontmatter.branch` is null: create one using `git.branch_pattern` from config (default `<type>/<TICKET>`), checkout, push `-u`. Write back to frontmatter.
+- If `frontmatter.branch` is null: create one using `conventions.branch_pattern` from `_/sdlc-config.md` (default `<type>/<TICKET>`), checkout, push `-u`. Write back to frontmatter. Substitute `<author>` from `git config user.name` if the pattern uses it.
 - If `frontmatter.branch` is set: confirm we're on it. If not, ask user before switching.
 
 ### 3. Plan against §6
@@ -55,9 +55,11 @@ For each requirement in order:
    - Frontend requirement → component test (Vitest), and a Playwright assertion will land in `/sdlc-validate`.
    - Shared requirement → typecheck + unit test.
    - Infra/docs requirement → manual check + commit.
-4. Run the pipeline gate (unless `--no-pipeline`):
-   - If `scripts.pipeline` set → run it.
-   - Else chain `scripts.lint && scripts.typecheck && scripts.test && scripts.build`.
+4. Run the pipeline gate (unless `--no-pipeline`). Resolve the pipeline command in this order:
+   - `overrides.pipeline_command` from `_/sdlc-config.md` if set.
+   - Else read root `package.json` and use `scripts.pipeline` → `scripts.ci` → `scripts.check` (first match).
+   - Else chain `lint && typecheck && test && build`, each resolved from `package.json` scripts (typecheck falls back to `tsc --noEmit` when `tsconfig.json` exists).
+   - Prefix each command with the detected package manager (`npm run`, `pnpm`, `yarn`, `bun run`) per lockfile / `packageManager` field.
    - On failure → keep requirement at `in_progress`, surface the failure, ask user how to proceed.
 5. On pipeline pass:
    - Set `status: done`.
@@ -66,7 +68,7 @@ For each requirement in order:
 
 Don't mark `done` if:
 
-- Tests are missing and `scripts.test` is configured.
+- Tests are missing and a `test` script exists in the project's `package.json`.
 - Pipeline failed and the user didn't explicitly override.
 - The edit is partial (TODO comments, stubbed handlers).
 

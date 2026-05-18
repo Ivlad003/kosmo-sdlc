@@ -15,7 +15,7 @@ Phase 4 of the cycle. Pre-emptive review — fixes issues before reviewers see t
 
 ## Preconditions
 
-1. `_/sdlc.config.json` exists.
+1. `_/sdlc-config.md` exists. Read both frontmatter and Notes body — the Notes body may carry team-specific review conventions (severity thresholds, "we always allow X", etc.) that the consolidated report should honour.
 2. `_/tracks/<TICKET>.md` exists, status is `in_progress` or `in_review`.
 3. Validation phase has run (frontmatter has at least one `phase_log` entry with `phase: validate, outcome: pass` OR all requirements are non-frontend).
 
@@ -23,7 +23,8 @@ Phase 4 of the cycle. Pre-emptive review — fixes issues before reviewers see t
 
 ### 1. Compute the diff
 
-- `git fetch origin <default_branch>` from config.
+- Resolve the default branch: `overrides.default_branch` from `_/sdlc-config.md` if set, else `git symbolic-ref refs/remotes/origin/HEAD` and parse the trailing branch name.
+- `git fetch origin <default_branch>`.
 - `BASE=$(git merge-base HEAD origin/<default_branch>)`.
 - `git diff $BASE...HEAD --stat` and `git diff $BASE...HEAD --name-only`.
 - Build a file list (the "impact set"). If the diff is huge (>50 files), warn and ask whether to scope to a subset.
@@ -48,7 +49,7 @@ track_path: _/tracks/TICKET-1.md
 base_sha: <BASE>
 head_sha: HEAD
 impact_files: [...]
-project_profile: <_/sdlc.config.json snapshot>
+project_profile: <_/sdlc-config.md snapshot — frontmatter + Notes body>
 ```
 
 Each sub-agent returns a Markdown section with:

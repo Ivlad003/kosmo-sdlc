@@ -4,7 +4,7 @@ The plugin defaults assume a "modern full-stack JS monorepo with a Jira ticket a
 
 ## No Jira / Linear / GitHub Issues
 
-Set `ticketing.system: "none"` in `_/sdlc.config.json` (init asks if it can't detect a system).
+Set `ticketing.system: "none"` in `_/sdlc-config.md` (init's wizard asks; pick "none" when prompted).
 
 - `/sdlc-intake` will prompt for a freeform feature description.
 - Track filenames become `feat-<slug>.md` instead of `<TICKET>.md`.
@@ -20,51 +20,47 @@ Set `spec.convention: "freeform"`.
 
 ## Non-monorepo (single-app)
 
-Init detects this when there's no workspaces config:
+Detected on the fly when there's no workspaces config — nothing to set in `_/sdlc-config.md`. Commands read root `package.json:scripts` directly.
 
-- `project.type: "single-app"`.
-- Scripts come straight from root `package.json`.
-- Workspaces array is empty.
-- All `/sdlc-*` commands run unchanged.
+## No Playwright in the project
 
-## No Playwright
+Set `validation.mode: standalone-playwright` (init's wizard picks this by default when it can't find a `playwright.config.*`). sdlc installs and drives its own Playwright; the host project needs only a reachable `validation.base_url`.
 
-Set `playwright.present: false`.
+- `/sdlc-validate` still runs assertions + records the stakeholder .webm.
+- The first invocation runs `npx --yes playwright@latest install --with-deps chromium` if no Playwright binary is on the PATH.
+- No `playwright.config.ts` needed in the project.
 
-- `/sdlc-validate` and `/sdlc-revalidate` write a `na` report and exit.
-- The implementation phase's unit/E2E tests become the only validation gate.
-- The stakeholder demo (.webm) is unavailable until Playwright is added; PRs include a "no demo — feature is non-UI / no Playwright setup" note.
+If the feature is genuinely non-UI (CLI, library, pure backend), pick `validation.mode: manual` instead — the validation phase is skipped and unit/E2E tests from `/sdlc-implement` become the only gate.
 
-To add Playwright later: install it with `npm i -D @playwright/test`, create `playwright.config.ts` with at least `baseURL`, and re-run `/sdlc-init`.
+To switch later: re-run `/sdlc-init` and pick a different mode in the wizard, or edit `validation.mode` directly in `_/sdlc-config.md`.
 
 ## No CI workflows
 
 Without `.github/workflows/`:
 
-- `ci.workflows: []`, `ci.required_checks: []`.
 - `/sdlc-revalidate` skips the CI check.
-- The local pipeline (`scripts.pipeline`) becomes the only build gate. Make sure it's comprehensive.
+- The local pipeline (re-detected from `package.json:scripts.pipeline|ci|check` or pinned via `overrides.pipeline_command`) becomes the only build gate. Make sure it's comprehensive.
 
 ## Different default branch name
 
-Init detects `main` / `master` / `trunk` / `develop` automatically. For non-standard names, set `git.default_branch` manually in `_/sdlc.config.json`.
+`/sdlc-review` and `/sdlc-pr` resolve the default branch via `git symbolic-ref refs/remotes/origin/HEAD` on each run. If that returns the wrong thing (shallow clone, mirrored repo), pin it: set `overrides.default_branch: trunk` (or whatever) in `_/sdlc-config.md`.
 
 ## Different branch pattern
 
 If your team uses `release/v1.2.x/PROJ-123` or `firstname/PROJ-123`:
 
-- Set `git.branch_pattern` to a template, e.g. `"release/v1.2.x/<TICKET>"` or `"<author>/<TICKET>"`.
-- `/sdlc-implement` substitutes `<TICKET>` and `<type>` (and `<author>`, derived from `git config user.name`).
+- Set `conventions.branch_pattern` to a template, e.g. `"release/v1.2.x/<TICKET>"` or `"<author>/<TICKET>"`.
+- `/sdlc-implement` substitutes `<TICKET>`, `<type>`, and `<author>` (from `git config user.name`).
 
 ## Different package manager
 
-Bun, pnpm, and Yarn are supported out of the box. The resolved `scripts.*` commands automatically use the right runner.
+Bun, pnpm, and Yarn are supported out of the box. Each command re-detects the manager from `package.json:packageManager` or the lockfile and prefixes script invocations correctly.
 
 ## TypeScript-only / JavaScript-only / mixed
 
-- TS detected by presence of `tsconfig.json`.
-- Typecheck falls back to `tsc --noEmit` when no script is defined.
-- Pure JS: `scripts.typecheck` stays `null`; the typecheck step is skipped.
+- TS detected on the fly by presence of `tsconfig.json`.
+- Typecheck falls back to `tsc --noEmit` when no `package.json:scripts.typecheck` is defined.
+- Pure JS: the typecheck step is skipped silently in the pipeline chain.
 
 ## Languages other than JS/TS
 
@@ -107,5 +103,5 @@ Re-run after `git pull` to pick up updates.
 ## Reporting issues
 
 - Open an issue at the project's issue tracker (URL TBD once published).
-- Include: project type (monorepo/single), package manager, Node version, the command that failed, and the `_/sdlc.config.json` (redact paths/secrets).
+- Include: project type (monorepo/single), package manager, Node version, the command that failed, and `_/sdlc-config.md` (redact paths/secrets — the Notes body is fine to share once scrubbed).
 - For schema validation failures, include the failing frontmatter (redact ticket bodies if confidential).

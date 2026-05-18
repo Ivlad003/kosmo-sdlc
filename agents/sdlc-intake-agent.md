@@ -10,7 +10,7 @@ allowed-tools: ["Bash", "Read", "Glob", "Grep", "WebFetch"]
 
 - `ticket`: ticket ID or freeform slug.
 - `args`: original `$ARGUMENTS` from `/sdlc-cycle`.
-- `project_profile`: contents of `_/sdlc.config.json`.
+- `project_profile`: contents of `_/sdlc-config.md` (frontmatter + Notes body — read both; the Notes body often carries ticket / spec conventions).
 
 ## Job
 

@@ -9,13 +9,13 @@ allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ## Inputs
 
 - `track_path`: `_/tracks/<TICKET>.md`.
-- `project_profile`: `_/sdlc.config.json`.
+- `project_profile`: `_/sdlc-config.md` (frontmatter + Notes body).
 
 ## Job
 
 Follow the [/sdlc-pr](../commands/sdlc-pr.md) workflow:
 
-1. Re-run `scripts.pipeline` (or chain lint + typecheck + test + build).
+1. Re-run the pipeline command. Resolve it as: `overrides.pipeline_command` → `package.json:scripts.pipeline|ci|check` → chained `lint && typecheck && test && build` (each resolved from package.json scripts; typecheck falls back to `tsc --noEmit` when a `tsconfig.json` exists). Prefix with the detected package manager.
 2. Stage and commit any unstaged work via the [commit-work](../skills/commit-work/SKILL.md) skill — multiple Conventional Commits when appropriate, never a kitchen-sink commit.
 3. Push the branch with `-u` on first push.
 4. Render `templates/pr-body.template.md` from the track. **Inline** the content; never reference paths under `_/` (track files, validation/review reports, scenarios, demos):
@@ -42,7 +42,7 @@ Plus a one-paragraph summary with PR URL, title, requested reviewers (if any), a
 ## Hard rules
 
 - Pipeline must pass before pushing. No exceptions.
-- Never push to `default_branch`. Never `--force` push.
+- Never push to the resolved default branch (`overrides.default_branch` if set, else `git symbolic-ref refs/remotes/origin/HEAD`). Never `--force` push.
 - Never `--no-verify` or skip hooks.
 - The PR body must be derived from the track — quote the AC table, don't paraphrase.
 - **Never expose `_/` paths on any github-visible surface** (PR title, PR body, commit messages, PR comments). Inline the content; the working directory must remain invisible to reviewers.

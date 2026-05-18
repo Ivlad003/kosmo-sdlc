@@ -21,10 +21,18 @@ If `frontmatter.demo.applicable: false` or all requirements have `owner: backend
 
 ## Preconditions
 
-1. `_/sdlc.config.json` exists, `playwright.present: true`, `playwright.base_url` set.
-2. `_/demo/credentials.json` exists (not the template; the real one). If only the template exists → fail with "fill in _/demo/credentials.json first".
-3. `_/tracks/<TICKET>.md` exists; at least one requirement has `owner: frontend | mixed`.
-4. The dev server is running at `playwright.base_url`. Check via HTTP HEAD; if down, ask before launching.
+1. `_/sdlc-config.md` exists. Read both frontmatter and Notes body. The Notes body often carries Playwright-specific guidance (locale prefix, login flow quirks, flaky-selector workarounds) — honour it.
+2. `validation.mode` is `project-playwright` or `standalone-playwright`. If `manual` → exit with a `na` report (the validation phase is opted out at the project level).
+3. `validation.base_url` is set. If null, ask the user before continuing.
+4. `_/demo/credentials.json` exists (not the template; the real one). If only the template exists → fail with "fill in _/demo/credentials.json first".
+5. `_/tracks/<TICKET>.md` exists; at least one requirement has `owner: frontend | mixed`.
+6. The dev server is running at `validation.base_url`. Check via HTTP HEAD; if down, ask before launching.
+
+### Validation modes
+
+- **`project-playwright`** — reuse the host project's `playwright.config.*` and its installed Playwright dependency. Run the generated `_/demo/<TICKET>.spec.mjs` through `npx playwright test` (or the project's own runner if `package.json:scripts` exposes one). Use this when the project already has Playwright wired up.
+- **`standalone-playwright`** — sdlc owns Playwright. Ensure `playwright` is installed (run `npx --yes playwright@latest install --with-deps chromium` once if not), then invoke the generated `_/demo/<TICKET>.spec.mjs` as a standalone Node script via `node _/demo/<TICKET>.spec.mjs`. The host project doesn't need any Playwright setup — only a reachable `base_url`. **This is what lets sdlc produce demos for projects that never adopted Playwright.**
+- **`manual`** — no Playwright at all. Write a `na` validation report and exit.
 
 ## Workflow
 
@@ -62,9 +70,10 @@ Hard requirements for the generated script:
 
 ### 3. Run the script
 
-```
-node _/demo/<TICKET>.spec.mjs
-```
+Execution differs by mode:
+
+- `standalone-playwright` → `node _/demo/<TICKET>.spec.mjs` (the script imports `playwright` directly).
+- `project-playwright` → `npx playwright test _/demo/<TICKET>.spec.mjs` (or the project's own runner), so it picks up the host config (browsers, retries, reporters).
 
 Two-pass execution:
 
@@ -149,4 +158,5 @@ Next: /sdlc-implement TICKET-1 --requirement R1.4
 - Console errors and network 4xx/5xx fail the report (warnings are surfaced but don't fail by default; the user can promote them via config).
 - The .webm is regenerated only when assertions pass. A demo of a broken state is worse than no demo.
 - The Playwright script is generated under `_/`, never under `apps/*/playwright/` or any other project-test directory. The script is throw-away; the report is the artifact.
-- When `playwright.present: false` in the config → fail with a friendly "this project has no Playwright setup; the validation phase can be skipped via `--no-demo` and `--no-assertions`, or you can set up Playwright first."
+- When `validation.mode: manual` → exit with a `na` report; the validation phase is opted out at the project level. The user can re-run `/sdlc-init` to change the mode if they later want UI checks.
+- `standalone-playwright` mode means the host project does **not** need a `playwright.config.*`. A reachable `validation.base_url` is the only requirement. Don't refuse to validate just because the project lacks a Playwright setup.

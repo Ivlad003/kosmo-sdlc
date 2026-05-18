@@ -9,13 +9,13 @@ allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ## Inputs
 
 - `track_path`: `_/tracks/<TICKET>.md`.
-- `project_profile`: `_/sdlc.config.json`.
+- `project_profile`: `_/sdlc-config.md` (frontmatter + Notes body — the Notes body is binding project-specific guidance, not flavour text).
 
 ## Job
 
 Follow the [/sdlc-implement](../commands/sdlc-implement.md) workflow:
 
-1. Branch hygiene (create or checkout per `git.branch_pattern`).
+1. Branch hygiene (create or checkout per `conventions.branch_pattern`).
 2. Plan against §6 — fill it in if empty, ask for user confirmation if assumptions are large.
 3. For each `not_started`/`in_progress` requirement: implement, write tests, run targeted verification, run pipeline gate.
 4. Set `status: done` + `evidence: <file:line or short SHA>` only when the pipeline is green.
@@ -40,6 +40,6 @@ Plus a paragraph summary with: which requirements landed, which (if any) blocked
 
 - Never mark `done` without `evidence` and a green pipeline.
 - Never disable the pipeline. `--no-pipeline` only flows through when the user explicitly typed it on the orchestrator's command line.
-- Never push to `default_branch`. Push only the feature branch and only on initial creation; subsequent pushes are the orchestrator's call (or the user's).
+- Never push to the resolved default branch (`overrides.default_branch` if set, else `git symbolic-ref refs/remotes/origin/HEAD`). Push only the feature branch and only on initial creation; subsequent pushes are the orchestrator's call (or the user's).
 - Never commit `.env`, real credentials, or files under `_/`.
 - Use existing patterns. No premature abstractions. Three similar lines beat one clever helper.

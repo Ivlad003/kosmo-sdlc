@@ -46,7 +46,7 @@ Each sub-agent runs in a git worktree (see `~/.agents/skills/using-git-worktrees
 
 ### 1. Bootstrap
 
-- Read `_/sdlc.config.json`. If missing → run `/sdlc-init` first; abort the cycle if user declines.
+- Read `_/sdlc-config.md` (frontmatter + Notes body). If missing → run `/sdlc-init` first; abort the cycle if user declines.
 - Resolve the track filename from `$1`. If a track already exists and `--resume` not set → ask whether to update or start fresh.
 
 ### 2. Dispatch loop
@@ -56,9 +56,11 @@ For each phase in order: intake → implement → validate → review → pr →
 1. Skip the phase if `phase_log` already shows `{ phase: <name>, outcome: pass }` for the current branch HEAD.
 2. Construct the agent prompt:
    ```
-   You are <agent-name>. Read _/tracks/<TICKET>.md and _/sdlc.config.json.
-   Do your phase per agents/<agent>.md. Return ONLY the updated track frontmatter (YAML)
-   and a one-paragraph summary. Do not commit. Do not push (except /sdlc-pr-agent).
+   You are <agent-name>. Read _/tracks/<TICKET>.md and _/sdlc-config.md.
+   The Notes body of _/sdlc-config.md is project-specific guidance — treat it as
+   binding instructions, not flavour. Do your phase per agents/<agent>.md. Return
+   ONLY the updated track frontmatter (YAML) and a one-paragraph summary. Do not
+   commit. Do not push (except /sdlc-pr-agent).
    ```
 3. Dispatch via the `Agent` tool with the appropriate sub-agent definition.
 4. Receive the frontmatter delta. Validate against `schemas/track.schema.json`.

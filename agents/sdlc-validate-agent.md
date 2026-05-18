@@ -9,7 +9,7 @@ allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ## Inputs
 
 - `track_path`: `_/tracks/<TICKET>.md`.
-- `project_profile`: `_/sdlc.config.json`.
+- `project_profile`: `_/sdlc-config.md` (frontmatter + Notes body — Playwright nuances like locale prefixes, login flows, and flaky selectors usually live in the Notes body).
 - `mode`: `validate` (default) or `revalidate` (adds spec-drift detection).
 
 ## Job
@@ -46,5 +46,6 @@ Plus a paragraph summary: pass/fail count, console + network defects, demo path,
 - No `force: true` on clicks. Real visibility/enabled checks only.
 - Credentials only from `_/demo/credentials.json`. Never hardcoded.
 - Console errors and network 4xx/5xx fail the report. Warnings surface but don't fail by default.
-- If `playwright.present: false`, return `outcome: skipped` and explain in the summary.
+- Run mode is driven by `validation.mode` (`project-playwright` uses the host config; `standalone-playwright` invokes the generated script via `node _/demo/<TICKET>.spec.mjs`; `manual` returns `outcome: skipped` with a `na` report).
+- `standalone-playwright` means the host project doesn't need a Playwright setup — don't refuse to validate, just `npx --yes playwright@latest install --with-deps chromium` once if `playwright` isn't on the path, then run the script directly.
 - If `demo.applicable: false`, return `outcome: pass` for the assertion phase (delegated to unit tests) with no demo artifact.

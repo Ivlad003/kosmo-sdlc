@@ -3,7 +3,7 @@
 `agentic-sdlc` is a seven-phase loop that turns a ticket into a merged PR. Each phase has a gate; the cycle refuses to advance past a failing gate. The track file at `_/tracks/<TICKET>.md` is the single source of truth — every command reads its YAML frontmatter and writes a delta back.
 
 ```
-0  /sdlc-init           one-time per project — detect commands, write _/sdlc.config.json
+0  /sdlc-init           one-time per project — detect + wizard, write _/sdlc-config.md
 1  /sdlc-intake         ticket + spec → _/tracks/<TICKET>.md with decomposed requirements
 2  /sdlc-implement      code + tests + mocks per requirement; pipeline gate per requirement
 3  /sdlc-validate       Playwright: assertions report + stakeholder demo (only if green)
@@ -34,7 +34,7 @@ A common failure mode for agentic dev tools is "produces code, claims success, r
 ## When to skip a phase
 
 - **Backend-only changes**: `/sdlc-validate` writes a `na` report and skips Playwright. Unit/E2E tests from `/sdlc-implement` are the only gate.
-- **No spec**: `/sdlc-intake` runs in `freeform` mode (per `_/sdlc.config.json`); the user provides a description in their own words.
+- **No spec**: `/sdlc-intake` runs in `freeform` mode (per `_/sdlc-config.md`); the user provides a description in their own words.
 - **No Jira/Linear/GitHub**: `ticketing.system: "none"`; tracks are slug-named.
 - **Hot fixes** (skip intake): not officially supported in v0.1. The recommended path is still `/sdlc-intake` with a one-line description, then through the cycle. Time-pressure shortcuts hide the trail you'll wish you had two days later.
 
@@ -42,7 +42,7 @@ A common failure mode for agentic dev tools is "produces code, claims success, r
 
 ```
 _/
-├── sdlc.config.json
+├── sdlc-config.md
 ├── tracks/
 │   └── TICKET-1.md
 ├── demo/

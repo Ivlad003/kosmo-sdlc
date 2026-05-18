@@ -15,7 +15,7 @@ Phase 1 of the cycle. Produces a track file an agent can drop into cold and act 
 
 ## Preconditions
 
-1. `_/sdlc.config.json` exists. Run `/sdlc-init` if not — fail loudly with that instruction; don't auto-init.
+1. `_/sdlc-config.md` exists. Run `/sdlc-init` if not — fail loudly with that instruction; don't auto-init. Read both the frontmatter and the Notes body; the Notes body shapes how you handle ticket / spec quirks.
 2. The directory `_/tracks/` exists. If not, create it.
 
 ## Workflow

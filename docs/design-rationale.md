@@ -45,7 +45,7 @@ Splitting them:
 1. **Context isolation.** Each phase has its own context window. Intake's verbose ticket body doesn't pollute the implementer's window; the implementer's edit log doesn't push the reviewer out of context.
 2. **Phase independence.** Phases can be retried, swapped (e.g. a different review agent), or run by different models without coordination overhead.
 
-Cost: each sub-agent reads `_/tracks/<TICKET>.md` and `_/sdlc.config.json` afresh. The track is small (< 50KB typically); this is cheap.
+Cost: each sub-agent reads `_/tracks/<TICKET>.md` and `_/sdlc-config.md` afresh. The track is small (< 50KB typically); this is cheap.
 
 ## `_/` is gitignored
 
@@ -65,7 +65,7 @@ Tracks, demos, recordings, scenarios, and the project config all live under `_/`
 
 **No CLI binary.** In-session only. The plugin is for users who already live inside Claude Code; building a separate `omc`-style CLI doubles the maintenance.
 
-**No multi-harness manifests.** Claude Code first. Codex / Cursor / Gemini ports happen if there's demand and a contributor; they're not v0 priorities. The track format and `_/sdlc.config.json` schema are harness-neutral, so porting is mostly command-prompt translation.
+**No multi-harness manifests.** Claude Code first. Codex / Cursor / Gemini ports happen if there's demand and a contributor; they're not v0 priorities. The track format and `_/sdlc-config.md` schema are harness-neutral, so porting is mostly command-prompt translation.
 
 **No spec-pressure-testing skill baked in.** `vibe-testing` is a recommended companion (see [adapting.md](adapting.md)), not a bundled feature. Pressure-testing a spec before intake is good practice but adds another command and another gate; it's optional.
 
