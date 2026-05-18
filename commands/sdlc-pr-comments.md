@@ -146,6 +146,10 @@ Code changes:
   M packages/contracts/src/schemas/.../upsert-customer-service-bundle.dto.schema.ts
 
 Pending: commit + push
+Next:
+  - commit + push the applied changes (use the `commit-work` skill)
+  - /sdlc-pr-comments 295 — re-run when new comments arrive
+  - /sdlc-revalidate TICKET-1 — once the PR is approved and CI is green, before merge
 ```
 
 ## Hard rules

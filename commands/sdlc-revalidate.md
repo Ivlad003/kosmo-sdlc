@@ -70,12 +70,30 @@ If something fails:
 
 ### 5. Report
 
+On pass:
+
 ```
 Revalidation complete — _/recordings/TICKET-1.revalidation.md
 ✅ All 7 requirements pass · ✅ Spec unchanged · ✅ PR approved · ✅ CI green
 Status: ready_to_merge
 Demo: _/recordings/TICKET-1.20260513-220500.final.webm
+Next: gh pr merge <PR> (or merge via the GitHub UI)
 ```
+
+On blocked — surface the specific blocker and point at its fix command:
+
+```
+Revalidation blocked — _/recordings/TICKET-1.revalidation.md
+❌ R1.4 regressed after review fixes
+Next: /sdlc-implement TICKET-1 --requirement R1.4
+```
+
+Other common blockers and their next steps:
+
+- spec drift detected → `/sdlc-intake TICKET-1 --refresh`
+- new reviewer comments → `/sdlc-pr-comments <PR>`
+- CI still running → wait, then re-run `/sdlc-revalidate TICKET-1`
+- review not yet approved → ping reviewers; re-run `/sdlc-revalidate` once approved
 
 ## Hard rules
 

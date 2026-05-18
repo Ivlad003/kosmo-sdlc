@@ -123,6 +123,25 @@ If Pass 1 fails:
 - Append journal row with the failing requirement ids and the new console/network defects.
 - Set the relevant requirements back to `in_progress`. The user re-runs `/sdlc-implement` to fix.
 
+### 7. Report
+
+On pass:
+
+```
+Validation complete — _/recordings/TICKET-1.validation.md
+✅ 7 passed · 0 failed · 0 skipped · 1 console warning
+Demo: _/recordings/TICKET-1.20260513-211900.webm
+Next: /sdlc-review TICKET-1
+```
+
+On fail — name the failing requirements and point at the fix command:
+
+```
+Validation failed — _/recordings/TICKET-1.validation.md
+❌ 6 passed · 1 failed (R1.4)
+Next: /sdlc-implement TICKET-1 --requirement R1.4
+```
+
 ## Hard rules
 
 - No `force: true` on clicks. The demo is not the place to hide UI bugs.
