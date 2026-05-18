@@ -28,14 +28,13 @@ Phase 1 of the cycle. Produces a track file an agent can drop into cold and act 
 
 ### 2. Resolve ticket body (verbatim)
 
-Decide source from `ticketing.system`:
+In priority order:
 
-- **`jira`**: try `mcp__claude_ai_Atlassian__getJiraIssue`. Capture summary, description, AC, status. Preserve typos, dangling phrases, original formatting.
-- **`linear`**: try the Linear MCP.
-- **`github`**: `gh issue view <id> --json title,body,state`.
-- **`none`**: ask the user to paste the body or describe the feature in their own words.
+1. **Pasted inline** — if the invocation already contains the AC (any "Acceptance Criteria" heading, `Given/When/Then`, or numbered AC list), use it verbatim. Skip all fetching.
+2. **`ticketing.mcp`** set in config — call that MCP server to fetch the ticket. For `github`, fall back to `gh issue view <id> --json title,body,state`.
+3. **Otherwise** — ask the user to paste the body.
 
-If MCP fails or returns empty → fall back to asking the user to paste the body. **Never paraphrase from training data even if you "remember" the ticket.**
+Never paraphrase from training data even if you "remember" the ticket. Preserve typos and original formatting.
 
 ### 3. Resolve spec slice (verbatim)
 
