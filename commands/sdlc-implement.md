@@ -1,7 +1,7 @@
 ---
 description: Implement the requirements in _/tracks/<TICKET>.md. Code, tests, mocks, seeds — and update the track's requirement statuses and journal as each lands.
 argument-hint: "<ticket-id> [--requirement R1.1] [--no-pipeline]"
-allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
+allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
 
 # /sdlc-implement
@@ -13,6 +13,7 @@ Phase 2 of the cycle. Reads the track, plans against §6, implements requirement
 - `$1` (required): ticket ID matching an existing `_/tracks/<TICKET>.md`.
 - `--requirement <id>` (optional): implement only this requirement (e.g. `R1.1`). Otherwise loops through all `not_started` / `in_progress`.
 - `--no-pipeline` (optional): skip the per-requirement pipeline run. Use only when debugging the implement command itself.
+- `--parallel` (optional): fan out independent requirements to sub-agents. See §4a. Off by default — sequential is safer and easier to debug.
 
 ## Preconditions
 
@@ -68,6 +69,22 @@ Don't mark `done` if:
 - Tests are missing and `scripts.test` is configured.
 - Pipeline failed and the user didn't explicitly override.
 - The edit is partial (TODO comments, stubbed handlers).
+
+### 4a. Parallel mode (optional, `--parallel`)
+
+Only when explicitly enabled. The goal is to overlap independent work, not to skip the safety rails.
+
+1. **Group requirements into disjoint batches.** Two requirements may share a batch only if:
+   - Their `owner` differs **or** their planned file paths in §6 are disjoint.
+   - Neither lists the other as a dependency in §6.
+   - Both have `status: not_started`.
+   Everything else stays sequential.
+2. **Dispatch one sub-agent per requirement in a batch**, in a single message with multiple `Agent` calls so they run concurrently. Use `subagent_type: agentic-sdlc:sdlc-impl-agent`. The prompt must scope the agent to **one requirement id only** (`--requirement R1.x --no-pipeline`) and forbid frontmatter writes — those are the coordinator's job.
+3. **Coordinator serializes the writes.** After all sub-agents in a batch return, the coordinator: applies any code patches the sub-agents staged, updates frontmatter (`status`, `evidence`) one requirement at a time, appends journal rows in id order, then runs the pipeline gate **once** for the whole batch.
+4. **On pipeline failure**: leave the batch's requirements at `in_progress`, surface which sub-agent's diff likely caused it, and fall back to sequential for the next batch.
+5. **Never parallelize** requirements that touch the same file, share migrations/schema, or are flagged `mixed` owner. When in doubt, run sequentially.
+
+Pipeline runs serially even in parallel mode — the dev server, ports, and build artifacts are repo-global.
 
 ### 5. Update "Where we at"
 
