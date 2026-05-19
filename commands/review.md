@@ -1,5 +1,5 @@
 ---
-description: Code + security review of the current branch's diff. Three parallel sub-agents (code, security, standards) produce a consolidated CRITICAL/HIGH/MEDIUM/LOW report. Auto-invokes the security sub-agent when the diff touches auth/guard/controller/schema/env paths.
+description: Code + security review of the current branch's diff. Three parallel reviewer sub-agents (code, security, standards) produce a consolidated CRITICAL/HIGH/MEDIUM/LOW report; a separate fix sub-agent then applies the approved findings in its own context. Auto-invokes the security reviewer when the diff touches auth/guard/controller/schema/env paths.
 argument-hint: "<ticket-id> [--strict]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
@@ -29,15 +29,15 @@ Phase 4 of the cycle. Pre-emptive review — fixes issues before reviewers see t
 - `git diff $BASE...HEAD --stat` and `git diff $BASE...HEAD --name-only`.
 - Build a file list (the "impact set"). If the diff is huge (>50 files), warn and ask whether to scope to a subset.
 
-### 2. Decide which sub-agents fire
+### 2. Decide which reviewers fire
 
-Three sub-agents (definitions in `agents/`):
+Three review roles, each backed by an installed Claude Code sub-agent:
 
-- **code-review-agent** — always fires.
-- **security-review-agent** — fires when impact set matches `auth|guard|controller|service|schema|env|middleware|cors|csrf|jwt|password|secret|crypto|token` (case-insensitive path or content match). Always fires under `--strict`.
-- **standards-review-agent** — fires when the project has a `CLAUDE.md`, `AGENTS.md`, `.claude/rules/*.md`, or `docs/conventions.md`. Reviews against those conventions.
+- **code-reviewer** — always fires.
+- **security-reviewer** — fires when impact set matches `auth|guard|controller|service|schema|env|middleware|cors|csrf|jwt|password|secret|crypto|token` (case-insensitive path or content match). Always fires under `--strict`.
+- **standards-reviewer** — fires when the project has a `CLAUDE.md`, `AGENTS.md`, `.claude/rules/*.md`, or `docs/conventions.md`. Reviews against those conventions.
 
-Dispatch all firing agents **in parallel**.
+**Dispatch all firing roles in parallel** — one batched message with one `Agent` call per reviewer. Each sub-agent runs in its own context window so analyses don't bleed across roles, and is scoped to **review only, no fixes** (fixes happen in §5 via a dedicated sub-agent).
 
 ### 3. Sub-agent contracts
 
@@ -106,18 +106,31 @@ Sub-agents dispatched: code, security, standards
 ...
 ```
 
-### 5. Apply fixes (interactive)
+### 5. Dispatch the fix sub-agent
 
-Group findings by severity and ask the user which to address now vs defer:
+Reviewer fan-out is parallel; **fix application is sequential** (it consumes findings) but runs in its own context window so reviewer analysis doesn't pollute the fix work.
 
-- CRITICAL → always apply now (the gate).
+First, group findings by severity and ask the user which to apply now vs defer:
+
+- CRITICAL → always apply (the gate).
 - HIGH → recommend applying; user can defer with explicit acknowledgement.
 - MEDIUM/LOW → user's call.
 
-When applying:
-- Make minimal, focused edits.
-- After each fix, re-read the relevant file to confirm.
-- Don't auto-commit. The user batches commits via the `commit-work` skill or `/agentic-sdlc:pr` runs `commit-work` itself.
+Then dispatch **one** `Agent` call with `subagent_type: agentic-sdlc:sdlc-impl-agent`, scoped to the approved findings only. The prompt must include:
+
+- The consolidated report path (`_/recordings/<TICKET>.review.md`).
+- The exact list of finding ids to apply (e.g. `CRITICAL-1, HIGH-1, HIGH-2`).
+- Flags `--review-fix --no-frontmatter --no-pipeline` — the fix agent only edits code; the coordinator handles writes and the pipeline gate.
+
+The fix sub-agent:
+- Makes minimal, focused edits per finding; re-reads each touched file to confirm.
+- Returns: files touched, per-finding note, and any findings it couldn't apply (with reason).
+- Never commits — the user batches commits via the `commit-work` skill, or `/agentic-sdlc:pr` runs `commit-work` itself.
+
+On return, the coordinator (this command):
+- Re-runs the pipeline gate **once** for the whole fix batch.
+- Persists frontmatter updates (status / journal) — single writer.
+- Surfaces any unapplied findings to the user.
 
 ### 6. Update the track
 
@@ -136,8 +149,9 @@ Next: /agentic-sdlc:pr TICKET-1
 ## Hard rules
 
 - Never declare the review "pass" with unaddressed CRITICAL findings.
-- Sub-agents run in parallel, never sequentially.
-- The security sub-agent is mandatory under `--strict` and when the file-path heuristic matches.
+- Reviewer sub-agents fan out **in parallel** and are scoped to review only — they never apply fixes.
+- The fix sub-agent runs **sequentially after** review, in its own context, and **never writes frontmatter** — the coordinator is the single writer.
+- The security reviewer is mandatory under `--strict` and when the file-path heuristic matches.
 - Don't fabricate findings to "look thorough". If a sub-agent has nothing in a severity bucket, write `0` and move on.
 - Never auto-commit fixes. The user commits when ready.
 - Pre-existing issues outside the diff are **out of scope** unless the user explicitly asks to expand the review. Report them as informational notes, never as blocking findings.
