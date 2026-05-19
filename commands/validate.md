@@ -1,7 +1,7 @@
 ---
-description: Playwright-driven validation — generates an assertions report (one expect() per requirement) and, only if assertions pass, a stakeholder demo .webm with overlays. Captures console + network defects.
+description: Playwright-driven validation — generates an assertions report (one expect() per requirement) and, only if assertions pass, a stakeholder demo .webm with overlays. Captures console + network defects. Dispatches the Playwright run and a parallel automated-checks sub-agent so the pipeline gate re-runs against post-implement state while Playwright boots.
 argument-hint: "<ticket-id> [--no-demo] [--update-baseline]"
-allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
+allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
 
 # /agentic-sdlc:validate
@@ -33,6 +33,28 @@ If `frontmatter.demo.applicable: false` or all requirements have `owner: backend
 - **`project-playwright`** — reuse the host project's `playwright.config.*` and its installed Playwright dependency. Run the generated `_/demo/<TICKET>.spec.mjs` through `npx playwright test` (or the project's own runner if `package.json:scripts` exposes one). Use this when the project already has Playwright wired up.
 - **`standalone-playwright`** — sdlc owns Playwright. Ensure `playwright` is installed (run `npx --yes playwright@latest install --with-deps chromium` once if not), then invoke the generated `_/demo/<TICKET>.spec.mjs` as a standalone Node script via `node _/demo/<TICKET>.spec.mjs`. The host project doesn't need any Playwright setup — only a reachable `base_url`. **This is what lets sdlc produce demos for projects that never adopted Playwright.**
 - **`manual`** — no Playwright at all. Write a `na` validation report and exit.
+
+## Parallel sub-agent dispatch
+
+Playwright is the long pole — Pass 1 + Pass 2 typically take minutes. `/validate` uses that wall-clock time by dispatching **two sub-agents in parallel** in a single batched message:
+
+| Track | Sub-agent | Scope | Output |
+| ----- | --------- | ----- | ------ |
+| Playwright | `agentic-sdlc:sdlc-validate-agent` | Two-pass Playwright per §1–§5 below | assertions report, `.webm` (if green), console + network defects |
+| Automated checks | `agentic-sdlc:sdlc-impl-agent` scoped `--pipeline-only --no-frontmatter` | Re-runs `lint` / `typecheck` / unit tests / `build` against post-implement state | pass/fail per stage, log paths |
+
+Why re-run automated checks when `/agentic-sdlc:implement` already ran them?
+
+- `implement --parallel` may have skipped the integrated pipeline gate between batches.
+- Manual edits or review-phase fixes can land between implement and validate.
+- The wall-clock cost is ~zero — Playwright is the long pole.
+
+The two sub-agents share **no writes**: automated-checks doesn't touch `_/recordings/`; Playwright doesn't run the pipeline gate. The coordinator (this command) serializes frontmatter updates and merges both deltas into the final validation report.
+
+Skip rules:
+
+- `validation.mode: manual` or all requirements backend-only → skip Playwright; automated-checks already ran during `/agentic-sdlc:implement`, so the command writes a `na` report and exits.
+- Project profile has no pipeline scripts (`scripts.lint`, `scripts.typecheck`, `scripts.test`, `scripts.build` all missing) → skip automated-checks track; mark it `na` in the report and only dispatch Playwright.
 
 ## Workflow
 
@@ -124,13 +146,16 @@ Only if Pass 1 is 100% green:
 
 ### 6. Update the track
 
+Merge both sub-agent deltas (Playwright + automated checks). The coordinator is the **single writer**.
+
 - Per requirement: set `evidence` to "validated by `R1.1` in _/recordings/<TICKET>.validation.md" when `evidence` was previously null.
-- Append journal row: `Validation pass — 7/7 requirements green; 1 console warning; demo recorded.`
+- Append a journal row that names both tracks, e.g.: `Validation pass — Playwright 7/7 green, 1 console warning, demo recorded; automated checks lint/typecheck/test/build all green.`
 - Update "Where we at": next step is `/agentic-sdlc:review <TICKET>`.
 
-If Pass 1 fails:
-- Append journal row with the failing requirement ids and the new console/network defects.
+If either track fails:
+- Append journal row with the failing requirement ids (Playwright) and/or failing pipeline stage (automated checks) and the new console/network defects.
 - Set the relevant requirements back to `in_progress`. The user re-runs `/agentic-sdlc:implement` to fix.
+- The overall phase outcome is `fail` if **either** track failed.
 
 ### 7. Report
 
@@ -153,6 +178,8 @@ Next: /agentic-sdlc:implement TICKET-1 --requirement R1.4
 
 ## Hard rules
 
+- The Playwright and automated-checks tracks fire **in parallel** in a single batched `Agent` call. The coordinator is the single writer of the track frontmatter; sub-agents return deltas only.
+- Either track failing fails the whole phase. Don't paper over a red automated-checks track because Playwright was green (or vice versa).
 - No `force: true` on clicks. The demo is not the place to hide UI bugs.
 - Credentials only from `_/demo/credentials.json`. Never from inline strings, never from `.env`.
 - Console errors and network 4xx/5xx fail the report (warnings are surfaced but don't fail by default; the user can promote them via config).
