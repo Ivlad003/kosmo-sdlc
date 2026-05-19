@@ -26,6 +26,9 @@ conventions:
   demo_dir: _/demo
   recordings_dir: _/recordings
 
+pr:
+  body_style: {{PR_BODY_STYLE}}           # standard (full tables) | concise (one-liners + AC checklist only)
+
 # Pinned overrides — leave null to re-detect on every run. Fill in only when
 # detection picks the wrong value (e.g. several plausible "pipeline" scripts).
 overrides:

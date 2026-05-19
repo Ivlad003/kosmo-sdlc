@@ -15,6 +15,7 @@ All notable changes to `agentic-sdlc` are documented here. Format follows [Keep 
 - Sub-agent definitions for the orchestrator.
 - Documentation: cycle walkthrough, track format, init detection, project adaptation, design rationale.
 - Reference example for a Turborepo/NestJS/Next.js project (`examples/sample/`).
+- `pr.body_style` config field (`standard` | `concise`) + `/agentic-sdlc:pr --style <name>` per-run override. `concise` keeps the one-line summary, ticket link, AC checklist, and one-line validation + review outcomes — drops the per-requirement table, console/network defects table, review severity breakdown, and test plan. Use it on tickets where the AC list is long and the inlined tables would dominate the PR.
 
 ### Changed
 - Project profile format: `_/sdlc.config.json` (strict JSON, detection-as-persistence) → `_/sdlc-config.md` (markdown + YAML frontmatter, user-decisions-as-persistence, project state re-detected at use site by each command).

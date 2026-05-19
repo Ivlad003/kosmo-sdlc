@@ -73,6 +73,19 @@
         "recordings_dir": { "type": "string" }
       }
     },
+    "pr": {
+      "type": "object",
+      "description": "Per-project preferences applied by /agentic-sdlc:pr when rendering the PR body. Can be overridden per-run via the command's --style flag.",
+      "additionalProperties": false,
+      "properties": {
+        "body_style": {
+          "type": "string",
+          "enum": ["concise", "standard"],
+          "default": "standard",
+          "description": "'standard' (default) inlines the full AC checklist, per-requirement validation table, console/network defects, review severity table, test plan, and reviewer notes. 'concise' keeps only the one-line summary, ticket link, AC checklist, and one-line validation + review outcomes — and surfaces reviewer notes only when there are open DECIDE items. Use 'concise' for tickets where the AC list is long and the reviewer doesn't need the per-requirement detail to make a call."
+        }
+      }
+    },
     "overrides": {
       "type": "object",
       "description": "Pinned values that bypass each command's auto-detection. null means re-detect on every run. Use only when detection picks the wrong value (e.g. multiple package.json scripts that could be 'the pipeline').",

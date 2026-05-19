@@ -1,6 +1,6 @@
 ---
 description: Create the GitHub PR for the current ticket. Re-runs the pipeline gate, builds the PR body from the track frontmatter (AC checklist + links to validation + review reports), pushes the branch, and writes the PR URL back to the track.
-argument-hint: "<ticket-id> [--draft] [--reviewers user1,user2]"
+argument-hint: "<ticket-id> [--draft] [--reviewers user1,user2] [--style concise|standard]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
@@ -13,6 +13,7 @@ Phase 5 of the cycle. Turns the track + branch into a PR with a body the reviewe
 - `$1` (required): ticket ID.
 - `--draft` (optional): open as a draft PR. Default is ready-for-review.
 - `--reviewers <list>` (optional): comma-separated GitHub usernames to request review from.
+- `--style <concise|standard>` (optional): override `pr.body_style` from `_/sdlc-config.md` for this run. Defaults to the config value, which itself defaults to `standard` when unset.
 
 ## Preconditions
 
@@ -45,7 +46,14 @@ If the branch already exists upstream, push without `-u`.
 
 ### 4. Build the PR body
 
-Render `templates/pr-body.template.md` from the track. **Inline** all reviewer-facing content — never reference paths under `_/` (track files, recordings, scenarios, demos). Those artifacts are local-only by design; reviewers cannot open them and even mentioning the paths leaks the working directory layout.
+Resolve the body style: `--style` flag → `pr.body_style` in `_/sdlc-config.md` → default `standard`. Pick the template:
+
+- `standard` → `templates/pr-body.template.md` (full tables, test plan, reviewer notes).
+- `concise` → `templates/pr-body.concise.template.md` (one-liners + AC checklist only).
+
+**Inline** all reviewer-facing content — never reference paths under `_/` (track files, recordings, scenarios, demos). Those artifacts are local-only by design; reviewers cannot open them and even mentioning the paths leaks the working directory layout.
+
+#### Standard (default)
 
 - **Summary**: derived from track's "Where we at on this track" paragraph + a one-line "what this PR does" generated from the title + commits. Do not quote the file path of the track.
 - **Ticket link**: built from `_/sdlc-config.md:ticketing` (Jira URL pattern, Linear URL, GitHub issue, or `None`).
@@ -57,6 +65,16 @@ Render `templates/pr-body.template.md` from the track. **Inline** all reviewer-f
 - **Review**: inline the consolidated severity table (CRITICAL/HIGH/MEDIUM/LOW counts per sub-agent) and one line stating resolution ("1 CRITICAL applied · 2 HIGH applied · 1 HIGH deferred to <follow-up>"). **Never** link to `_/recordings/<TICKET>.review.md`.
 - **Test plan**: bulleted list reviewers can check. Derived from the requirements + any open §5 questions tagged `DEFERRED`.
 - **Notes for reviewers**: §5 `DECIDE` items still open. Things the user wants the reviewer to weigh in on.
+
+#### Concise
+
+Same data sources as standard, stripped to one screen:
+
+- **One-line summary**: a single "what this PR does" sentence built from title + commits. **No** standalone "Summary" heading — the line sits at the top of the body.
+- **Ticket / Validation / Review**: rendered as three bold-prefixed lines under the summary. Validation = outcome line only ("✅ 7 passed · 0 failed"); append " · _N console error(s)_" or " · _N network 4xx/5xx_" only when non-zero. Review = the resolution line only ("1 CRITICAL applied · 2 HIGH applied · 1 HIGH deferred to <follow-up>"), or "✅ No findings" when clean.
+- **AC checklist**: same rules as standard. The contract stays visible.
+- **Notes for reviewers**: include the section only when there are open §5 `DECIDE` items. Otherwise omit `{{REVIEWER_NOTES_SECTION_OR_OMIT}}` entirely — don't leave an empty heading.
+- **Omitted vs. standard**: the per-requirement validation table, the console/network defects table, the review severity breakdown table, and the test plan. They're inferrable from green status + the AC checklist; reviewers who want them can ask.
 
 ### 5. Create the PR
 
@@ -98,3 +116,4 @@ Next:
 - Don't auto-add `[skip ci]` to commits.
 - Don't assign reviewers without explicit `--reviewers` flag — different teams have different ownership conventions.
 - If the GitHub repo lacks a PR template at `.github/pull_request_template.md`, just use the `templates/pr-body.template.md` render. Don't try to create one for the user.
+- The body style is a rendering choice, not a content choice. Whichever template you pick, the AC checklist must be quoted verbatim from the track — concise drops sections, never paraphrases them.

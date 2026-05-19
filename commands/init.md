@@ -107,7 +107,13 @@ Questions, in order:
 
 5. **Commit style.** Options: `conventional` (default — implies `feat/fix/refactor/...` prefixes), `freeform`.
 
-6. **Anything else the agents should know?** Free text (multi-line). Whatever the user writes lands in the `# Notes for agents` body verbatim. Examples to suggest if they hesitate:
+6. **PR body style.** Options:
+   - `standard` *(Recommended)* — full body with the AC checklist, per-requirement validation table, console/network defects, review severity breakdown, test plan, and reviewer notes. Best when reviewers want to verify everything inline.
+   - `concise` — one-line summary, ticket link, validation + review outcome lines, AC checklist only. Best when ACs are long and the per-requirement tables would dominate the PR.
+
+   Per-PR override is always available via `/agentic-sdlc:pr <TICKET> --style <name>`.
+
+7. **Anything else the agents should know?** Free text (multi-line). Whatever the user writes lands in the `# Notes for agents` body verbatim. Examples to suggest if they hesitate:
    - per-workspace dev commands
    - env vars the agents shouldn't read but should know exist
    - flaky tests + acceptable retry counts
@@ -135,6 +141,7 @@ Ticketing:   jira (prefix TICKET) via Atlassian MCP
 Spec:        ticket-references-path (no default dir)
 Validation:  project-playwright @ http://localhost:3000
 Conventions: <type>/<TICKET> branches · conventional commits
+PR body:     standard (per-PR override: /agentic-sdlc:pr <TICKET> --style concise)
 Notes:       8 lines captured (see _/sdlc-config.md)
 
 Next:
