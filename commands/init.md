@@ -27,6 +27,11 @@ Agents read this file every time. JSON can't carry comments, can't hold the proj
 - Check whether `_/sdlc-config.md` already exists.
   - Exists and no `--force` → read it, parse frontmatter, treat detected values as proposed updates the user can accept/reject per-field.
   - Doesn't exist → fresh detection + full wizard.
+- **MCP and skills availability check.** Probe which optional integrations are reachable and report them in the detection summary (§3). Do not fail init if something is missing — just flag it so the user knows what won't work:
+  - **Playwright MCP** (`mcp__plugin_playwright_playwright__browser_navigate`) — required for live selector discovery during `/agentic-sdlc:validate`. If absent, validate will fall back to static selector generation (lower quality; warn).
+  - **Atlassian MCP** — required for Jira ticket fetch in `/agentic-sdlc:intake`. If the user picked `jira` as the ticketing system but this MCP is absent, flag it: "intake will need the ticket pasted manually."
+  - **Linear MCP** — same for Linear.
+  - **`agentic-sdlc:commit-work` skill** — used by `/agentic-sdlc:pr` for the commit step. If the skill registry doesn't list it, warn: "pr phase will need to commit manually."
 
 ### 2. Detect what we can (silent pass)
 
@@ -81,6 +86,13 @@ Missing signals
 - no playwright.config.* found — validation will default to standalone-playwright
   (sdlc installs and drives its own Playwright; project needs only a base_url)
 - no commit prefix detected — ticketing will default to "none" unless you set it
+
+MCP / skills
+------------
+✅ Playwright MCP        — live selector discovery in validate
+✅ agentic-sdlc:commit-work skill
+⚠️  Atlassian MCP absent  — intake will need ticket body pasted manually (if using Jira)
+⚠️  Linear MCP absent     — intake will need ticket body pasted manually (if using Linear)
 ```
 
 ### 4. Walk the wizard
@@ -88,6 +100,13 @@ Missing signals
 Use `AskUserQuestion` for each decision. Pre-fill each question's first option with the detected default and tag it `(Recommended)`. Skip a question only when detection produced a high-confidence value AND `--non-interactive` is set.
 
 Questions, in order:
+
+0. **Track file visibility.** Ask whether to add `_/` to `.gitignore`.
+   - `gitignore _/` *(Recommended)* — track files, recordings, and credentials stay local. Teammates run their own `/agentic-sdlc:intake` per branch. Best for teams where tickets are per-developer.
+   - `commit _/tracks/ only` — track files are committed (useful for async review or shared branches); recordings and `_/demo/credentials.json` are still gitignored.
+   - `commit everything in _/` — full transparency; credentials must be managed externally (warn the user that `_/demo/credentials.json` will be committed).
+
+   Store the answer as `tracks.gitignore: true|partial|false` in the config frontmatter. The write-artifacts step (§5) acts on this value.
 
 1. **Ticketing system.** Options: `jira`, `linear`, `github`, `none`. If the user picks jira/linear, follow up for the prefix (free text, default = detected) and MCP server name (free text, default = `atlassian` for jira, `linear` for linear, null otherwise).
 
@@ -125,7 +144,11 @@ If the user skips a free-text question, the body stays as the template's placeho
 
 - `_/sdlc-config.md` — render `templates/sdlc-config.template.md` with wizard answers; substitute `{{TODAY}}` etc.; place the user's free-text notes (from Q6) under the `# Notes for agents` heading, replacing the placeholder paragraph.
 - `_/demo/credentials.template.json` — copy from `templates/demo-credentials.template.json` (skip if `_/demo/credentials.json` already exists).
-- `.gitignore` — append `templates/gitignore.snippet` if `_/` isn't already ignored.
+- `.gitignore` — update based on `tracks.gitignore`:
+  - `true` → append `_/` (ignore everything).
+  - `partial` → append `_/recordings/`, `_/demo/credentials.json`, `_/demo/scenarios/` but not `_/tracks/`.
+  - `false` → append only `_/demo/credentials.json` and `_/recordings/` (recordings are large binary artifacts; credentials must never be committed regardless of the choice above).
+  Never remove existing gitignore lines — only add what's missing.
 - `_/tracks/` and `_/recordings/` — create with `.gitkeep`.
 
 Validate the parsed frontmatter against `schemas/sdlc-config.schema.json` before writing. Fail loudly on schema violation.
