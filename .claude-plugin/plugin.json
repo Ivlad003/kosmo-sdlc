@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "Deterministic, gated SDLC loop for full-stack JavaScript projects. Track-driven, Playwright-validated, security-reviewed, PR-completed.",
   "author": {
-    "name": "Vlad Kosmach",
-    "email": "vkosmach@code.store"
+    "name": "Sergi",
+    "github": "inperegelion"
   },
   "license": "MIT",
   "keywords": [

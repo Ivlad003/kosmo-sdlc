@@ -3,8 +3,8 @@
   "name": "agentic-sdlc",
   "description": "Deterministic, gated SDLC loop for full-stack JavaScript projects. Turns a ticket into a merged PR through intake → implement → validate → review → PR → revalidate, with a single track file as source of truth.",
   "owner": {
-    "name": "Vlad Kosmach",
-    "email": "vkosmach@code.store"
+    "name": "Sergi",
+    "github": "inperegelion"
   },
   "metadata": {
     "description": "A portable Claude Code plugin that codifies a track-driven SDLC cycle"
@@ -16,8 +16,8 @@
       "description": "Nine slash commands (/agentic-sdlc:init, /agentic-sdlc:intake, /agentic-sdlc:implement, /agentic-sdlc:validate, /agentic-sdlc:review, /agentic-sdlc:pr, /agentic-sdlc:pr-comments, /agentic-sdlc:revalidate, /agentic-sdlc:cycle) that turn a ticket into a merged PR with gated phases and a machine-readable track file.",
       "version": "0.1.0",
       "author": {
-        "name": "Vlad Kosmach",
-        "email": "vkosmach@code.store"
+        "name": "Sergi",
+        "github": "inperegelion"
       },
       "license": "MIT",
       "keywords": [
