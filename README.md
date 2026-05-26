@@ -25,17 +25,17 @@ Every passing validate phase produces a `.webm` you can drop into a Slack thread
 
 ## The cycle
 
-| # | Command | What it does | Gate |
-|---|---|---|---|
-| 0 | `/agentic-sdlc:init` | One-time setup. Detects package manager, scripts, ticketing prefix; wizard fills the rest. | Writes `_/sdlc-config.md` |
-| 1 | `/agentic-sdlc:intake` | Pulls the ticket + spec, decomposes ACs into testable requirements. | Schema-valid track; every AC has ≥1 requirement |
-| 2 | `/agentic-sdlc:implement` | Codes each requirement with tests + mocks, journals as it goes. | All requirements `done`; lint + typecheck + test + build green |
-| 3 | `/agentic-sdlc:validate` | 🎬 Playwright two-pass: strict assertions report → **narrated stakeholder demo `.webm`** with overlays (only on green). | 0 assertion failures; no new console / 4xx-5xx errors |
-| 4 | `/agentic-sdlc:review` | Three parallel sub-agents (code, security, standards) → CRITICAL/HIGH/MEDIUM/LOW report. | No unaddressed CRITICAL findings |
-| 5 | `/agentic-sdlc:pr` | Pushes branch, opens PR with body built from the track frontmatter. | Pipeline green; PR URL written back |
-| 5b | `/agentic-sdlc:pr-comments` | Walks every unresolved review thread, verdict-prefixes each reply (Applied / Rejected / Deferred / …). | Each thread logged to journal |
-| 6 | `/agentic-sdlc:revalidate` | Re-runs validation against the post-review state; detects spec drift. | All requirements still pass; spec hash matches or drift ack'd |
-| ∗ | `/agentic-sdlc:cycle` | Orchestrator — runs 1→6 in dedicated sub-agents, pausing between phases. | Stops at the first failed gate |
+| #   | Command                     | What it does                                                                                                           | Gate                                                           |
+| --- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| 0   | `/agentic-sdlc:init`        | One-time setup. Detects package manager, scripts, ticketing prefix; wizard fills the rest.                             | Writes `_/sdlc-config.md`                                      |
+| 1   | `/agentic-sdlc:intake`      | Pulls the ticket + spec, decomposes ACs into testable requirements.                                                    | Schema-valid track; every AC has ≥1 requirement                |
+| 2   | `/agentic-sdlc:implement`   | Codes each requirement with tests + mocks, journals as it goes.                                                        | All requirements `done`; lint + typecheck + test + build green |
+| 3   | `/agentic-sdlc:validate`    | 🎬 Playwright two-pass: strict assertions report → **narrated stakeholder demo `.webm`** with overlays (only on green). | 0 assertion failures; no new console / 4xx-5xx errors          |
+| 4   | `/agentic-sdlc:review`      | Three parallel sub-agents (code, security, standards) → CRITICAL/HIGH/MEDIUM/LOW report.                               | No unaddressed CRITICAL findings                               |
+| 5   | `/agentic-sdlc:pr`          | Pushes branch, opens PR with body built from the track frontmatter.                                                    | Pipeline green; PR URL written back                            |
+| 5b  | `/agentic-sdlc:pr-comments` | Walks every unresolved review thread, verdict-prefixes each reply (Applied / Rejected / Deferred / …).                 | Each thread logged to journal                                  |
+| 6   | `/agentic-sdlc:revalidate`  | Re-runs validation against the post-review state; detects spec drift.                                                  | All requirements still pass; spec hash matches or drift ack'd  |
+| ∗   | `/agentic-sdlc:cycle`       | Orchestrator — runs 1→6 in dedicated sub-agents, pausing between phases.                                               | Stops at the first failed gate                                 |
 
 ## Single source of truth
 
@@ -57,10 +57,33 @@ The whole `_/` directory is gitignored. Nothing the cycle produces lands in git 
 
 ## Install
 
-```bash
-/plugin marketplace add /path/to/sdlc
-/plugin install agentic-sdlc@agentic-sdlc
+Inside any Claude Code session, run two commands:
+
 ```
+/plugin marketplace add https://raw.githubusercontent.com/inperegelion/agentic-sdlc/main/.claude-plugin/marketplace.json
+/plugin install agentic-sdlc
+```
+ The plugin is installed globally and the nine `/agentic-sdlc:*` commands become available immediately.
+
+### Verify the install
+
+```
+/plugin list
+```
+
+You should see `agentic-sdlc` in the output. Then confirm the commands loaded:
+
+```
+/agentic-sdlc:init --help
+```
+
+### Testing a fresh install (for contributors)
+
+1. Open a **new, unrelated project directory** in Claude Code (not this repo).
+2. Run the two install commands above.
+3. Run `/plugin list` — `agentic-sdlc` must appear.
+4. Run `/agentic-sdlc:init` — it should start the project wizard.
+5. If a command is missing, run `/plugin reload` and try again.
 
 Manual install (clone + symlink) is documented in [docs/adapting.md](docs/adapting.md).
 
@@ -81,21 +104,17 @@ Or step through manually:
 /agentic-sdlc:pr         PROJ-123
 ```
 
-## Why gates
-
-The common failure mode for agentic dev tools is *"produces code, claims success, reviewer finds the gap."* Gates flip this: every transition has a verifiable condition, and the cycle stops at the first unmet one. The track file remembers exactly where it stopped, so resuming a day later doesn't lose context.
-
 ## What's in the box
 
-| Folder | Contents |
-|---|---|
-| `commands/` | The nine slash commands |
-| `agents/` | Sub-agent definitions dispatched by `/agentic-sdlc:cycle` |
-| `skills/commit-work/` | Reusable commit-craft skill |
-| `schemas/` | JSON Schemas for the track file and project config |
-| `templates/` | Scaffolds rendered by `/agentic-sdlc:init` and `/agentic-sdlc:intake` |
-| `docs/` | Cycle walkthrough, track format, init detection, adapting |
-| `examples/sample/` | Reference track + config from a real Turborepo project |
+| Folder                | Contents                                                              |
+| --------------------- | --------------------------------------------------------------------- |
+| `commands/`           | The nine slash commands                                               |
+| `agents/`             | Sub-agent definitions dispatched by `/agentic-sdlc:cycle`             |
+| `skills/commit-work/` | Reusable commit-craft skill                                           |
+| `schemas/`            | JSON Schemas for the track file and project config                    |
+| `templates/`          | Scaffolds rendered by `/agentic-sdlc:init` and `/agentic-sdlc:intake` |
+| `docs/`               | Cycle walkthrough, track format, init detection, adapting             |
+| `examples/sample/`    | Reference track + config from a real Turborepo project                |
 
 ## Documentation
 
@@ -111,11 +130,3 @@ The common failure mode for agentic dev tools is *"produces code, claims success
 - Node 18+ (for Playwright — sdlc can run Playwright standalone if the host project has none)
 - `gh` CLI authenticated (for the PR phase)
 - Atlassian or Linear MCP — optional, improves intake quality
-
-## Status
-
-Alpha. Schema and command surface may change between 0.x releases. See [CHANGELOG.md](CHANGELOG.md).
-
-## License
-
-MIT — see [LICENSE](LICENSE).
