@@ -31,7 +31,7 @@ Agents read this file every time. JSON can't carry comments, can't hold the proj
   - **Playwright MCP** (`mcp__plugin_playwright_playwright__browser_navigate`) — required for live selector discovery during `/agentic-sdlc:validate`. If absent, validate will fall back to static selector generation (lower quality; warn).
   - **Atlassian MCP** — required for Jira ticket fetch in `/agentic-sdlc:intake`. If the user picked `jira` as the ticketing system but this MCP is absent, flag it: "intake will need the ticket pasted manually."
   - **Linear MCP** — same for Linear.
-  - **`agentic-sdlc:commit-work` skill** — used by `/agentic-sdlc:pr` for the commit step. If the skill registry doesn't list it, warn: "pr phase will need to commit manually."
+  - **`agentic-sdlc:commit-work` skill** — used by `/agentic-sdlc:implement`, `/agentic-sdlc:review`, and `/agentic-sdlc:pr` as the default commit command. If the skill registry doesn't list it, warn: "the default commit command (`commit-work`) is unavailable — you may want to pick a custom commit command during setup."
 
 ### 2. Detect what we can (silent pass)
 
@@ -126,13 +126,21 @@ Questions, in order:
 
 5. **Commit style.** Options: `conventional` (default — implies `feat/fix/refactor/...` prefixes), `freeform`.
 
-6. **PR body style.** Options:
+6. **Commit strategy.** How should the implement and review phases commit code changes? Three strategies:
+
+   - **`skill`** *(Recommended)* — invoke a named Claude Code skill. Follow-up: skill name (default `commit-work`). The skill handles staging, message drafting, and safety checks. Works out of the box when `commit-work` is installed; any other installed commit-style skill is equally valid.
+   - **`command`** — run a shell command. Follow-up: the command string (e.g. `git commit -S`, `cz commit`, `git-crypt-commit`). Use `{{MESSAGE}}` in the command as a placeholder for the agent-drafted message. The agent stages only the files for that unit of work before running it.
+   - **`prompt`** — give the agent natural-language commit instructions and let it decide how to stage and message. Follow-up: free-text (multi-line). Examples: "group frontend and backend changes into separate commits", "always sign off with `Signed-off-by:`", "write messages in Ukrainian", "never mix test files with source files in the same commit". The agent reads these instructions verbatim before every commit and applies them.
+
+   Store as `conventions.commit` in the config frontmatter (`via`, plus `skill` / `command` / `prompt` — null the unused two). If `commit-work` is unavailable (flagged in the MCP/skills check above), pre-select `command` with `git commit` as the recommended fallback and note that the skill can be enabled later.
+
+7. **PR body style.** Options:
    - `standard` *(Recommended)* — full body with the AC checklist, per-requirement validation table, console/network defects, review severity breakdown, test plan, and reviewer notes. Best when reviewers want to verify everything inline.
    - `concise` — one-line summary, ticket link, validation + review outcome lines, AC checklist only. Best when ACs are long and the per-requirement tables would dominate the PR.
 
    Per-PR override is always available via `/agentic-sdlc:pr <TICKET> --style <name>`.
 
-7. **Anything else the agents should know?** Free text (multi-line). Whatever the user writes lands in the `# Notes for agents` body verbatim. Examples to suggest if they hesitate:
+8. **Anything else the agents should know?** Free text (multi-line). Whatever the user writes lands in the `# Notes for agents` body verbatim. Examples to suggest if they hesitate:
    - per-workspace dev commands
    - env vars the agents shouldn't read but should know exist
    - flaky tests + acceptable retry counts
@@ -163,7 +171,7 @@ agentic-sdlc initialized at /path/to/project
 Ticketing:   jira (prefix TICKET) via Atlassian MCP
 Spec:        ticket-references-path (no default dir)
 Validation:  project-playwright @ http://localhost:3000
-Conventions: <type>/<TICKET> branches · conventional commits
+Conventions: <type>/<TICKET> branches · conventional commits · commit via <strategy> (<skill|command|prompt value>)
 PR body:     standard (per-PR override: /agentic-sdlc:pr <TICKET> --style concise)
 Notes:       8 lines captured (see _/sdlc-config.md)
 

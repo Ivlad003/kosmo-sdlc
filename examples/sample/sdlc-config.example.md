@@ -18,6 +18,11 @@ validation:
 
 conventions:
   commit_style: conventional
+  commit:
+    via: skill
+    skill: commit-work
+    command: null
+    prompt: null
   branch_pattern: "<type>/<TICKET>"
   track_dir: _/tracks
   demo_dir: _/demo

@@ -125,10 +125,12 @@ Then dispatch **one** `Agent` call with `subagent_type: agentic-sdlc:sdlc-impl-a
 The fix sub-agent:
 - Makes minimal, focused edits per finding; re-reads each touched file to confirm.
 - Returns: files touched, per-finding note, and any findings it couldn't apply (with reason).
-- Never commits — the user batches commits via the `commit-work` skill, or `/agentic-sdlc:pr` runs `commit-work` itself.
+- Never commits — the coordinator commits on its behalf using `conventions.commit_command` after the pipeline gate passes.
 
 On return, the coordinator (this command):
 - Re-runs the pipeline gate **once** for the whole fix batch.
+- On pipeline pass → apply the commit strategy from `conventions.commit` in `_/sdlc-config.md` (missing block → `via: skill, skill: commit-work`) to commit the review fixes. Stage only the files the fix sub-agent touched. For `via: skill/command`, draft `fix(TICKET-1): apply review findings — <CRITICAL-n>, <HIGH-n> addressed`. For `via: prompt`, apply the prompt instructions to the staged fix files. Skip if there are no uncommitted changes.
+- On pipeline failure → do **not** commit; surface the failure and ask the user how to proceed.
 - Persists frontmatter updates (status / journal) — single writer.
 - Surfaces any unapplied findings to the user.
 
@@ -153,5 +155,5 @@ Next: /agentic-sdlc:pr TICKET-1
 - The fix sub-agent runs **sequentially after** review, in its own context, and **never writes frontmatter** — the coordinator is the single writer.
 - The security reviewer is mandatory under `--strict` and when the file-path heuristic matches.
 - Don't fabricate findings to "look thorough". If a sub-agent has nothing in a severity bucket, write `0` and move on.
-- Never auto-commit fixes. The user commits when ready.
+- Commit review fixes automatically once the post-fix pipeline passes, using the strategy in `conventions.commit` from `_/sdlc-config.md` (default `via: skill, skill: commit-work`). Never commit on pipeline failure.
 - Pre-existing issues outside the diff are **out of scope** unless the user explicitly asks to expand the review. Report them as informational notes, never as blocking findings.

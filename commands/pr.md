@@ -32,7 +32,7 @@ Resolve the pipeline command (same order as `/agentic-sdlc:implement`: `override
 
 ### 2. Stage and commit if there are unstaged changes
 
-- If `git status` shows changes → invoke the `commit-work` skill to craft Conventional Commits.
+- If `git status` shows changes → apply the commit strategy from `conventions.commit` in `_/sdlc-config.md` (missing block → `via: skill, skill: commit-work`). For `via: skill`, the skill handles staging and messaging. For `via: command`, draft a Conventional Commits message from the remaining changed files and run the command. For `via: prompt`, apply the prompt instructions to whatever remains uncommitted.
 - Never `git add -A` blindly. Patch-stage when changes are mixed.
 - Don't include the `_/` directory (it's gitignored, but double-check).
 

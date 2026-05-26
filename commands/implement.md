@@ -63,7 +63,12 @@ For each requirement in order:
    - On failure → keep requirement at `in_progress`, surface the failure, ask user how to proceed.
 5. On pipeline pass:
    - Set `status: done`.
-   - Set `evidence` to a `file:line` reference or short commit SHA.
+   - Invoke the commit strategy from `conventions.commit` in `_/sdlc-config.md`. Resolve as follows (missing block → treat as `via: skill, skill: commit-work`):
+     - `via: skill` → invoke the named skill (default `commit-work`), scoped to the files touched by this requirement. Pass context: ticket id, requirement id, and drafted message (e.g. `feat(TICKET-1): implement R1.1 — <requirement text>`).
+     - `via: command` → stage the requirement's touched files, draft a commit message, then run the configured command (substituting `{{MESSAGE}}` with the message if the placeholder is present).
+     - `via: prompt` → read `commit.prompt` verbatim as the commit instructions; apply them (grouping, sign-off, language, exclusion rules, etc.) when staging and messaging. Multiple commits for a single requirement are allowed when the prompt calls for it.
+     - In every case: do **not** `git add -A` blindly — stage only files changed for this requirement. Skip if there are no changes (nothing to commit).
+   - Set `evidence` to the short commit SHA from the commit just made (or a `file:line` reference when no commit was created).
    - Append journal row: `Done R1.1 — <evidence>`.
 
 Don't mark `done` if:
@@ -109,6 +114,7 @@ Per the project's conventions (detected at init):
 
 When all in-scope requirements are `done`:
 
+- If `git status` shows any uncommitted changes (e.g. track file updates, seed files added late), apply the commit strategy once more to capture them. For `via: skill/command`, draft `chore(TICKET-1): finalize implementation — track + fixture updates` (or equivalent per commit style). For `via: prompt`, apply the prompt instructions to whatever remains.
 - Set `frontmatter.status: in_review` (the act of finishing implementation moves us toward review).
 - Append journal row: `Implementation complete. <N> requirements done. Next: /agentic-sdlc:validate <TICKET>.`
 - Print:
@@ -127,4 +133,5 @@ Next: /agentic-sdlc:validate TICKET-1
 - Never disable the pipeline silently. `--no-pipeline` requires the user to type it.
 - Never commit `.env` files, real credentials, or files outside the project working tree.
 - Always use existing patterns over new abstractions. Three similar lines are better than a premature abstraction.
+- Commit after each requirement (§4 step 5) using the strategy in `conventions.commit` (default `via: skill, skill: commit-work`). Never `git add -A`; stage only the files for that requirement.
 - Don't auto-push every commit. Push the branch once at branch-creation time; subsequent pushes are the user's call.

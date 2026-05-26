@@ -64,6 +64,31 @@
           "type": "string",
           "enum": ["conventional", "freeform"]
         },
+        "commit": {
+          "type": "object",
+          "description": "How the agent commits code changes during implement and review phases. Three strategies: 'skill' (invoke a named skill), 'command' (run a shell command), 'prompt' (agent follows free-text instructions). Omit the whole block to use the default: skill=commit-work.",
+          "additionalProperties": false,
+          "properties": {
+            "via": {
+              "type": "string",
+              "enum": ["skill", "command", "prompt"],
+              "default": "skill",
+              "description": "Dispatch strategy. 'skill': invoke a Claude Code skill by name. 'command': run a shell command. 'prompt': the agent reads the value as natural-language commit instructions and decides how to stage and message."
+            },
+            "skill": {
+              "type": ["string", "null"],
+              "description": "Skill name to invoke when via=skill. Default: 'commit-work'."
+            },
+            "command": {
+              "type": ["string", "null"],
+              "description": "Shell command to run when via=command. Use {{MESSAGE}} as a placeholder for the drafted commit message."
+            },
+            "prompt": {
+              "type": ["string", "null"],
+              "description": "Free-text instructions the agent follows when via=prompt. Describe grouping rules, message format, what to exclude, sign-off requirements, etc."
+            }
+          }
+        },
         "branch_pattern": {
           "type": ["string", "null"],
           "description": "Template like '<type>/<TICKET>'. Supported substitutions: <type>, <TICKET>, <author> (from git config user.name)."

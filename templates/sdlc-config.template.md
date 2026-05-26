@@ -21,6 +21,11 @@ validation:
 
 conventions:
   commit_style: {{COMMIT_STYLE}}          # conventional | freeform
+  commit:
+    via: {{COMMIT_VIA}}                   # skill | command | prompt
+    skill: {{COMMIT_SKILL_OR_NULL}}       # skill name when via: skill (default: commit-work)
+    command: {{COMMIT_COMMAND_OR_NULL}}   # shell command when via: command (use {{MESSAGE}} for the message)
+    prompt: {{COMMIT_PROMPT_OR_NULL}}     # free-text instructions when via: prompt
   branch_pattern: {{BRANCH_PATTERN_OR_NULL}}  # e.g. "<type>/<TICKET>"
   track_dir: _/tracks
   demo_dir: _/demo
