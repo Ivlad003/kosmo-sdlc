@@ -1,6 +1,6 @@
 {
   "name": "agentic-sdlc",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Deterministic, gated SDLC loop for full-stack JavaScript projects. Track-driven, Playwright-validated, security-reviewed, PR-completed.",
   "author": {
     "name": "Sergi",
