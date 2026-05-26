@@ -57,35 +57,52 @@ The whole `_/` directory is gitignored. Nothing the cycle produces lands in git 
 
 ## Install
 
-Inside any Claude Code session, run two commands:
+### Claude Code
 
 ```
 /plugin marketplace add https://raw.githubusercontent.com/inperegelion/agentic-sdlc/main/.claude-plugin/marketplace.json
 /plugin install agentic-sdlc
 ```
- The plugin is installed globally and the nine `/agentic-sdlc:*` commands become available immediately.
 
-### Verify the install
+### Codex
 
-```
-/plugin list
-```
+Codex support is local-clone based for now:
 
-You should see `agentic-sdlc` in the output. Then confirm the commands loaded:
-
-```
-/agentic-sdlc:init --help
+```bash
+mkdir -p ~/plugins ~/.agents/plugins
+git clone https://github.com/inperegelion/agentic-sdlc.git ~/plugins/agentic-sdlc
 ```
 
-### Testing a fresh install (for contributors)
+Add the plugin to your personal Codex marketplace at `~/.agents/plugins/marketplace.json`:
 
-1. Open a **new, unrelated project directory** in Claude Code (not this repo).
-2. Run the two install commands above.
-3. Run `/plugin list` — `agentic-sdlc` must appear.
-4. Run `/agentic-sdlc:init` — it should start the project wizard.
-5. If a command is missing, run `/plugin reload` and try again.
+```json
+{
+  "name": "personal",
+  "interface": {
+    "displayName": "Personal"
+  },
+  "plugins": [
+    {
+      "name": "agentic-sdlc",
+      "source": {
+        "source": "local",
+        "path": "./plugins/agentic-sdlc"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Engineering"
+    }
+  ]
+}
+```
 
-Manual install (clone + symlink) is documented in [docs/adapting.md](docs/adapting.md).
+If you already have a personal marketplace file, add only the `agentic-sdlc` object to its `plugins` array. Then open this URL, replacing `<you>` with your macOS username, and click **Install**:
+
+```
+codex://plugins/agentic-sdlc?marketplacePath=/Users/<you>/.agents/plugins/marketplace.json
+```
 
 ## First run
 
@@ -103,18 +120,6 @@ Or step through manually:
 /agentic-sdlc:review     PROJ-123
 /agentic-sdlc:pr         PROJ-123
 ```
-
-## What's in the box
-
-| Folder                | Contents                                                              |
-| --------------------- | --------------------------------------------------------------------- |
-| `commands/`           | The nine slash commands                                               |
-| `agents/`             | Sub-agent definitions dispatched by `/agentic-sdlc:cycle`             |
-| `skills/commit-work/` | Reusable commit-craft skill                                           |
-| `schemas/`            | JSON Schemas for the track file and project config                    |
-| `templates/`          | Scaffolds rendered by `/agentic-sdlc:init` and `/agentic-sdlc:intake` |
-| `docs/`               | Cycle walkthrough, track format, init detection, adapting             |
-| `examples/sample/`    | Reference track + config from a real Turborepo project                |
 
 ## Documentation
 
