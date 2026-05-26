@@ -60,7 +60,7 @@ The whole `_/` directory is gitignored. Nothing the cycle produces lands in git 
 ### Claude Code
 
 ```
-/plugin marketplace add https://raw.githubusercontent.com/inperegelion/agentic-sdlc/main/.claude-plugin/marketplace.json
+/plugin marketplace add inperegelion/agentic-sdlc
 /plugin install agentic-sdlc
 ```
 
@@ -102,6 +102,14 @@ If you already have a personal marketplace file, add only the `agentic-sdlc` obj
 
 ```
 codex://plugins/agentic-sdlc?marketplacePath=/Users/<you>/.agents/plugins/marketplace.json
+```
+
+## Update
+
+### Claude Code
+
+```
+/plugin update agentic-sdlc
 ```
 
 ## First run
