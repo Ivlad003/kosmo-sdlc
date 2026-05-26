@@ -37,19 +37,19 @@ Agents read this file every time. JSON can't carry comments, can't hold the proj
 
 Quick read-only scan. Nothing is written yet; values feed wizard defaults.
 
-| Source | Used to suggest |
-| --- | --- |
-| `package.json` (root) | `scripts.*` map, `packageManager` field |
-| `package-lock.json` / `pnpm-lock.yaml` / `yarn.lock` / `bun.lock(b)` | Package manager fallback |
-| `turbo.json` / `nx.json` / `pnpm-workspace.yaml` / `lerna.json` | Monorepo flag, workspace globs |
-| `apps/*/package.json`, `packages/*/package.json` | Per-workspace scripts (for the Notes body) |
-| `playwright.config.{ts,js,mjs,cjs}` (depth ≤ 4) | `validation.mode` default + `validation.base_url` |
-| `.github/workflows/*.yml` | List of workflows + jobs (printed for the user, not persisted) |
-| `.github/pull_request_template.md` | Existence flag (printed) |
-| `tsconfig.json`, `biome.json`, `.eslintrc*`, `.prettierrc*` | Lint/typecheck capability (printed) |
-| recent commit prefixes (`git log --oneline -50`) | `ticketing.prefix` guess (`^[A-Z]+-\d+`) |
-| recent branch names | `conventions.branch_pattern` guess |
-| `CLAUDE.md` / `AGENTS.md` / `.claude/rules/*.md` / `docs/conventions.md` | Standards-review eligibility (printed) |
+| Source                                                                   | Used to suggest                                                |
+| ------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| `package.json` (root)                                                    | `scripts.*` map, `packageManager` field                        |
+| `package-lock.json` / `pnpm-lock.yaml` / `yarn.lock` / `bun.lock(b)`     | Package manager fallback                                       |
+| `turbo.json` / `nx.json` / `pnpm-workspace.yaml` / `lerna.json`          | Monorepo flag, workspace globs                                 |
+| `apps/*/package.json`, `packages/*/package.json`                         | Per-workspace scripts (for the Notes body)                     |
+| `playwright.config.{ts,js,mjs,cjs}` (depth ≤ 4)                          | `validation.mode` default + `validation.base_url`              |
+| `.github/workflows/*.yml`                                                | List of workflows + jobs (printed for the user, not persisted) |
+| `.github/pull_request_template.md`                                       | Existence flag (printed)                                       |
+| `tsconfig.json`, `biome.json`, `.eslintrc*`, `.prettierrc*`              | Lint/typecheck capability (printed)                            |
+| recent commit prefixes (`git log --oneline -50`)                         | `ticketing.prefix` guess (`^[A-Z]+-\d+`)                       |
+| recent branch names                                                      | `conventions.branch_pattern` guess                             |
+| `CLAUDE.md` / `AGENTS.md` / `.claude/rules/*.md` / `docs/conventions.md` | Standards-review eligibility (printed)                         |
 
 Detection rules:
 
@@ -148,9 +148,27 @@ Questions, in order:
 
 If the user skips a free-text question, the body stays as the template's placeholder (`_No project-specific notes yet…_`).
 
+9. **Per-phase prompt overlays** (optional). Do any phases need team-specific instructions appended to the generic phase prompt?
+
+   Ask first: "Do any phases need custom instructions beyond the Notes body above? (y/n — press Enter to skip)"
+
+   If the user answers yes (or types anything non-empty), ask one free-text question per phase, each skippable by pressing Enter:
+   - "Custom instructions for the **intake** phase? (Enter to skip)"
+   - "Custom instructions for the **implement** phase? (Enter to skip)"
+   - "Custom instructions for the **review** phase? (Enter to skip)"
+   - "Custom instructions for the **validate** phase? (Enter to skip)"
+
+   Suggest examples inline to help the user answer:
+   - intake: "Always extract a non-functional performance AC if none is stated."
+   - implement: "Every requirement must ship with a unit test."
+   - review: "Flag raw SQL as CRITICAL. All migrations must be reversible."
+   - validate: "Use /en/ locale prefix. Demo account: demo@example.com."
+
+   Store each non-empty answer as `phase_prompts.<phase>` in the config frontmatter. Leave phases with no input as `null`. The overlays are appended at cycle dispatch time — the agent treats them as binding instructions alongside the base prompt.
+
 ### 5. Write artifacts
 
-- `_/sdlc-config.md` — render `templates/sdlc-config.template.md` with wizard answers; substitute `{{TODAY}}` etc.; place the user's free-text notes (from Q6) under the `# Notes for agents` heading, replacing the placeholder paragraph.
+- `_/sdlc-config.md` — render `templates/sdlc-config.template.md` with wizard answers; substitute `{{TODAY}}` etc.; substitute `{{PHASE_PROMPTS_INTAKE}}`, `{{PHASE_PROMPTS_IMPLEMENT}}`, `{{PHASE_PROMPTS_REVIEW}}`, `{{PHASE_PROMPTS_VALIDATE}}` with the Q9 answers (null for skipped phases, quoted strings for non-empty answers); place the user's free-text notes (from Q8) under the `# Notes for agents` heading, replacing the placeholder paragraph.
 - `_/demo/credentials.template.json` — copy from `templates/demo-credentials.template.json` (skip if `_/demo/credentials.json` already exists).
 - `.gitignore` — update based on `tracks.gitignore`:
   - `true` → append `_/` (ignore everything).
@@ -168,16 +186,19 @@ Print a structured summary:
 ```
 agentic-sdlc initialized at /path/to/project
 
-Ticketing:   jira (prefix TICKET) via Atlassian MCP
-Spec:        ticket-references-path (no default dir)
-Validation:  project-playwright @ http://localhost:3000
-Conventions: <type>/<TICKET> branches · conventional commits · commit via <strategy> (<skill|command|prompt value>)
-PR body:     standard (per-PR override: /agentic-sdlc:pr <TICKET> --style concise)
-Notes:       8 lines captured (see _/sdlc-config.md)
+Ticketing:      jira (prefix TICKET) via Atlassian MCP
+Spec:           ticket-references-path (no default dir)
+Validation:     project-playwright @ http://localhost:3000
+Conventions:    <type>/<TICKET> branches · conventional commits · commit via <strategy> (<skill|command|prompt value>)
+PR body:        standard (per-PR override: /agentic-sdlc:pr <TICKET> --style concise)
+Notes:          8 lines captured (see _/sdlc-config.md)
+Phase prompts:  implement ✅ · review ✅ · intake — · validate —
 
 Next:
   /agentic-sdlc:intake <TICKET-ID> [spec-path]
 ```
+
+(The `Phase prompts:` line is omitted when all four overlays are null.)
 
 Then the usage primer (same as before — kept verbatim except for the artifact name change):
 

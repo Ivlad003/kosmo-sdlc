@@ -40,6 +40,16 @@ overrides:
   default_branch: null                    # e.g. "trunk"
   pipeline_command: null                  # e.g. "pnpm pipeline"
   dev_command: null                       # e.g. "pnpm dev"
+
+# Per-phase prompt overlays — each non-null string is appended to that phase's
+# base dispatch prompt at cycle time. Use for team conventions the generic prompts
+# can't know: a house review checklist, a required deploy gate, stack-specific
+# Playwright helpers, etc. null means no overlay for that phase.
+phase_prompts:
+  intake: {{PHASE_PROMPTS_INTAKE}}        # e.g. "Always extract a non-functional performance AC if none is stated."
+  implement: {{PHASE_PROMPTS_IMPLEMENT}}  # e.g. "Every requirement must include a unit test. Never skip test files."
+  review: {{PHASE_PROMPTS_REVIEW}}        # e.g. "Flag any use of raw SQL as CRITICAL regardless of parameterisation."
+  validate: {{PHASE_PROMPTS_VALIDATE}}    # e.g. "Use /en/ locale prefix for all routes. Site is localised."
 ---
 
 # Notes for agents

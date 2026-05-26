@@ -32,6 +32,16 @@ overrides:
   default_branch: trunk        # detection returns "main"; this repo merges into trunk
   pipeline_command: null
   dev_command: null
+
+phase_prompts:
+  intake: null
+  implement: "Each requirement must ship with a unit test in the same commit. Never skip
+    test files. For NestJS changes, add an e2e spec under apps/backend/test/."
+  review: "Apply the team review checklist: (1) no raw knex queries — use the QueryBuilder
+    wrapper; (2) all new env vars documented in docs/env.md; (3) migrations must be
+    reversible. Flag violations as HIGH."
+  validate: "Use /en/ locale prefix for all routes. Credentials are in _/demo/credentials.json
+    (email: demo@example.com). Run against apps/frontend dev server on port 3000."
 ---
 
 # Notes for agents

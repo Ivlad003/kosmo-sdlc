@@ -129,6 +129,29 @@
           "description": "Pin when root scripts.dev isn't the right entry point (e.g. monorepo with per-app dev scripts)."
         }
       }
+    },
+    "phase_prompts": {
+      "type": "object",
+      "description": "Per-phase prompt overlays appended to each phase's base dispatch prompt at cycle time. Lets teams inject house conventions (review checklists, deploy gates, Playwright helpers) without editing agent definitions. Omitting the block entirely is valid — all phases default to no overlay.",
+      "additionalProperties": false,
+      "properties": {
+        "intake": {
+          "type": ["string", "null"],
+          "description": "Appended to the intake agent prompt. Use for custom AC decomposition rules or ticket-parsing conventions."
+        },
+        "implement": {
+          "type": ["string", "null"],
+          "description": "Appended to the implement agent prompt. Use for house coding patterns, required review steps, or deploy-gate conventions."
+        },
+        "review": {
+          "type": ["string", "null"],
+          "description": "Appended to the review agent prompt. Use for a house review checklist or team-specific severity thresholds."
+        },
+        "validate": {
+          "type": ["string", "null"],
+          "description": "Appended to the validate agent prompt. Use for stack-specific Playwright helpers or demo scripting conventions."
+        }
+      }
     }
   }
 }

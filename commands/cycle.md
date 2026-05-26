@@ -62,6 +62,12 @@ For each phase in order: intake → implement → validate → review → pr →
    ONLY the updated track frontmatter (YAML) and a one-paragraph summary. Do not
    commit. Do not push (except /agentic-sdlc:pr-agent).
    ```
+   After constructing the base prompt, read `phase_prompts.<phase>` from `_/sdlc-config.md` frontmatter. If it is non-null and non-empty, append the following block to the prompt:
+   ```
+   Additional project instructions for this phase:
+   <phase_prompts.<phase> value>
+   ```
+   This lets teams inject house conventions (review checklists, deploy gates, Playwright helpers) without editing agent definitions. Phases without an overlay receive the base prompt unchanged.
 3. Dispatch via the `Agent` tool with the appropriate sub-agent definition.
 4. Receive the frontmatter delta. Validate against `schemas/track.schema.json`.
 5. Merge into the track file. Append the agent's summary to §7 Journal.
