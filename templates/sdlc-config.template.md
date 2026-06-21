@@ -41,6 +41,15 @@ overrides:
   pipeline_command: null                  # e.g. "pnpm pipeline"
   dev_command: null                       # e.g. "pnpm dev"
 
+# Optional ticket-size policy. intake proposes a size (s/m/l) and the user confirms;
+# 's' skips e2e/demo and (by default) the 3-agent review, relying on the quality-gate
+# pipeline rerun. Omit this block to use built-in defaults. Uncomment to tune.
+# sizing:
+#   small_max_requirements: 3   # propose 's' only at/below this requirement count
+#   small_max_acs: 2            # propose 's' only at/below this AC count
+#   large_min_acs: 5           # propose 'l' (mother + per-AC sub-tracks) at/above this
+#   small_skips_review: true   # false ⇒ keep the review phase even for small tickets
+
 # Per-phase prompt overlays — each non-null string is appended to that phase's
 # base dispatch prompt at cycle time. Use for team conventions the generic prompts
 # can't know: a house review checklist, a required deploy gate, stack-specific

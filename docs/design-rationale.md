@@ -69,6 +69,21 @@ Tracks, demos, recordings, scenarios, and the project config all live under `_/`
 
 **No spec-pressure-testing skill baked in.** `vibe-testing` is a recommended companion (see [adapting.md](adapting.md)), not a bundled feature. Pressure-testing a spec before intake is good practice but adds another command and another gate; it's optional.
 
+## Size adaptivity — proportional rigor, never silent
+
+A one-line copy fix and a multi-AC feature don't deserve the same ceremony. `frontmatter.size` (`s`/`m`/`l`, proposed at intake, confirmed by the user) scales the cycle:
+
+- **`s`** reuses machinery that already existed: `/agentic-sdlc:validate` already drops Playwright/demo and runs only the automated-checks pipeline track for backend-only / `manual` changes. `s` is just one more trigger into that path, plus skipping the 3-agent review. The verification a small ticket gets is the project's **own quality gates re-run** — the same lint/typecheck/test/build the team already trusts — confirming nothing broke. No new e2e is authored for a change that doesn't warrant it.
+- **`m`** is the default and is untouched. A track with no `size` field is treated as `m`, so this feature is fully backward compatible.
+- **`l`** splits one mother track into a sub-track **per AC group**, each run as its own (smaller) cycle. The split is by AC because that's the unit the spec already defines and the unit a reviewer reasons about; splitting by owner tends to produce sub-tracks that can't be validated independently.
+
+Two principles kept this from becoming a "skip the gates" knob:
+
+1. **Reducing rigor is never silent.** Resolving to `s` requires explicit user confirmation, even under `--auto`. Intake *proposes*; the human *decides*. This is the one place the cycle asks before doing less.
+2. **`s` drops phases, not gates.** The pipeline gate still runs at implement, validate, and pr. `s` removes the demo and the review — the parts that are overkill for a trivial change — but never the green-pipeline requirement. Consistent with "Gates over hopes": a lighter gate is still a gate.
+
+Tuning lives in the optional `sizing` block of `_/sdlc-config.md` (thresholds, and a `small_skips_review` toggle for teams that want review even on small tickets).
+
 ## What we'd add in v1.x
 
 - Spec-pressure-testing as an opt-in `/agentic-sdlc:prespec` phase (zero gate, advisory only).

@@ -19,6 +19,21 @@
       "type": "string",
       "enum": ["planned", "in_progress", "in_review", "ready_to_merge", "merged", "abandoned"]
     },
+    "size": {
+      "type": "string",
+      "enum": ["s", "m", "l"],
+      "default": "m",
+      "description": "Ticket size tier, proposed at intake and confirmed by the user. 's' (small/XS) skips e2e + demo and the 3-agent review — the project's quality-gate pipeline rerun is the sole verification. 'm' (default) runs the full cycle. 'l' is a mother track that splits into one sub-track per AC group (see parent/children). Absent ⇒ 'm', so pre-existing tracks stay valid. Downgrading a track to 's' always needs explicit user confirmation, even under --auto."
+    },
+    "parent": {
+      "type": ["string", "null"],
+      "description": "For an 'l' sub-track: the ticket id of its mother track. null for standalone and mother tracks."
+    },
+    "children": {
+      "type": ["array", "null"],
+      "items": { "type": "string", "minLength": 1 },
+      "description": "For an 'l' mother track: the ticket ids of its sub-tracks (one per AC group). null for standalone and sub-tracks."
+    },
     "created": {
       "type": "string",
       "format": "date"

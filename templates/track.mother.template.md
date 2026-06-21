@@ -2,9 +2,10 @@
 ticket: {{TICKET}}
 title: {{TITLE}}
 status: planned
-size: {{SIZE}}
-parent: {{PARENT_OR_NULL}}
-children: {{CHILDREN_OR_NULL}}
+size: l
+parent: null
+children:
+{{CHILDREN_YAML_LIST}}
 created: {{TODAY}}
 updated: {{TODAY}}
 branch: null
@@ -32,13 +33,23 @@ acs:
 phase_log:
   - phase: intake
     at: {{NOW_ISO}}
-    note: "Track created from {{SOURCE}}."
+    note: "Mother track created from {{SOURCE}}; split into {{N_CHILDREN}} sub-tracks (one per AC group)."
     outcome: pass
 ---
 
 # Where we at on this track
 
-Intake just completed. 0 of N requirements started. Next step: run `/agentic-sdlc:implement {{TICKET}}`.
+Intake just completed. This is an **L (large)** mother track — the work is split into {{N_CHILDREN}} sub-tracks, one per AC group. Each sub-track runs its own cycle; this track aggregates their gate outcomes. Next step: run `/agentic-sdlc:cycle {{TICKET}}` to fan out over the sub-tracks (or run each sub-track individually).
+
+## §0 Sub-tracks
+
+Each row is an independent unit of work with its own track file. The mother track is `ready_to_merge` only when **every** sub-track has cleared its gates.
+
+| Sub-track | AC group | Owner mix | Status | Track file |
+| --------- | -------- | --------- | ------ | ---------- |
+{{SUBTRACK_TABLE_ROWS}}
+
+> Status mirrors each sub-track's frontmatter `status`. The cycle orchestrator updates this table as sub-tracks advance.
 
 ## §1 Scope
 
@@ -66,15 +77,6 @@ Intake just completed. 0 of N requirements started. Next step: run `/agentic-sdl
 
 {{SPEC_PLAIN_LANGUAGE_OR_TBD}}
 
-## §4 UI layout reference
-
-```
-{{ASCII_SKETCH_OR_TBD}}
-```
-
-Open visual questions:
-- {{VISUAL_QUESTIONS_OR_TBD}}
-
 ## §5 Open questions
 
 | # | Status | Owner | Question | Decision |
@@ -83,24 +85,8 @@ Open visual questions:
 
 Statuses: `DECIDE` · `✅ RESOLVED` · `DEFERRED`
 
-## §6 Implementation plan
-
-### Backend
-- [ ] {{BACKEND_TASKS_OR_TBD}}
-
-### Shared contracts
-- [ ] {{SHARED_TASKS_OR_TBD}}
-
-### Frontend
-- [ ] {{FRONTEND_TASKS_OR_TBD}}
-
-### Tests
-- [ ] Unit tests for each requirement
-- [ ] Playwright assertions report for UI requirements
-- [ ] Stakeholder demo recording
-
 ## §7 Journal (append-only)
 
 | Date | Phase | Author | Note |
 | ---- | ----- | ------ | ---- |
-| {{TODAY}} | intake | {{AUTHOR}} | Track created. |
+| {{TODAY}} | intake | {{AUTHOR}} | Mother track created; split into {{N_CHILDREN}} sub-tracks. |

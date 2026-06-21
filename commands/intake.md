@@ -65,11 +65,42 @@ Example decomposition for AC: *"I can open a drawer to create a new price grid"*
 
 If the user can't yet decide on a requirement's owner, mark it `mixed` and surface it in §5 Open questions.
 
+### 4b. Estimate the ticket size — then confirm with the user
+
+Size tiers tune how much rigor the cycle applies. Propose one from the signals you already have, then **confirm with the user** before writing the track:
+
+| Size | Heuristic (typical) | What the cycle does |
+| ---- | ------------------- | ------------------- |
+| `s` | 1–2 ACs, ≤ ~3 requirements, single owner, no meaningful UI surface (no `frontend`/`mixed` requirement) or a trivial UI tweak, small spec slice. | No new e2e design, no demo `.webm`, no 3-agent review. The project's quality-gate pipeline rerun (lint/prettier/typecheck/test/build) is the sole verification. |
+| `m` | The default. Anything that isn't clearly small or clearly large. | Full cycle: implement → Playwright two-pass + demo → 3-agent review → pr. |
+| `l` | Many ACs spanning distinct concerns, or work that naturally splits into independent units. | Mother track + one sub-track **per AC group**; each sub-track runs its own cycle. |
+
+Procedure:
+
+1. Compute the proposal from: AC count, requirement count, distinct `owner`s, whether any requirement is `frontend`/`mixed`, spec-slice size. If `_/sdlc-config.md` has a `sizing` block, apply its thresholds/policy first.
+2. **Ask the user to confirm or override** (AskUserQuestion). Show the proposal and the one-line rationale.
+3. Safety rule — never silently reduce rigor:
+   - Default to `m` when unconfirmed.
+   - Resolving to `s` (less rigor) **requires explicit user confirmation**. Do not auto-select `s`.
+   - `m` and `l` may be accepted without friction once proposed, but still surface the proposal.
+4. Write the resolved value to `frontmatter.size`.
+
+### 4c. Large tickets — split into sub-tracks (size `l` only)
+
+When size resolves to `l`, intake produces a **mother track plus one sub-track per AC group**:
+
+1. Group the ACs into cohesive units (one group per AC by default; cluster tightly-coupled ACs only when they can't be delivered independently).
+2. Render the **mother track** from `templates/track.mother.template.md`: `size: l`, `parent: null`, `children: [<sub-track ids>]`, the full AC list, and the §0 Sub-tracks table.
+3. For each AC group, render a **sub-track** from `templates/track.template.md`: a derived ticket id (`<TICKET>-a`, `<TICKET>-b`, … or `<slug>-<group>` for freeform), `parent: <mother ticket>`, `children: null`, that group's ACs + requirements, and its own proposed size (`s` or `m`, confirmed per §4b). Re-number requirement ids within each sub-track (`R1.1`, `R1.2`, …).
+4. The verbatim ticket body (§2) lives on the mother; sub-tracks quote only their AC slice and link back to the mother for the full body.
+5. Report the mother + every sub-track path.
+
 ### 5. Render the track file
 
 - Filename: `_/tracks/<TICKET>.md` (or `_/tracks/feat-<slug>.md` for freeform).
-- Build frontmatter against `schemas/track.schema.json`. Validate before writing.
-- Use `templates/track.template.md` as the body scaffold.
+- Build frontmatter against `schemas/track.schema.json`. Validate before writing. Set `size` to the value resolved in §4b; set `parent`/`children` only for `l` tracks (see §4c) — both stay `null` otherwise.
+- Use `templates/track.template.md` as the body scaffold (`templates/track.mother.template.md` for an `l` mother track).
+- For a `size: s` track, drop the "Playwright assertions report" and "Stakeholder demo recording" lines from §6 Tests — they don't apply; leave a one-line note that verification is the quality-gate pipeline rerun.
 - "Where we at on this track": one short paragraph — `Intake done. <N> requirements identified. Next: /agentic-sdlc:implement <TICKET>.`
 - §2 contains the ticket body **verbatim** in a fenced block. Add a one-line `> Note:` gloss below only if needed; never edit the original.
 - §3 contains the spec slice **verbatim**, plus a "What this means in plain language" subsection.
@@ -93,9 +124,28 @@ If `_/tracks/<TICKET>.md` already exists:
 
 ```
 Track created: _/tracks/TICKET-1.md
-Status: planned · 4 requirements (3 frontend, 1 backend)
+Status: planned · size m · 4 requirements (3 frontend, 1 backend)
 Spec: /Users/.../Client - Grille tariffaires.md (rows 1-21) · sha256 a7f3…
 Next: /agentic-sdlc:implement TICKET-1
+```
+
+For a `size: s` ticket, name the lighter flow so the user knows what's skipped:
+
+```
+Track created: _/tracks/TICKET-7.md
+Status: planned · size s · 2 requirements (1 backend, 1 shared)
+Verification: quality-gate pipeline rerun (no e2e/demo, no 3-agent review) — confirmed with you
+Next: /agentic-sdlc:implement TICKET-7
+```
+
+For a `size: l` ticket, report the mother and every sub-track:
+
+```
+Mother track: _/tracks/TICKET-9.md (size l · 3 sub-tracks)
+  └ _/tracks/TICKET-9-a.md  (size m · AC1)
+  └ _/tracks/TICKET-9-b.md  (size m · AC2)
+  └ _/tracks/TICKET-9-c.md  (size s · AC3)
+Next: /agentic-sdlc:cycle TICKET-9
 ```
 
 ## Hard rules
@@ -104,5 +154,6 @@ Next: /agentic-sdlc:implement TICKET-1
 - Never invent ticket IDs, spec paths, Figma URLs, or commit hashes.
 - Every required section exists in the output — even if its body is `TBD`. A missing section is a silent lie about state.
 - Frontmatter must validate against `schemas/track.schema.json` before write.
+- Size is **proposed by you, confirmed by the user.** Never auto-resolve to `s` (the lighter flow) without explicit user confirmation — that's the issue-#11 safety rule. When unconfirmed, default to `m`.
 - Never auto-stage or commit the track (it lives under gitignored `_/`).
 - File paths inside the body must be repo-relative markdown links so VSCode renders them clickable.

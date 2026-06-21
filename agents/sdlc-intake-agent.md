@@ -20,6 +20,7 @@ Follow the [/agentic-sdlc:intake](../commands/intake.md) workflow:
 2. Resolve the spec slice verbatim (path/URL or user paste).
 3. Decompose ACs into `requirements[]` with `id`, `text`, `owner`, `status: not_started`, `evidence: null`.
 4. Compute `spec.hash` (sha256 of the captured slice).
+5. **Propose a size** (`s` / `m` / `l`) per [intake §4b](../commands/intake.md): from AC count, requirement count, distinct owners, whether any requirement is `frontend`/`mixed`, and spec-slice size. Apply the `sizing` block from `_/sdlc-config.md` if present. Emit `size` plus a one-line rationale in your summary so the orchestrator can confirm with the user. **Never resolve to `s` on your own** — propose it and flag that it needs user confirmation; default to `m` when in doubt. For a proposed `l`, also propose the AC-group split (one sub-track per AC group) in your summary.
 
 ## Output (only — do not write files)
 
@@ -27,6 +28,7 @@ Return one YAML block:
 
 ```yaml
 status: planned
+size: m            # proposed tier (s | m | l); orchestrator confirms with the user before persisting
 spec:
   path: ...
   hash: ...
@@ -52,6 +54,7 @@ Plus one paragraph (≤ 5 sentences) summarising what you did, what's open, and 
 ## Hard rules
 
 - Verbatim ticket body. Verbatim spec slice.
+- Propose `size`; never resolve to `s` yourself — the orchestrator confirms it with the user. Default to `m` when unsure.
 - Never invent values.
 - Never write to disk. The orchestrator merges your delta.
 - If MCP / WebFetch fails, surface the failure in your summary — don't fall back to training data.

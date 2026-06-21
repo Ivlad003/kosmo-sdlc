@@ -9,6 +9,9 @@
 ticket: TICKET-1                    # ticket id or freeform slug
 title: Add prices grid to customer page
 status: planned                      # planned | in_progress | in_review | ready_to_merge | merged | abandoned
+size: m                              # s | m | l — proposed at intake, confirmed by user; absent ⇒ m
+parent: null                         # 'l' sub-track: mother ticket id; else null
+children: null                       # 'l' mother: [sub-track ids]; else null
 created: 2026-05-13
 updated: 2026-05-13
 branch: null                         # set by /agentic-sdlc:implement
@@ -45,6 +48,7 @@ phase_log:                            # append-only
 
 - **`ticket`** — opaque identifier. Doesn't have to match a known ticketing system if `ticketing.system: "none"`.
 - **`status`** — coarse state. Each phase transitions it deterministically: intake → `planned` → implement → `in_progress` → review → `in_review` → revalidate → `ready_to_merge` → user merges → `merged`.
+- **`size`** — rigor tier proposed at intake and confirmed by the user. `s` skips e2e/demo and the 3-agent review (the quality-gate pipeline rerun is the verification); `m` is the full cycle; `l` is a mother track that splits into one sub-track per AC group via `parent`/`children`. Absent ⇒ `m`. Downgrading to `s` always needs explicit confirmation. See [design-rationale.md](design-rationale.md#size-adaptivity--proportional-rigor-never-silent).
 - **`spec.hash`** — sha256 of the captured slice at intake. `/agentic-sdlc:revalidate` recomputes and compares; mismatch = drift.
 - **`acs[].requirements[]`** — the decomposition you do at intake. One AC may produce N requirements. Each is the smallest verifiable behavior. `evidence` is a `file:line` reference or short SHA recording where the requirement landed.
 - **`demo.applicable`** — set to `false` when the feature has no UI surface. `/agentic-sdlc:validate` writes a `na` report instead of running Playwright.

@@ -130,6 +130,30 @@
         }
       }
     },
+    "sizing": {
+      "type": "object",
+      "description": "Optional policy for ticket size adaptivity (see /agentic-sdlc:intake §4b). Tunes how intake proposes a size and what the 's' tier drops. Omit the whole block to use built-in defaults: small ⇒ ≤2 ACs and ≤3 requirements with no frontend/mixed requirement; 's' skips e2e/demo and the 3-agent review (pipeline rerun is the gate); 'l' triggers at >4 ACs spanning distinct concerns.",
+      "additionalProperties": false,
+      "properties": {
+        "small_max_requirements": {
+          "type": ["integer", "null"],
+          "description": "Propose 's' only when requirement count is at or below this. Default 3."
+        },
+        "small_max_acs": {
+          "type": ["integer", "null"],
+          "description": "Propose 's' only when AC count is at or below this. Default 2."
+        },
+        "large_min_acs": {
+          "type": ["integer", "null"],
+          "description": "Propose 'l' (mother + per-AC-group sub-tracks) when AC count is at or above this. Default 5."
+        },
+        "small_skips_review": {
+          "type": "boolean",
+          "default": true,
+          "description": "When true (default), the 's' tier skips the 3-agent review and relies on the quality-gate pipeline rerun. Set false to keep the review phase even for small tickets."
+        }
+      }
+    },
     "phase_prompts": {
       "type": "object",
       "description": "Per-phase prompt overlays appended to each phase's base dispatch prompt at cycle time. Lets teams inject house conventions (review checklists, deploy gates, Playwright helpers) without editing agent definitions. Omitting the block entirely is valid — all phases default to no overlay.",

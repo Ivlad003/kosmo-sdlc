@@ -62,6 +62,26 @@ Bun, pnpm, and Yarn are supported out of the box. Each command re-detects the ma
 - Typecheck falls back to `tsc --noEmit` when no `package.json:scripts.typecheck` is defined.
 - Pure JS: the typecheck step is skipped silently in the pipeline chain.
 
+## Ticket size: overriding the estimate and tuning the policy
+
+Intake proposes a size (`s`/`m`/`l`) and asks you to confirm it. To override, just pick a different tier at the prompt — your choice wins. Notes:
+
+- **`s`** drops the e2e/demo and (by default) the 3-agent review; the project's quality-gate pipeline rerun is the verification. Choosing `s` always needs explicit confirmation, so it's never applied behind your back.
+- **`l`** splits the ticket into one sub-track per AC group. If the auto-grouping isn't right, adjust the groups at the intake prompt before the tracks are written.
+- A pre-existing track with no `size` field runs as `m`.
+
+To change the defaults project-wide, add a `sizing` block to `_/sdlc-config.md`:
+
+```yaml
+sizing:
+  small_max_requirements: 3   # propose 's' only at/below this requirement count
+  small_max_acs: 2            # propose 's' only at/below this AC count
+  large_min_acs: 5           # propose 'l' at/above this AC count
+  small_skips_review: true   # set false to keep the review phase even for small tickets
+```
+
+Omit the block entirely to use the built-in defaults shown above.
+
 ## Languages other than JS/TS
 
 Out of scope for v0.x. The detection logic, Playwright assumptions, and the `commit-work` skill are JS-flavored. A polyglot adaptation is possible but not bundled.

@@ -11,7 +11,7 @@ Phase 3 of the cycle. Two outputs in one command:
 1. **Assertions report** (`_/recordings/<TICKET>.validation.md`) — real `expect()` calls per UI requirement; console + network log scan; pass/fail table.
 2. **Stakeholder demo** (`_/recordings/<TICKET>.<run-id>.webm`) — narrated overlays, fake cursor, highlights. Recorded **only if assertions pass**.
 
-If `frontmatter.demo.applicable: false` or all requirements have `owner: backend|shared|infra|docs`, the command writes a `na` report and exits. Backend-only changes are validated by `/agentic-sdlc:implement`'s test runs, not Playwright.
+If `frontmatter.size: s`, `frontmatter.demo.applicable: false`, or all requirements have `owner: backend|shared|infra|docs`, the command skips scenario generation, Playwright, and the `.webm`, writes a `na` demo report, and runs **only** the automated-checks (pipeline) track. For `size: s` this pipeline rerun *is* the verification the user signed up for — lint/prettier/typecheck/test/build confirming nothing broke, no new e2e authored. Backend-only changes are likewise validated by `/agentic-sdlc:implement`'s test runs, not Playwright.
 
 ## Arguments
 
@@ -53,6 +53,7 @@ The two sub-agents share **no writes**: automated-checks doesn't touch `_/record
 
 Skip rules:
 
+- `frontmatter.size: s` → skip the Playwright track; run **only** the automated-checks (pipeline) track and write a `na` demo report. The quality-gate rerun is the gate for small tickets.
 - `validation.mode: manual` or all requirements backend-only → skip Playwright; automated-checks already ran during `/agentic-sdlc:implement`, so the command writes a `na` report and exits.
 - Project profile has no pipeline scripts (`scripts.lint`, `scripts.typecheck`, `scripts.test`, `scripts.build` all missing) → skip automated-checks track; mark it `na` in the report and only dispatch Playwright.
 
@@ -186,4 +187,5 @@ Next: /agentic-sdlc:implement TICKET-1 --requirement R1.4
 - The .webm is regenerated only when assertions pass. A demo of a broken state is worse than no demo.
 - The Playwright script is generated under `_/`, never under `apps/*/playwright/` or any other project-test directory. The script is throw-away; the report is the artifact.
 - When `validation.mode: manual` → exit with a `na` report; the validation phase is opted out at the project level. The user can re-run `/agentic-sdlc:init` to change the mode if they later want UI checks.
+- When `frontmatter.size: s` → never author a Playwright scenario or record a `.webm`. Run the automated-checks (pipeline) track only and write a `na` demo report. The user explicitly chose the lighter flow at intake; don't second-guess it by spinning up a demo.
 - `standalone-playwright` mode means the host project does **not** need a `playwright.config.*`. A reachable `validation.base_url` is the only requirement. Don't refuse to validate just because the project lacks a Playwright setup.

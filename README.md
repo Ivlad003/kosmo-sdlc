@@ -37,6 +37,18 @@ Every passing validate phase produces a `.webm` you can drop into a Slack thread
 | 6   | `/agentic-sdlc:revalidate`  | Re-runs validation against the post-review state; detects spec drift.                                                  | All requirements still pass; spec hash matches or drift ack'd  |
 | ∗   | `/agentic-sdlc:cycle`       | Orchestrator — runs 1→6 in dedicated sub-agents, pausing between phases.                                               | Stops at the first failed gate                                 |
 
+## Size-adaptive rigor
+
+Not every ticket needs the full loop. Intake proposes a **size** and you confirm it — the cycle then scales its rigor to the change:
+
+| Size | Flow | Verification |
+| ---- | ---- | ------------ |
+| **S** (small / XS) | implement → quality-gate rerun → pr | The project's existing pipeline (lint/prettier/typecheck/test/build) reruns to confirm nothing broke. No new e2e, no demo `.webm`, no 3-agent review. |
+| **M** (default) | the full loop above | Playwright two-pass + demo + parallel review. |
+| **L** (large) | mother track → one sub-track **per AC group** → aggregate | Each sub-track runs its own size-appropriate cycle; the mother aggregates into one PR. |
+
+Rigor is never reduced silently: choosing **S** always needs explicit confirmation, even under `--auto`. A track with no size behaves as **M**, so existing tracks are unaffected. Tune the thresholds (or keep review on for S) via the optional `sizing` block in `_/sdlc-config.md`.
+
 ## Single source of truth
 
 Every command reads and writes one file per ticket — `_/tracks/<TICKET>.md` — with YAML frontmatter as the contract and a freeform body for humans.

@@ -37,10 +37,27 @@ Each sub-agent runs in a git worktree (see `~/.agents/skills/using-git-worktrees
 | ----- | --------------------------- |
 | intake | Track validates against `schemas/track.schema.json`; every AC has ≥1 requirement. |
 | implement | All non-`na` requirements `status: done`; pipeline green. |
-| validate | Assertions report has 0 failures; no new console errors / network 4xx-5xx. |
+| validate | Assertions report has 0 failures; no new console errors / network 4xx-5xx. (For `size: s`: pipeline green — no assertions/demo.) |
 | review | No CRITICAL findings unaddressed. (HIGH allowed with explicit user ack under `--auto`.) |
 | pr | Branch pushed, PR opened, body populated, pipeline green. |
 | revalidate | All requirements still `done` against post-review code; spec hash unchanged or user ack'd drift. |
+
+## Size-adaptive flow
+
+`frontmatter.size` (set at intake, confirmed by the user — see [intake §4b](intake.md)) tunes which phases run:
+
+| Size | Phase sequence | Notes |
+| ---- | -------------- | ----- |
+| `s` | intake → implement → validate → pr | **Review is skipped.** `validate` runs pipeline-only (`na` demo). The project's quality-gate rerun is the sole verification — no e2e authored, no `.webm`, no 3-agent review. |
+| `m` | intake → implement → validate → review → pr → revalidate | The default. Full flow, unchanged. |
+| `l` | fan out over sub-tracks, then aggregate | The mother track carries `children: [...]`. Run the size-appropriate sequence for **each** sub-track, then a single aggregate `pr`. See §"L fan-out". |
+
+Rules:
+
+- **Confirm before reducing rigor.** If the track resolves to `s`, the orchestrator surfaces "running the light flow (no e2e/demo, no review) — confirm?" and requires an explicit ack **even under `--auto`.** Reducing rigor is never silent. `m`/`l` need no extra friction.
+- A missing `size` field ⇒ treat as `m` (backward compatible with pre-existing tracks).
+- Never use size to bypass a gate that *does* run — `s` still demands a green pipeline at implement, validate, and pr.
+- `sizing.small_skips_review` in `_/sdlc-config.md` controls whether `s` drops the review phase. Default `true` (drop it). If a project sets it `false`, the `s` sequence becomes intake → implement → validate → review → pr.
 
 ## Workflow
 
@@ -48,10 +65,14 @@ Each sub-agent runs in a git worktree (see `~/.agents/skills/using-git-worktrees
 
 - Read `_/sdlc-config.md` (frontmatter + Notes body). If missing → run `/agentic-sdlc:init` first; abort the cycle if user declines.
 - Resolve the track filename from `$1`. If a track already exists and `--resume` not set → ask whether to update or start fresh.
+- After intake (or when resuming on an existing track), read `frontmatter.size` (absent ⇒ `m`):
+  - `l` and `children` is non-empty → hand off to §"L fan-out" instead of the linear loop below.
+  - `s` → confirm the light flow with the user (required even under `--auto`); set the phase sequence to intake → implement → validate → pr (no review, no revalidate).
+  - `m` → the full sequence below.
 
 ### 2. Dispatch loop
 
-For each phase in order: intake → implement → validate → review → pr → revalidate:
+For each phase in the **size-resolved** sequence (see §"Size-adaptive flow"):
 
 1. Skip the phase if `phase_log` already shows `{ phase: <name>, outcome: pass }` for the current branch HEAD.
 2. Construct the agent prompt:
@@ -99,9 +120,22 @@ Reason: 1 requirement failed (R1.4 — drawer remained open on submit; toast 'Er
 Next:   /agentic-sdlc:implement TICKET-1 --requirement R1.4
 ```
 
+### L fan-out
+
+When the resolved track is an `l` mother (`children` non-empty):
+
+1. Read each sub-track in `children`. Each has its own `size` (`s` or `m`) and its own AC group.
+2. Run the size-resolved sequence for **each** sub-track in order, up to but **not including** its `pr` phase — sub-tracks share the mother's feature branch in v1, so there's one PR, not one per sub-track. Each sub-track's gates must pass before the next starts (stop at the first failed gate, name the sub-track + phase).
+3. After every sub-track has cleared implement + validate (+ review for `m` sub-tracks), update the mother's §0 Sub-tracks table and `phase_log` with each child's outcome.
+4. Run a **single aggregate `pr` phase** on the mother track: the PR body lists every AC group and its sub-track outcome. Mark the mother `ready_to_merge` only when all sub-tracks are green.
+
+> v1 keeps sub-tracks on one branch + one PR for reviewability of the whole feature. Per-sub-track branches/PRs are a documented future option, not the default.
+
 ## Hard rules
 
 - Never skip a gate, even under `--auto`.
+- `size: s` skips the **review** phase but never the pipeline gate (implement, validate, pr all still demand green). Reducing rigor to `s` requires explicit user confirmation, even under `--auto`.
+- For `l`, the orchestrator is still the single writer of every track file (mother and children); sub-track sub-agents return deltas only.
 - Each sub-agent runs in isolation (worktree). The orchestrator is the only writer of the track file.
 - Frontmatter delta must validate against the schema before being merged.
 - On failure, surface the **specific** next action. No "consider re-running" generalities.
