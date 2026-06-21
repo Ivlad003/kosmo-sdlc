@@ -122,7 +122,7 @@
         },
         "pipeline_command": {
           "type": ["string", "null"],
-          "description": "Aggregate gate (lint + typecheck + test + build). Auto-detect order: scripts.pipeline -> scripts.ci -> scripts.check -> chain of lint+typecheck+test+build."
+          "description": "Aggregate gate (lint + typecheck + test + build). Auto-detect order: scripts.pipeline -> scripts.ci -> scripts.check -> chain of lint+typecheck+test+build. Lint-coverage guarantee: if the resolved command does not already run lint, the pre-PR gate appends the detected lint step so PRs aren't opened on style failures CI would reject. A pinned value here is still subject to that guarantee."
         },
         "dev_command": {
           "type": ["string", "null"],

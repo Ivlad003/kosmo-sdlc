@@ -24,7 +24,7 @@ A phase only "passes" when its gate is satisfied. `/agentic-sdlc:cycle` enforces
 | implement | All in-scope requirements `status: done`; pipeline (lint + typecheck + test + build) green. |
 | validate | Assertions report has 0 failures; no new console errors / network 4xx-5xx. |
 | review | No CRITICAL findings unaddressed. HIGH allowed with explicit user ack. |
-| pr | Branch pushed, PR opened, body populated, pipeline green. |
+| pr | Pipeline green (lint included) and its exit-0 result recorded in the journal; branch pushed, PR opened, body populated. |
 | revalidate | Requirements still pass; spec hash unchanged or user ack'd drift. |
 
 ## Why gates?

@@ -59,6 +59,7 @@ For each requirement in order:
    - `overrides.pipeline_command` from `_/sdlc-config.md` if set.
    - Else read root `package.json` and use `scripts.pipeline` → `scripts.ci` → `scripts.check` (first match).
    - Else chain `lint && typecheck && test && build`, each resolved from `package.json` scripts (typecheck falls back to `tsc --noEmit` when `tsconfig.json` exists).
+   - **Lint-coverage guarantee:** if the resolved command came from `scripts.pipeline|ci|check` or a pinned `overrides.pipeline_command` and it does not already run lint (no `lint`/`format` script and no `eslint`/`biome`/`prettier` in its body), append the detected lint step (`<pm> run lint`, else `biome check .` / `eslint .` / `prettier --check .` per config). The gate must lint — see [init-detection.md](../docs/init-detection.md#pipeline-command). If no lint capability exists at all, proceed but note it; `/agentic-sdlc:init` already warned.
    - Prefix each command with the detected package manager (`npm run`, `pnpm`, `yarn`, `bun run`) per lockfile / `packageManager` field.
    - On failure → keep requirement at `in_progress`, surface the failure, ask user how to proceed.
 5. On pipeline pass:

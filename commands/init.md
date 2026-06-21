@@ -58,6 +58,7 @@ Detection rules:
 - **`base_url`** → parsed from the host `playwright.config.*` `use.baseURL` when present; else null (the wizard asks).
 - **Ticketing prefix** → most-common `^[A-Z]+-\d+` prefix across the last 50 commits, if ≥ 5 hits.
 - **Branch pattern** → if recent branches match `feat/<TICKET>` / `fix/<TICKET>` consistently → `<type>/<TICKET>`; else null.
+- **Lint capability** → a `lint`/`format` script, or `biome.json` / `.eslintrc*` / `.prettierrc*`. The pre-PR gate appends lint when the resolved pipeline doesn't already run it (lint-coverage guarantee, see [init-detection.md](../docs/init-detection.md#pipeline-command)); if none of these exist, the gate can't catch style/format failures CI may enforce — warn in Missing signals.
 
 Missing signals stay null. Detection never invents values.
 
@@ -86,6 +87,8 @@ Missing signals
 - no playwright.config.* found — validation will default to standalone-playwright
   (sdlc installs and drives its own Playwright; project needs only a base_url)
 - no commit prefix detected — ticketing will default to "none" unless you set it
+- no lint capability found (no lint/format script, no eslint/biome/prettier config) —
+  the pre-PR gate can't catch style/format failures; CI may still reject the PR on them
 
 MCP / skills
 ------------

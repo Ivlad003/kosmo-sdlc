@@ -28,7 +28,9 @@ Phase 5 of the cycle. Turns the track + branch into a PR with a body the reviewe
 
 ### 1. Re-run the pipeline gate
 
-Resolve the pipeline command (same order as `/agentic-sdlc:implement`: `overrides.pipeline_command` → `package.json:scripts.pipeline|ci|check` → chained `lint && typecheck && test && build`). Run it. On failure → abort with the output. The user fixes and re-runs.
+Resolve the pipeline command (same order as `/agentic-sdlc:implement`: `overrides.pipeline_command` → `package.json:scripts.pipeline|ci|check` → chained `lint && typecheck && test && build`). Apply the **lint-coverage guarantee** (see [init-detection.md](../docs/init-detection.md#pipeline-command)): if the resolved command doesn't already lint, append the detected lint step so the gate can't open a PR that CI will reject on style. Run it. On failure → abort with the output. The user fixes and re-runs.
+
+**Record the result as evidence, then gate on it.** Capture the exact command run, its exit code, and the summary/last line of output. Append a journal row: `Pre-PR gate: <command> — exit 0 (<one-line summary>)`. If lint was unavailable, record `lint: none (no lint capability detected)` so the skip is visible rather than silent. Do **not** proceed to `gh pr create` without a recorded exit-0 gate row — "the pipeline passed" is only credible when the green output is in the journal.
 
 ### 2. Stage and commit if there are unstaged changes
 
@@ -57,6 +59,7 @@ Resolve the body style: `--style` flag → `pr.body_style` in `_/sdlc-config.md`
 
 - **Summary**: derived from track's "Where we at on this track" paragraph + a one-line "what this PR does" generated from the title + commits. Do not quote the file path of the track.
 - **Ticket link**: built from `_/sdlc-config.md:ticketing` (Jira URL pattern, Linear URL, GitHub issue, or `None`).
+- **Local gate**: render the recorded pre-PR gate outcome from step 1 as a one-liner — `✅ lint · typecheck · test · build` (list the steps the resolved command actually ran). Append `⚠️ lint not configured` when no lint capability exists. This tells the reviewer the basics passed locally before CI; it never references `_/` paths.
 - **AC checklist**: for each `requirement` in `acs[].requirements[]`:
   - `[x] <text>` if `status: done`
   - `[ ] <text>` (with `_(blocked)_` suffix) if `status: blocked`
@@ -71,6 +74,7 @@ Resolve the body style: `--style` flag → `pr.body_style` in `_/sdlc-config.md`
 Same data sources as standard, stripped to one screen:
 
 - **One-line summary**: a single "what this PR does" sentence built from title + commits. **No** standalone "Summary" heading — the line sits at the top of the body.
+- **Local gate**: a bold-prefixed line — `**Local gate:** ✅ lint · typecheck · test · build` (steps the resolved command actually ran; append `⚠️ lint not configured` when applicable).
 - **Ticket / Validation / Review**: rendered as three bold-prefixed lines under the summary. Validation = outcome line only ("✅ 7 passed · 0 failed"); append " · _N console error(s)_" or " · _N network 4xx/5xx_" only when non-zero. Review = the resolution line only ("1 CRITICAL applied · 2 HIGH applied · 1 HIGH deferred to <follow-up>"), or "✅ No findings" when clean.
 - **AC checklist**: same rules as standard. The contract stays visible.
 - **Notes for reviewers**: include the section only when there are open §5 `DECIDE` items. Otherwise omit `{{REVIEWER_NOTES_SECTION_OR_OMIT}}` entirely — don't leave an empty heading.
@@ -108,7 +112,7 @@ Next:
 
 ## Hard rules
 
-- Pipeline must pass before opening the PR. No exceptions.
+- Pipeline must pass before opening the PR. No exceptions. The gate must include lint (lint-coverage guarantee) and its exit-0 result must be recorded in the journal before `gh pr create` — a remembered "it passed" is not evidence.
 - Never open a PR with unaddressed CRITICAL review findings.
 - Never `--force` push; never push to the resolved default branch.
 - The PR body must be derived from the track — don't paraphrase the AC table; quote it. Reviewers need to see the same text the implementer worked from.

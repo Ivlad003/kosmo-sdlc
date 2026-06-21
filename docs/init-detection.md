@@ -68,6 +68,13 @@ Used to prefix all `scripts.*` invocations.
 4. `package.json:scripts.check`.
 5. Chain `lint && typecheck && test && build`, each resolved from `package.json:scripts.*`. `typecheck` falls back to `tsc --noEmit` when `tsconfig.json` exists and no script is defined. Skip steps whose script doesn't exist.
 
+**Lint-coverage guarantee.** Whichever form is chosen, the gate must run lint — otherwise CI fails on style/format issues that the local gate silently skipped. After resolving forms 1–4, inspect the chosen command for a lint/format step (a `lint`/`format` script, or `eslint` / `biome` / `prettier` in the script body). If it's absent, append the detected lint step so the gate always lints:
+
+- `<pm> run lint` if a `lint` script exists, else
+- `biome check .` (when `biome.json` present) / `eslint .` (when `.eslintrc*` present) / `prettier --check .` (when `.prettierrc*` present).
+
+The chained fallback (form 5) already includes lint, so the guarantee only matters when a `pipeline`/`ci`/`check` script or a pinned `pipeline_command` was selected. If **no** lint capability exists at all (no `lint` script and no eslint/biome/prettier config), the gate can't catch style failures — surface this once at `init` (see [init](../commands/init.md) Missing signals) rather than silently shipping a gate that lints nothing.
+
 Used by `/agentic-sdlc:implement` per-requirement gate and by `/agentic-sdlc:pr` re-gate.
 
 ### Dev command

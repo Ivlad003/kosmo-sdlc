@@ -3,6 +3,7 @@
 {{ONE_PARAGRAPH_SUMMARY}}
 
 **Ticket:** {{TICKET_LINK}}
+**Local gate:** {{LOCAL_GATE_LINE}}
 
 ## Acceptance criteria
 
