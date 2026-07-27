@@ -1,71 +1,116 @@
 # kosmo-sdlc
 
-> **Ticket → merged PR — with a narrated demo video the stakeholders can actually watch.**
+> **Ticket → merged PR — with a narrated demo video stakeholders can actually watch.**
 
-A Claude Code plugin that runs a deterministic seven-phase loop: intake the ticket, implement against decomposed requirements, **validate with Playwright and record a stakeholder `.webm`**, run parallel code+security review, open the PR, address review comments, revalidate. Each phase has a verifiable gate — the cycle refuses to advance past a broken state.
+A Claude Code / Codex plugin that runs a **gated** development loop: plan → intake → implement → validate → review → PR → revalidate. Every phase has a verifiable gate. The cycle refuses to advance past a broken state.
+
+**Repo:** [github.com/Ivlad003/kosmo-sdlc](https://github.com/Ivlad003/kosmo-sdlc)
 
 ```
-ticket ──► intake ──► implement ──► validate ──► review ──► pr ──► revalidate ──► merge
-            ▲           ▲              │           ▲          ▲          ▲
-            └───────────┴── gate ──────┤           └── gate ──┴── gate ──┘
-                                       └─► 🎬 narrated demo.webm
+plan (grill-me) ──► intake ──► implement ──► validate ──► review ──► pr ──► revalidate ──► merge
+       │               ▲           ▲              │           ▲        ▲          ▲
+       │               └───────────┴── gate ──────┤           └── gate ┴── gate ──┘
+       │                                          └─► 🎬 narrated demo.webm
+       └─ optional: ai-judge · kosmo-ralph · session-close
 ```
 
-## 🎬 The demo video — our strongest feature
+## Why kosmo-sdlc
 
-Every passing validate phase produces a `.webm` you can drop into a Slack thread, a Linear comment, or a stakeholder email. It's not a screenshot. It's not a test report. It's a narrated, slow-motion walkthrough of the feature behaving correctly:
-
-- **Overlays + fake cursor + section badges** — the viewer sees what's happening *and why*
-- **Two-pass execution** — assertions run first (headless, strict). The demo only records when **every** assertion passes. A demo of a broken state is worse than no demo.
-- **Console + network capture** — any error or 4xx/5xx during the run fails the report. The demo never papers over bugs.
-- **No project setup required** — `validation.mode: standalone-playwright` lets sdlc install and drive its own Playwright. Projects that never adopted E2E testing still get demos.
-- **Real waits, no `force: true`** — if the UI is wrong, the run fails. The video is honest.
-
-> "I shipped a feature. Here's the 40-second video of it working." — what every PR description should be.
+| Pillar | What you get |
+| --- | --- |
+| **Gates, not vibes** | Lint/typecheck/test/build, Playwright assertions, CRITICAL review findings — each transition is checkable |
+| **Stakeholder demo** | Passing validate records a narrated `.webm` (only when assertions are green) |
+| **Single track file** | `_/tracks/<TICKET>.md` is the contract for every phase |
+| **Default planning** | **`grill-me`** before intake — not open-ended brainstorming |
+| **Multi-CLI court** | **`ai-judge`** ranks plans/code with peer agents (Claude, Codex, Grok, …) |
+| **Autonomous stretches** | **`kosmo-ralph`** — snarktank-style `prd.json` loop without clashing skill id `ralph` |
+| **Session memory** | **`session-close`** writes handoff/session/memory/teach into your Obsidian vault |
 
 ## The cycle
 
-| #   | Command                     | What it does                                                                                                           | Gate                                                           |
-| --- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| 0   | `/kosmo-sdlc:init`        | One-time setup. Detects package manager, scripts, ticketing prefix; wizard fills the rest.                             | Writes `_/sdlc-config.md`                                      |
-| 1   | `/kosmo-sdlc:intake`      | Pulls the ticket + spec, decomposes ACs into testable requirements.                                                    | Schema-valid track; every AC has ≥1 requirement                |
-| 2   | `/kosmo-sdlc:implement`   | Codes each requirement with tests + mocks, journals as it goes.                                                        | All requirements `done`; lint + typecheck + test + build green |
-| 3   | `/kosmo-sdlc:validate`    | 🎬 Playwright two-pass: strict assertions report → **narrated stakeholder demo `.webm`** with overlays (only on green). | 0 assertion failures; no new console / 4xx-5xx errors          |
-| 4   | `/kosmo-sdlc:review`      | Three parallel sub-agents (code, security, standards) → CRITICAL/HIGH/MEDIUM/LOW report.                               | No unaddressed CRITICAL findings                               |
-| 5   | `/kosmo-sdlc:pr`          | Pushes branch, opens PR with body built from the track frontmatter.                                                    | Pipeline green; PR URL written back                            |
-| 5b  | `/kosmo-sdlc:pr-comments` | Walks every unresolved review thread, verdict-prefixes each reply (Applied / Rejected / Deferred / …).                 | Each thread logged to journal                                  |
-| 6   | `/kosmo-sdlc:revalidate`  | Re-runs validation against the post-review state; detects spec drift.                                                  | All requirements still pass; spec hash matches or drift ack'd  |
-| ∗   | `/kosmo-sdlc:cycle`       | Orchestrator — runs 1→6 in dedicated sub-agents, pausing between phases.                                               | Stops at the first failed gate                                 |
+| # | Command | What it does | Gate |
+| --- | --- | --- | --- |
+| 0 | `/kosmo-sdlc:init` | One-time setup: detect package manager, scripts, ticketing; optional token budget + vault path | Writes `_/sdlc-config.md` |
+| ∗ | `/kosmo-sdlc:discover-agents` | Probe PATH for coding CLIs → `_/coding-agents.md` for judge | Inventory written |
+| ∗ | `/grill-me` | **Default planning** — one decision at a time until shared understanding | Human confirms alignment |
+| ∗ | `/kosmo-sdlc:judge` | Multi-CLI review of plan and/or code (`plan` \| `code` \| `both`) | Advisory verdict file |
+| 1 | `/kosmo-sdlc:intake` | Ticket + spec → track with decomposed requirements + size (S/M/L) | Schema-valid track; ≥1 requirement per AC |
+| 2 | `/kosmo-sdlc:implement` | Code + tests per requirement; pipeline per requirement | All requirements `done`; pipeline green |
+| ∗ | `/kosmo-sdlc:kosmo-ralph` | Optional autonomous story loop (`convert` / `run`) under `_/kosmo-ralph/` | Stories `passes: true` or budget hit |
+| 3 | `/kosmo-sdlc:validate` | Playwright two-pass: assertions → **demo `.webm` only on green** | 0 assertion failures; no new console/4xx–5xx |
+| 4 | `/kosmo-sdlc:review` | Parallel code + security + standards → CRITICAL/HIGH/MEDIUM/LOW | No unaddressed CRITICAL |
+| 5 | `/kosmo-sdlc:pr` | Push branch, open PR from track frontmatter | Pipeline green; PR URL recorded |
+| 5b | `/kosmo-sdlc:pr-comments` | Reply to review threads with verdict prefixes | Threads logged to journal |
+| 6 | `/kosmo-sdlc:revalidate` | Re-check post-review; detect spec drift | Still green; hash match or drift ack’d |
+| ∗ | `/kosmo-sdlc:cycle` | Orchestrator 1→6 (worktrees **optional**, cycle-only) | Stops at first failed gate |
+| ∗ | `/kosmo-sdlc:session-close` | End session → Obsidian `Work/{project}/…` markdown | Files written (no secrets) |
 
-## Size-adaptive rigor
+### Size-adaptive rigor
 
-Not every ticket needs the full loop. Intake proposes a **size** and you confirm it — the cycle then scales its rigor to the change:
+Intake proposes a **size**; you confirm it before the cycle scales down:
 
 | Size | Flow | Verification |
-| ---- | ---- | ------------ |
-| **S** (small / XS) | implement → quality-gate rerun → pr | The project's existing pipeline (lint/prettier/typecheck/test/build) reruns to confirm nothing broke. No new e2e, no demo `.webm`, no 3-agent review. |
-| **M** (default) | the full loop above | Playwright two-pass + demo + parallel review. |
-| **L** (large) | mother track → one sub-track **per AC group** → aggregate | Each sub-track runs its own size-appropriate cycle; the mother aggregates into one PR. |
+| --- | --- | --- |
+| **S** | implement → quality-gate rerun → pr | Project pipeline only (no new e2e / demo / 3-agent review) |
+| **M** (default) | full loop | Playwright two-pass + demo + parallel review |
+| **L** | mother track + one sub-track **per AC group** | Each sub-track runs its own size-appropriate cycle |
 
-Rigor is never reduced silently: choosing **S** always needs explicit confirmation, even under `--auto`. A track with no size behaves as **M**, so existing tracks are unaffected. Tune the thresholds (or keep review on for S) via the optional `sizing` block in `_/sdlc-config.md`.
+Choosing **S** always needs **explicit** confirmation (even under `--auto`). Missing `size` ⇒ treat as **M**.
+
+### Git worktrees
+
+Worktrees are **not** required for every task. Only `/kosmo-sdlc:cycle` may isolate phases in worktrees. Manual commands and skills (grill-me, judge, kosmo-ralph, …) run in the current workspace. If worktrees are unavailable, the cycle falls back to in-process phases.
 
 ## Single source of truth
 
-Every command reads and writes one file per ticket — `_/tracks/<TICKET>.md` — with YAML frontmatter as the contract and a freeform body for humans.
-
-```
+```text
 _/
-├── sdlc-config.md                project profile (frontmatter + agent notes)
-├── tracks/PROJ-123.md            track: requirements, status, journal
-├── demo/PROJ-123.spec.mjs        generated Playwright script
+├── sdlc-config.md              project profile + agent notes
+├── coding-agents.md            discovered CLIs (for ai-judge)
+├── coding-agents.json
+├── tracks/PROJ-123.md          requirements, status, journal
+├── kosmo-ralph/                prd.json, progress.txt, prompt.md
+├── judge/<run-id>/             case + peer verdicts
+├── demo/PROJ-123.spec.mjs
 └── recordings/
-    ├── PROJ-123.validation.md    assertions report
-    ├── PROJ-123.review.md        consolidated review findings
-    ├── PROJ-123.latest.webm      stakeholder demo
-    └── …
+    ├── PROJ-123.validation.md
+    ├── PROJ-123.review.md
+    ├── PROJ-123.judge.md
+    └── PROJ-123.latest.webm
 ```
 
-The whole `_/` directory is gitignored. Nothing the cycle produces lands in git — the PR body is reproduced from the track on demand.
+The whole `_/` tree is **gitignored**. Durable output is the PR body (and optional Obsidian vault notes).
+
+## Recommended flow
+
+```bash
+# 1. Bootstrap
+/kosmo-sdlc:init
+/kosmo-sdlc:discover-agents
+
+# 2. Plan (default — not brainstorm)
+/grill-me
+# optional high-stakes ranking:
+/kosmo-sdlc:judge plan
+
+# 3. Ship
+/kosmo-sdlc:cycle PROJ-123
+# or step-by-step:
+/kosmo-sdlc:intake     PROJ-123 path/to/spec.md
+/kosmo-sdlc:implement  PROJ-123
+/kosmo-sdlc:validate   PROJ-123
+/kosmo-sdlc:review     PROJ-123
+/kosmo-sdlc:pr         PROJ-123
+
+# 4. Optional autonomous stretch (after convert)
+/kosmo-sdlc:kosmo-ralph convert PROJ-123
+/kosmo-sdlc:kosmo-ralph run --tool claude --max 15
+
+# 5. Close session → Obsidian (if vault configured)
+/kosmo-sdlc:session-close
+```
+
+Unsure which skill? **`ask-kosmo-sdlc`**.
 
 ## Install
 
@@ -76,16 +121,20 @@ The whole `_/` directory is gitignored. Nothing the cycle produces lands in git 
 /plugin install kosmo-sdlc
 ```
 
-### Codex
+Update:
 
-Codex support is local-clone based for now:
+```
+/plugin update kosmo-sdlc
+```
+
+### Codex
 
 ```bash
 mkdir -p ~/plugins ~/.agents/plugins
 git clone https://github.com/Ivlad003/kosmo-sdlc.git ~/plugins/kosmo-sdlc
 ```
 
-Add the plugin to your personal Codex marketplace at `~/.agents/plugins/marketplace.json`:
+Add to `~/.agents/plugins/marketplace.json`:
 
 ```json
 {
@@ -110,49 +159,74 @@ Add the plugin to your personal Codex marketplace at `~/.agents/plugins/marketpl
 }
 ```
 
-If you already have a personal marketplace file, add only the `kosmo-sdlc` object to its `plugins` array. Then open this URL, replacing `<you>` with your macOS username, and click **Install**:
+Then open (replace `<you>`):
 
 ```
 codex://plugins/kosmo-sdlc?marketplacePath=/Users/<you>/.agents/plugins/marketplace.json
 ```
 
-## Update
+## Bundled skills (high level)
 
-### Claude Code
+| Skill | Role |
+| --- | --- |
+| **grill-me** / grilling | Default planning interview |
+| grill-with-docs | Grill + `CONTEXT.md` / ADRs |
+| ai-judge | Multi-CLI plan/code court |
+| discover-agents | Dynamic peer CLI inventory |
+| kosmo-ralph / kosmo-ralf | PRD → `prd.json` + autonomous loop ([snarktank/ralph](https://github.com/snarktank/ralph)-compatible; non-conflicting id) |
+| session-close | Vault handoff / session / memory / teach |
+| commit-work | Safe Conventional Commits + pipeline gate |
+| kosmo-sdlc | Codex adapter over command docs |
+| ask-kosmo-sdlc | Router |
+| tdd, diagnosing-bugs, codebase-design, … | Optional companions |
 
+Full inventory: [skills/README.md](skills/README.md) · Matt map: [docs/mattpocock-skills.md](docs/mattpocock-skills.md)
+
+### Session budget & Obsidian
+
+In `_/sdlc-config.md` (optional):
+
+```yaml
+session:
+  max_tokens: 200000
+  max_iterations: 20
+  on_limit: handoff
+  vault:
+    path: null   # local clone of your vault
+    remote: https://github.com/Ivlad003/obsidian-personal
+    work_root: Work
+    project_name: null
 ```
-/plugin update kosmo-sdlc
+
+Writes:
+
+```text
+Work/{project}/handoff/{timestamp}.md
+Work/{project}/session/{timestamp}.md
+Work/{project}/memory/{timestamp}.md
+Work/{project}/teach/{timestamp}.md
 ```
-
-## First run
-
-```bash
-/kosmo-sdlc:init                          # wizard → _/sdlc-config.md (+ token budget, vault path)
-/kosmo-sdlc:discover-agents               # dynamic CLI inventory → _/coding-agents.md
-/grill-me                                   # DEFAULT planning
-/kosmo-sdlc:judge plan                    # multi-CLI ranking (peers from inventory)
-/kosmo-sdlc:cycle PROJ-123
-# … or autonomous stretches (our fork of snarktank/ralph — no skill-id clash):
-/kosmo-sdlc:kosmo-ralph convert PROJ-123   # → _/kosmo-ralph/prd.json
-/kosmo-sdlc:kosmo-ralph run --tool claude --max 15
-/kosmo-sdlc:session-close
-```
-
-**`/grill-me`** — default planning. **`/kosmo-sdlc:discover-agents`** for judge peers. **`/kosmo-sdlc:kosmo-ralph`** — kosmo-sdlc fork of [snarktank/ralph](https://github.com/snarktank/ralph) (skill id **`kosmo-ralph`**, not `ralph`). **`/kosmo-sdlc:session-close`** → Obsidian. Unsure? **`ask-kosmo-sdlc`**.
 
 ## Documentation
 
-- [The cycle, step by step](docs/cycle.md)
-- [Track file format](docs/track-format.md)
-- [What `/kosmo-sdlc:init` detects](docs/init-detection.md)
-- [Adapting to your project (no Jira / no spec / non-monorepo)](docs/adapting.md)
-- [Design rationale — what's deliberately not in scope](docs/design-rationale.md)
-- [Bundled skills inventory](skills/README.md)
-- [Matt Pocock skills map](docs/mattpocock-skills.md) — what to install on the host
+| Doc | Topic |
+| --- | --- |
+| [docs/cycle.md](docs/cycle.md) | Cycle phases and gates |
+| [docs/track-format.md](docs/track-format.md) | Track file contract |
+| [docs/init-detection.md](docs/init-detection.md) | What init detects |
+| [docs/adapting.md](docs/adapting.md) | No Jira / no Playwright / monorepo variants |
+| [docs/design-rationale.md](docs/design-rationale.md) | What’s in / out of scope |
+| [docs/mattpocock-skills.md](docs/mattpocock-skills.md) | Companion skills to install on the host |
+| [skills/README.md](skills/README.md) | Bundled skills |
 
 ## Requirements
 
-- Claude Code **v2.1+** (plugin manifest format)
-- Node 18+ (for Playwright — sdlc can run Playwright standalone if the host project has none)
-- `gh` CLI authenticated (for the PR phase)
-- Atlassian or Linear MCP — optional, improves intake quality
+- Claude Code **v2.1+** (plugin manifest) and/or Codex with local plugin install
+- Node 18+ (Playwright may be standalone via `validation.mode: standalone-playwright`)
+- `gh` CLI authenticated (PR phase)
+- Optional: Atlassian / Linear MCP (better intake)
+- Optional peer CLIs for judge: `claude`, `codex`, `grok`, …
+
+## License
+
+MIT — see [LICENSE](LICENSE).
