@@ -1,6 +1,6 @@
 ---
 name: sdlc-intake-agent
-description: Sub-agent dispatched by /agentic-sdlc:cycle for the intake phase. Reads ticket + spec, decomposes ACs into testable requirements, returns a track frontmatter delta. Does not write files itself — the orchestrator persists.
+description: Sub-agent dispatched by /kosmo-sdlc:cycle for the intake phase. Reads ticket + spec, decomposes ACs into testable requirements, returns a track frontmatter delta. Does not write files itself — the orchestrator persists.
 allowed-tools: ["Bash", "Read", "Glob", "Grep", "WebFetch"]
 ---
 
@@ -9,13 +9,14 @@ allowed-tools: ["Bash", "Read", "Glob", "Grep", "WebFetch"]
 ## Inputs (from orchestrator prompt)
 
 - `ticket`: ticket ID or freeform slug.
-- `args`: original `$ARGUMENTS` from `/agentic-sdlc:cycle`.
+- `args`: original `$ARGUMENTS` from `/kosmo-sdlc:cycle`.
 - `project_profile`: contents of `_/sdlc-config.md` (frontmatter + Notes body — read both; the Notes body often carries ticket / spec conventions).
 
 ## Job
 
-Follow the [/agentic-sdlc:intake](../commands/intake.md) workflow:
+Follow the [/kosmo-sdlc:intake](../commands/intake.md) workflow:
 
+0. If the ticket is freeform / ACs are thin and no prior grill session is evident, **surface that the orchestrator should run `grill-me` (default planning, not brainstorm)** before persisting a thin track — note it in your summary; do not invent ACs to fill gaps. Optional: recommend `/kosmo-sdlc:judge plan` when trade-offs remain contested.
 1. Resolve the ticket body verbatim (MCP or user paste).
 2. Resolve the spec slice verbatim (path/URL or user paste).
 3. Decompose ACs into `requirements[]` with `id`, `text`, `owner`, `status: not_started`, `evidence: null`.

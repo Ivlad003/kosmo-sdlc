@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: 'agentic-sdlc'
+header: 'kosmo-sdlc'
 ---
 
 <style>
@@ -162,7 +162,7 @@ section.lead p strong { color: var(--color-accent); }
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
-# /agentic-sdlc
+# /kosmo-sdlc
 
 A Claude Code plugin. Seven phases, every transition gated.
 
@@ -218,15 +218,15 @@ Seven phases. Each writes evidence to the track file. The cycle **stops at the f
 
 | #   | Command                     | Phase idea                                                   |
 | --- | --------------------------- | ------------------------------------------------------------ |
-| 0   | `/agentic-sdlc:init`        | Bootstrap project profile; choose whether `_/` is gitignored |
-| 1   | `/agentic-sdlc:intake`      | Ask clarifying questions, turn ACs into requirements         |
-| 2   | `/agentic-sdlc:implement`   | Code until lint + typecheck + tests + build go green         |
-| 3   | `/agentic-sdlc:validate`    | Playwright assertions pass → record narrated demo            |
-| 4   | `/agentic-sdlc:review`      | Three-reviewer fan-out: CRITICAL / HIGH / MEDIUM / LOW       |
-| 5   | `/agentic-sdlc:pr`          | Push branch, open PR, record URL in track                    |
-| 5b  | `/agentic-sdlc:pr-comments` | Address each PR thread with a verdict prefix                 |
-| 6   | `/agentic-sdlc:revalidate`  | Re-assert after review; acknowledge spec drift               |
-| ∗   | `/agentic-sdlc:cycle`       | Orchestrate phases 1→6, pause between each                   |
+| 0   | `/kosmo-sdlc:init`        | Bootstrap project profile; choose whether `_/` is gitignored |
+| 1   | `/kosmo-sdlc:intake`      | Ask clarifying questions, turn ACs into requirements         |
+| 2   | `/kosmo-sdlc:implement`   | Code until lint + typecheck + tests + build go green         |
+| 3   | `/kosmo-sdlc:validate`    | Playwright assertions pass → record narrated demo            |
+| 4   | `/kosmo-sdlc:review`      | Three-reviewer fan-out: CRITICAL / HIGH / MEDIUM / LOW       |
+| 5   | `/kosmo-sdlc:pr`          | Push branch, open PR, record URL in track                    |
+| 5b  | `/kosmo-sdlc:pr-comments` | Address each PR thread with a verdict prefix                 |
+| 6   | `/kosmo-sdlc:revalidate`  | Re-assert after review; acknowledge spec drift               |
+| ∗   | `/kosmo-sdlc:cycle`       | Orchestrate phases 1→6, pause between each                   |
 
 ---
 
@@ -280,10 +280,10 @@ After this, a sub-agent will be proposed to apply the findings.
 
 ---
 
-## /agentic-sdlc:cycle
+## /kosmo-sdlc:cycle
 
 ```bash
-/agentic-sdlc:cycle PROJ-123
+/kosmo-sdlc:cycle PROJ-123
 ```
 
 - Runs phases 1 → 6 in **dedicated sub-agents** (clean context per phase)
@@ -294,9 +294,9 @@ After this, a sub-agent will be proposed to apply the findings.
 You can step through manually if you'd rather:
 
 ```bash
-/agentic-sdlc:intake     PROJ-123 path/to/spec.md
-/agentic-sdlc:implement  PROJ-123
-/agentic-sdlc:validate   PROJ-123
+/kosmo-sdlc:intake     PROJ-123 path/to/spec.md
+/kosmo-sdlc:implement  PROJ-123
+/kosmo-sdlc:validate   PROJ-123
 ```
 
 ---
@@ -306,14 +306,14 @@ You can step through manually if you'd rather:
 ```bash
 # install
 /plugin marketplace add /path/to/sdlc
-/plugin install agentic-sdlc@agentic-sdlc
+/plugin install kosmo-sdlc@kosmo-sdlc
 
 # one-time setup — detects pkg manager, scripts, ticketing prefix,
 # checks available MCPs + skills, prompts about gitignore and other settings
-/agentic-sdlc:init
+/kosmo-sdlc:init
 
 # full loop, gated, end-to-end
-/agentic-sdlc:cycle PROJ-123
+/kosmo-sdlc:cycle PROJ-123
 ```
 
 **Requirements:** Claude Code v2.1+, Node 18+, `gh` CLI authenticated. Atlassian / Linear MCP optional.
@@ -336,5 +336,5 @@ You can step through manually if you'd rather:
 
 # Try it
 
-**`/agentic-sdlc:cycle PROJ-123`**
+**`/kosmo-sdlc:cycle PROJ-123`**
 

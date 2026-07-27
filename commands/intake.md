@@ -1,10 +1,10 @@
 ---
-description: Build _/tracks/<TICKET>.md — the single source of truth for one ticket. Verbatim ticket body, verbatim spec slice, acceptance criteria decomposed into testable requirements, YAML frontmatter that every later /agentic-sdlc:* command queries.
+description: Build _/tracks/<TICKET>.md — the single source of truth for one ticket. Verbatim ticket body, verbatim spec slice, acceptance criteria decomposed into testable requirements, YAML frontmatter that every later /kosmo-sdlc:* command queries.
 argument-hint: "<ticket-id-or-description> [spec-path-or-url]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "WebFetch"]
 ---
 
-# /agentic-sdlc:intake
+# /kosmo-sdlc:intake
 
 Phase 1 of the cycle. Produces a track file an agent can drop into cold and act on without re-fetching the ticket or the spec.
 
@@ -15,8 +15,19 @@ Phase 1 of the cycle. Produces a track file an agent can drop into cold and act 
 
 ## Preconditions
 
-1. `_/sdlc-config.md` exists. Run `/agentic-sdlc:init` if not — fail loudly with that instruction; don't auto-init. Read both the frontmatter and the Notes body; the Notes body shapes how you handle ticket / spec quirks.
+1. `_/sdlc-config.md` exists. Run `/kosmo-sdlc:init` if not — fail loudly with that instruction; don't auto-init. Read both the frontmatter and the Notes body; the Notes body shapes how you handle ticket / spec quirks.
 2. The directory `_/tracks/` exists. If not, create it.
+
+## Before intake — grill-me is default planning
+
+**`grill-me` is the primary planning skill** (not brainstorming, not open design dumps).
+
+1. If the work is freeform, ACs are thin, trade-offs are open, or the user is still shaping the idea → **run `grill-me` first** (backed by `grilling`). For glossary/ADR capture use `grill-with-docs`.
+2. Reach **shared understanding** (one question at a time; recommend an answer each time).
+3. Optional: high-stakes or contested design → `/kosmo-sdlc:judge plan` (`ai-judge`) before writing the track.
+4. Only then continue this intake workflow so the track captures the resolved decisions as ACs/requirements.
+
+Skip the grill only when the ticket + spec already define testable acceptance criteria clearly enough to decompose (user may still request grill).
 
 ## Workflow
 
@@ -43,7 +54,7 @@ If the ticket body references a spec path or URL, and `$2` was not given, use th
 - Read the whole file when small.
 - For large specs, grep for the section name from the ticket's "Sources" line, then read with offset/limit.
 - If the ticket points at specific rows ("see last rows 131-132"), capture **those rows in full** — preserve the markdown table structure exactly.
-- Compute `sha256` of the captured slice → `frontmatter.spec.hash`. `/agentic-sdlc:revalidate` uses this to detect drift.
+- Compute `sha256` of the captured slice → `frontmatter.spec.hash`. `/kosmo-sdlc:revalidate` uses this to detect drift.
 
 If `spec.convention: "freeform"` or no spec → write `frontmatter.spec: null`, leave §3 as `TBD`.
 
@@ -101,10 +112,10 @@ When size resolves to `l`, intake produces a **mother track plus one sub-track p
 - Build frontmatter against `schemas/track.schema.json`. Validate before writing. Set `size` to the value resolved in §4b; set `parent`/`children` only for `l` tracks (see §4c) — both stay `null` otherwise.
 - Use `templates/track.template.md` as the body scaffold (`templates/track.mother.template.md` for an `l` mother track).
 - For a `size: s` track, drop the "Playwright assertions report" and "Stakeholder demo recording" lines from §6 Tests — they don't apply; leave a one-line note that verification is the quality-gate pipeline rerun.
-- "Where we at on this track": one short paragraph — `Intake done. <N> requirements identified. Next: /agentic-sdlc:implement <TICKET>.`
+- "Where we at on this track": one short paragraph — `Intake done. <N> requirements identified. Next: /kosmo-sdlc:implement <TICKET>.`
 - §2 contains the ticket body **verbatim** in a fenced block. Add a one-line `> Note:` gloss below only if needed; never edit the original.
 - §3 contains the spec slice **verbatim**, plus a "What this means in plain language" subsection.
-- §6 Implementation plan starts empty — `/agentic-sdlc:implement` fills it.
+- §6 Implementation plan starts empty — `/kosmo-sdlc:implement` fills it.
 - §7 Journal: append the intake row with today's date.
 
 ### 6. Update existing track (re-run)
@@ -126,7 +137,7 @@ If `_/tracks/<TICKET>.md` already exists:
 Track created: _/tracks/TICKET-1.md
 Status: planned · size m · 4 requirements (3 frontend, 1 backend)
 Spec: /Users/.../Client - Grille tariffaires.md (rows 1-21) · sha256 a7f3…
-Next: /agentic-sdlc:implement TICKET-1
+Next: /kosmo-sdlc:implement TICKET-1
 ```
 
 For a `size: s` ticket, name the lighter flow so the user knows what's skipped:
@@ -135,7 +146,7 @@ For a `size: s` ticket, name the lighter flow so the user knows what's skipped:
 Track created: _/tracks/TICKET-7.md
 Status: planned · size s · 2 requirements (1 backend, 1 shared)
 Verification: quality-gate pipeline rerun (no e2e/demo, no 3-agent review) — confirmed with you
-Next: /agentic-sdlc:implement TICKET-7
+Next: /kosmo-sdlc:implement TICKET-7
 ```
 
 For a `size: l` ticket, report the mother and every sub-track:
@@ -145,7 +156,7 @@ Mother track: _/tracks/TICKET-9.md (size l · 3 sub-tracks)
   └ _/tracks/TICKET-9-a.md  (size m · AC1)
   └ _/tracks/TICKET-9-b.md  (size m · AC2)
   └ _/tracks/TICKET-9-c.md  (size s · AC3)
-Next: /agentic-sdlc:cycle TICKET-9
+Next: /kosmo-sdlc:cycle TICKET-9
 ```
 
 ## Hard rules

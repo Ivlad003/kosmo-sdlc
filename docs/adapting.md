@@ -1,4 +1,4 @@
-# Adapting agentic-sdlc to your project
+# Adapting kosmo-sdlc to your project
 
 The plugin defaults assume a "modern full-stack JS monorepo with a Jira ticket and a written spec". Many projects don't fit that profile. This document covers the common variations.
 
@@ -6,7 +6,7 @@ The plugin defaults assume a "modern full-stack JS monorepo with a Jira ticket a
 
 Set `ticketing.system: "none"` in `_/sdlc-config.md` (init's wizard asks; pick "none" when prompted).
 
-- `/agentic-sdlc:intake` will prompt for a freeform feature description.
+- `/kosmo-sdlc:intake` will prompt for a freeform feature description.
 - Track filenames become `feat-<slug>.md` instead of `<TICKET>.md`.
 - PR titles drop the `(TICKET)` scope.
 - The journal still anchors decisions; there's just no upstream tracker to sync with.
@@ -15,8 +15,8 @@ Set `ticketing.system: "none"` in `_/sdlc-config.md` (init's wizard asks; pick "
 
 Set `spec.convention: "freeform"`.
 
-- `/agentic-sdlc:intake` skips §3 "Spec slice" (writes `TBD`) and pulls scope entirely from the ticket / description.
-- `frontmatter.spec` is `null`; `/agentic-sdlc:revalidate` skips drift detection.
+- `/kosmo-sdlc:intake` skips §3 "Spec slice" (writes `TBD`) and pulls scope entirely from the ticket / description.
+- `frontmatter.spec` is `null`; `/kosmo-sdlc:revalidate` skips drift detection.
 
 ## Non-monorepo (single-app)
 
@@ -26,31 +26,31 @@ Detected on the fly when there's no workspaces config — nothing to set in `_/s
 
 Set `validation.mode: standalone-playwright` (init's wizard picks this by default when it can't find a `playwright.config.*`). sdlc installs and drives its own Playwright; the host project needs only a reachable `validation.base_url`.
 
-- `/agentic-sdlc:validate` still runs assertions + records the stakeholder .webm.
+- `/kosmo-sdlc:validate` still runs assertions + records the stakeholder .webm.
 - The first invocation runs `npx --yes playwright@latest install --with-deps chromium` if no Playwright binary is on the PATH.
 - No `playwright.config.ts` needed in the project.
 
-If the feature is genuinely non-UI (CLI, library, pure backend), pick `validation.mode: manual` instead — the validation phase is skipped and unit/E2E tests from `/agentic-sdlc:implement` become the only gate.
+If the feature is genuinely non-UI (CLI, library, pure backend), pick `validation.mode: manual` instead — the validation phase is skipped and unit/E2E tests from `/kosmo-sdlc:implement` become the only gate.
 
-To switch later: re-run `/agentic-sdlc:init` and pick a different mode in the wizard, or edit `validation.mode` directly in `_/sdlc-config.md`.
+To switch later: re-run `/kosmo-sdlc:init` and pick a different mode in the wizard, or edit `validation.mode` directly in `_/sdlc-config.md`.
 
 ## No CI workflows
 
 Without `.github/workflows/`:
 
-- `/agentic-sdlc:revalidate` skips the CI check.
+- `/kosmo-sdlc:revalidate` skips the CI check.
 - The local pipeline (re-detected from `package.json:scripts.pipeline|ci|check` or pinned via `overrides.pipeline_command`) becomes the only build gate. Make sure it's comprehensive.
 
 ## Different default branch name
 
-`/agentic-sdlc:review` and `/agentic-sdlc:pr` resolve the default branch via `git symbolic-ref refs/remotes/origin/HEAD` on each run. If that returns the wrong thing (shallow clone, mirrored repo), pin it: set `overrides.default_branch: trunk` (or whatever) in `_/sdlc-config.md`.
+`/kosmo-sdlc:review` and `/kosmo-sdlc:pr` resolve the default branch via `git symbolic-ref refs/remotes/origin/HEAD` on each run. If that returns the wrong thing (shallow clone, mirrored repo), pin it: set `overrides.default_branch: trunk` (or whatever) in `_/sdlc-config.md`.
 
 ## Different branch pattern
 
 If your team uses `release/v1.2.x/PROJ-123` or `firstname/PROJ-123`:
 
 - Set `conventions.branch_pattern` to a template, e.g. `"release/v1.2.x/<TICKET>"` or `"<author>/<TICKET>"`.
-- `/agentic-sdlc:implement` substitutes `<TICKET>`, `<type>`, and `<author>` (from `git config user.name`).
+- `/kosmo-sdlc:implement` substitutes `<TICKET>`, `<type>`, and `<author>` (from `git config user.name`).
 
 ## Different package manager
 
@@ -88,11 +88,16 @@ Out of scope for v0.x. The detection logic, Playwright assumptions, and the `com
 
 ## Pairing with other plugins
 
-`agentic-sdlc` is deliberately minimal. Useful companions:
+`kosmo-sdlc` is deliberately minimal. Useful companions:
 
-- **`code-review-graph`** — build a Tree-sitter knowledge graph for token-efficient impact analysis. `/agentic-sdlc:review`'s impact-set computation works without it but benefits substantially when it's installed. Pair when reviewing diffs > 30 files.
-- **`everything-claude-code`** — bundles `code-reviewer`, `security-reviewer`, and `e2e-runner` sub-agents that `/agentic-sdlc:review` and `/agentic-sdlc:validate` reference by name. If you don't have them installed, the sub-agents fall back to ad-hoc Agent calls without the specialised prompts.
-- **`vibe-testing`** — pressure-test specs before intake. Run it on the spec document before `/agentic-sdlc:intake` to catch architectural gaps early.
+- **Bundled skills** (see [`skills/README.md`](../skills/README.md), [mattpocock-skills.md](mattpocock-skills.md)):
+  - **`grill-me`** — **default planning** (brainstorm/design/plan → grill). **`grill-with-docs`** when you want `CONTEXT.md` / ADRs.
+  - **`ai-judge` / `/kosmo-sdlc:judge`** — multi-CLI second opinions (e.g. Grok session judged by Claude + Codex).
+  - **`tdd`**, **`diagnosing-bugs`**, **`codebase-design`**, **`handoff`** — optional discipline layers.
+  - **`ask-kosmo-sdlc`** — router.
+  - **Host installs:** `prototype`, `research`, `wayfinder` recommended; full matt `to-spec`→`implement` pipeline only if you are *not* using the cycle for that work.
+- **`code-review-graph`** — build a Tree-sitter knowledge graph for token-efficient impact analysis. `/kosmo-sdlc:review`'s impact-set computation works without it but benefits substantially when it's installed. Pair when reviewing diffs > 30 files.
+- **`everything-claude-code`** — bundles `code-reviewer`, `security-reviewer`, and `e2e-runner` sub-agents that `/kosmo-sdlc:review` and `/kosmo-sdlc:validate` reference by name. If you don't have them installed, the sub-agents fall back to ad-hoc Agent calls without the specialised prompts.
 - **Atlassian / Linear MCP** — improves intake quality dramatically. Without an MCP, intake falls back to user-pasted ticket bodies.
 
 ## Manual install (without the plugin marketplace)
@@ -100,9 +105,9 @@ Out of scope for v0.x. The detection logic, Playwright assumptions, and the `com
 If you can't use `/plugin install` (older Claude Code, locked harness):
 
 ```bash
-# Clone this repo somewhere (URL TBD once published)
-SDLC_HOME=~/.claude/agentic-sdlc
-# e.g. git clone <repo-url> "$SDLC_HOME"
+# Clone this repo somewhere
+SDLC_HOME=~/.claude/kosmo-sdlc
+# e.g. git clone https://github.com/Ivlad003/kosmo-sdlc.git "$SDLC_HOME"
 
 # Symlink the commands
 for cmd in "$SDLC_HOME"/commands/*.md; do
@@ -112,7 +117,7 @@ done
 # Symlink the skill
 ln -sf "$SDLC_HOME"/skills/commit-work ~/.claude/skills/commit-work
 
-# Symlink agents (optional — only needed for /agentic-sdlc:cycle)
+# Symlink agents (optional — only needed for /kosmo-sdlc:cycle)
 for agent in "$SDLC_HOME"/agents/*.md; do
   ln -sf "$agent" ~/.claude/agents/"$(basename "$agent")"
 done
@@ -122,6 +127,6 @@ Re-run after `git pull` to pick up updates.
 
 ## Reporting issues
 
-- Open an issue at the project's issue tracker (URL TBD once published).
+- Open an issue at https://github.com/Ivlad003/kosmo-sdlc/issues.
 - Include: project type (monorepo/single), package manager, Node version, the command that failed, and `_/sdlc-config.md` (redact paths/secrets — the Notes body is fine to share once scrubbed).
 - For schema validation failures, include the failing frontmatter (redact ticket bodies if confidential).

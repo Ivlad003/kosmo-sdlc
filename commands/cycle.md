@@ -4,7 +4,7 @@ argument-hint: "<ticket-id-or-description> [spec-path-or-url] [--resume] [--auto
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
 
-# /agentic-sdlc:cycle
+# /kosmo-sdlc:cycle
 
 The orchestrator. One invocation, end-to-end loop. Each phase runs as a sub-agent in its own context window, returns a track-frontmatter delta, and the orchestrator validates and persists the delta before dispatching the next phase.
 
@@ -29,7 +29,7 @@ Each phase has a dedicated sub-agent in `agents/`:
 | pr-comments | (skipped in initial cycle; runs reactively when reviewers comment) | — |
 | revalidate | reuses `sdlc-validate-agent` with `--mode revalidate` | — |
 
-Each sub-agent runs in a git worktree (see `~/.agents/skills/using-git-worktrees/SKILL.md`) so context windows don't bleed into each other.
+**Worktree policy (cycle only):** each phase *may* run as a sub-agent in a git worktree for context isolation (see `using-git-worktrees` if available). This is **not** required for every skill or every manual `/kosmo-sdlc:*` command — only the **cycle orchestrator** uses worktrees between phases. If worktrees are unavailable, run the phase in-process following `agents/*.md`.
 
 ## Phase gates
 
@@ -63,8 +63,10 @@ Rules:
 
 ### 1. Bootstrap
 
-- Read `_/sdlc-config.md` (frontmatter + Notes body). If missing → run `/agentic-sdlc:init` first; abort the cycle if user declines.
+- Read `_/sdlc-config.md` (frontmatter + Notes body). If missing → run `/kosmo-sdlc:init` first; abort the cycle if user declines.
 - Resolve the track filename from `$1`. If a track already exists and `--resume` not set → ask whether to update or start fresh.
+- **Planning first:** if `$1` is not a ticket id/URL, **or** the description is thin (no ACs, no Given/When/Then, no numbered criteria), **run or require `grill-me`** (default planning skill — not brainstorming) before intake unless the user already completed a grill in this thread. Under `--auto`, skip interactive grill and proceed to intake (user accepted thin scope).
+- **Optional multi-model:** if the user passed `--judge` or config `judge.on_cycle: true`, run `/kosmo-sdlc:judge plan` after grill / before intake when freeform.
 - After intake (or when resuming on an existing track), read `frontmatter.size` (absent ⇒ `m`):
   - `l` and `children` is non-empty → hand off to §"L fan-out" instead of the linear loop below.
   - `s` → confirm the light flow with the user (required even under `--auto`); set the phase sequence to intake → implement → validate → pr (no review, no revalidate).
@@ -81,7 +83,7 @@ For each phase in the **size-resolved** sequence (see §"Size-adaptive flow"):
    The Notes body of _/sdlc-config.md is project-specific guidance — treat it as
    binding instructions, not flavour. Do your phase per agents/<agent>.md. Return
    ONLY the updated track frontmatter (YAML) and a one-paragraph summary. Do not
-   commit. Do not push (except /agentic-sdlc:pr-agent).
+   commit. Do not push (except /kosmo-sdlc:pr-agent).
    ```
    After constructing the base prompt, read `phase_prompts.<phase>` from `_/sdlc-config.md` frontmatter. If it is non-null and non-empty, append the following block to the prompt:
    ```
@@ -94,7 +96,7 @@ For each phase in the **size-resolved** sequence (see §"Size-adaptive flow"):
 5. Merge into the track file. Append the agent's summary to §7 Journal.
 6. Check the gate.
    - Pass → continue to the next phase.
-   - Fail → stop the cycle. Surface the report. Tell the user the concrete next action (run `/agentic-sdlc:implement` again, address CRITICAL findings, etc.).
+   - Fail → stop the cycle. Surface the report. Tell the user the concrete next action (run `/kosmo-sdlc:implement` again, address CRITICAL findings, etc.).
 7. If not `--auto`, ask "advance to <next-phase>?" before dispatching the next sub-agent.
 
 ### 3. Final report
@@ -117,7 +119,7 @@ If a gate failed:
 ```
 TICKET-1 — cycle stopped at validate
 Reason: 1 requirement failed (R1.4 — drawer remained open on submit; toast 'Erreur réseau')
-Next:   /agentic-sdlc:implement TICKET-1 --requirement R1.4
+Next:   /kosmo-sdlc:implement TICKET-1 --requirement R1.4
 ```
 
 ### L fan-out
@@ -136,8 +138,8 @@ When the resolved track is an `l` mother (`children` non-empty):
 - Never skip a gate, even under `--auto`.
 - `size: s` skips the **review** phase but never the pipeline gate (implement, validate, pr all still demand green). Reducing rigor to `s` requires explicit user confirmation, even under `--auto`.
 - For `l`, the orchestrator is still the single writer of every track file (mother and children); sub-track sub-agents return deltas only.
-- Each sub-agent runs in isolation (worktree). The orchestrator is the only writer of the track file.
+- Prefer worktree isolation for phase sub-agents when available; not mandatory. The orchestrator is the only writer of the track file.
 - Frontmatter delta must validate against the schema before being merged.
 - On failure, surface the **specific** next action. No "consider re-running" generalities.
 - If a sub-agent returns malformed YAML or out-of-schema fields, retry once with a corrective prompt. On second failure → abort and surface the raw output.
-- `/agentic-sdlc:pr-comments` is **not** part of the initial cycle — reviewers haven't commented yet. The user invokes it later, reactively.
+- `/kosmo-sdlc:pr-comments` is **not** part of the initial cycle — reviewers haven't commented yet. The user invokes it later, reactively.

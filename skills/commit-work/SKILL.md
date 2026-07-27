@@ -1,6 +1,6 @@
 ---
 name: commit-work
-description: "Create high-quality git commits: review/stage intended changes, split into logical commits, write clear Conventional Commits messages, and run the project's pipeline gate before each commit. Use when committing within an agentic-sdlc cycle or whenever staging changes."
+description: "Create high-quality git commits: review/stage intended changes, split into logical commits, write clear Conventional Commits messages, and run the project's pipeline gate before each commit. Use when committing within an kosmo-sdlc cycle or whenever staging changes."
 ---
 
 # Commit work
@@ -41,7 +41,7 @@ Make commits that are easy to review and safe to ship:
      - No secrets or tokens (run `git diff --cached | grep -i -E 'password|secret|token|api[_-]?key'` and inspect).
      - No accidental debug logging (`console.log`, `dbg!`, `print(` in non-debug paths).
      - No unrelated formatting churn.
-     - No commits of files under `_/` (the agentic-sdlc working dir is gitignored, but double-check).
+     - No commits of files under `_/` (the kosmo-sdlc working dir is gitignored, but double-check).
      - No references to `_/` paths inside *staged files* (e.g. a source file mentioning `_/tracks/...` in a comment). The working directory is local-only — code shipped to git must not point at it.
 
 5. **Describe the staged change in 1–2 sentences** before writing the message.
@@ -79,7 +79,7 @@ Make commits that are easy to review and safe to ship:
 - Always run the pipeline gate before each commit (the original `commit-work` skill suggested it; this version enforces it).
 - Conventional Commits subject ≤ 72 characters. Body wraps at 100.
 - Co-authored-by lines only when explicitly requested. Attribution defaults are user-configured.
-- **Never reference `_/` paths in commit messages** — no "see `_/tracks/TICKET-1.md`", no "per `_/recordings/...`", no mention of the track, scenario, or recordings. The agentic-sdlc working directory is local and gitignored; commit messages get pushed to GitHub and must not leak it. Cite code paths, ticket ids, and behavior — not the working dir.
+- **Never reference `_/` paths in commit messages** — no "see `_/tracks/TICKET-1.md`", no "per `_/recordings/...`", no mention of the track, scenario, or recordings. The kosmo-sdlc working directory is local and gitignored; commit messages get pushed to GitHub and must not leak it. Cite code paths, ticket ids, and behavior — not the working dir.
 
 ## Deliverable
 

@@ -1,12 +1,12 @@
 ---
-description: Bootstrap agentic-sdlc for a project. Detects what it can (package manager, scripts, ticketing prefix), then walks the user through a short questionnaire for the decisions that can't be detected (validation strategy, spec convention, ticketing system). Writes _/sdlc-config.md.
+description: Bootstrap kosmo-sdlc for a project. Detects what it can (package manager, scripts, ticketing prefix), then walks the user through a short questionnaire for the decisions that can't be detected (validation strategy, spec convention, ticketing system). Writes _/sdlc-config.md.
 argument-hint: "[--force] [--non-interactive]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "AskUserQuestion"]
 ---
 
-# /agentic-sdlc:init
+# /kosmo-sdlc:init
 
-One-time per-project bootstrap. Produces `_/sdlc-config.md` — a markdown file with YAML frontmatter (the structured contract every `/agentic-sdlc:*` command queries) and a free-form **Notes for agents** body (read verbatim by every command, inlined into sub-agent prompts). Also appends `_/` to `.gitignore` and seeds `_/demo/credentials.template.json`.
+One-time per-project bootstrap. Produces `_/sdlc-config.md` — a markdown file with YAML frontmatter (the structured contract every `/kosmo-sdlc:*` command queries) and a free-form **Notes for agents** body (read verbatim by every command, inlined into sub-agent prompts). Also appends `_/` to `.gitignore` and seeds `_/demo/credentials.template.json`.
 
 Idempotent. Re-running diffs detected values against the on-disk file and asks before overwriting.
 
@@ -28,10 +28,10 @@ Agents read this file every time. JSON can't carry comments, can't hold the proj
   - Exists and no `--force` → read it, parse frontmatter, treat detected values as proposed updates the user can accept/reject per-field.
   - Doesn't exist → fresh detection + full wizard.
 - **MCP and skills availability check.** Probe which optional integrations are reachable and report them in the detection summary (§3). Do not fail init if something is missing — just flag it so the user knows what won't work:
-  - **Playwright MCP** (`mcp__plugin_playwright_playwright__browser_navigate`) — required for live selector discovery during `/agentic-sdlc:validate`. If absent, validate will fall back to static selector generation (lower quality; warn).
-  - **Atlassian MCP** — required for Jira ticket fetch in `/agentic-sdlc:intake`. If the user picked `jira` as the ticketing system but this MCP is absent, flag it: "intake will need the ticket pasted manually."
+  - **Playwright MCP** (`mcp__plugin_playwright_playwright__browser_navigate`) — required for live selector discovery during `/kosmo-sdlc:validate`. If absent, validate will fall back to static selector generation (lower quality; warn).
+  - **Atlassian MCP** — required for Jira ticket fetch in `/kosmo-sdlc:intake`. If the user picked `jira` as the ticketing system but this MCP is absent, flag it: "intake will need the ticket pasted manually."
   - **Linear MCP** — same for Linear.
-  - **`agentic-sdlc:commit-work` skill** — used by `/agentic-sdlc:implement`, `/agentic-sdlc:review`, and `/agentic-sdlc:pr` as the default commit command. If the skill registry doesn't list it, warn: "the default commit command (`commit-work`) is unavailable — you may want to pick a custom commit command during setup."
+  - **`kosmo-sdlc:commit-work` skill** — used by `/kosmo-sdlc:implement`, `/kosmo-sdlc:review`, and `/kosmo-sdlc:pr` as the default commit command. If the skill registry doesn't list it, warn: "the default commit command (`commit-work`) is unavailable — you may want to pick a custom commit command during setup."
 
 ### 2. Detect what we can (silent pass)
 
@@ -93,7 +93,7 @@ Missing signals
 MCP / skills
 ------------
 ✅ Playwright MCP        — live selector discovery in validate
-✅ agentic-sdlc:commit-work skill
+✅ kosmo-sdlc:commit-work skill
 ⚠️  Atlassian MCP absent  — intake will need ticket body pasted manually (if using Jira)
 ⚠️  Linear MCP absent     — intake will need ticket body pasted manually (if using Linear)
 ```
@@ -105,7 +105,7 @@ Use `AskUserQuestion` for each decision. Pre-fill each question's first option w
 Questions, in order:
 
 0. **Track file visibility.** Ask whether to add `_/` to `.gitignore`.
-   - `gitignore _/` *(Recommended)* — track files, recordings, and credentials stay local. Teammates run their own `/agentic-sdlc:intake` per branch. Best for teams where tickets are per-developer.
+   - `gitignore _/` *(Recommended)* — track files, recordings, and credentials stay local. Teammates run their own `/kosmo-sdlc:intake` per branch. Best for teams where tickets are per-developer.
    - `commit _/tracks/ only` — track files are committed (useful for async review or shared branches); recordings and `_/demo/credentials.json` are still gitignored.
    - `commit everything in _/` — full transparency; credentials must be managed externally (warn the user that `_/demo/credentials.json` will be committed).
 
@@ -141,9 +141,13 @@ Questions, in order:
    - `standard` *(Recommended)* — full body with the AC checklist, per-requirement validation table, console/network defects, review severity breakdown, test plan, and reviewer notes. Best when reviewers want to verify everything inline.
    - `concise` — one-line summary, ticket link, validation + review outcome lines, AC checklist only. Best when ACs are long and the per-requirement tables would dominate the PR.
 
-   Per-PR override is always available via `/agentic-sdlc:pr <TICKET> --style <name>`.
+   Per-PR override is always available via `/kosmo-sdlc:pr <TICKET> --style <name>`.
 
-8. **Anything else the agents should know?** Free text (multi-line). Whatever the user writes lands in the `# Notes for agents` body verbatim. Examples to suggest if they hesitate:
+8. **Session token budget (optional).** Soft max tokens for a session / Ralph run. Options: skip (null), `100000`, `200000`, `400000`, or free number. Store as `session.max_tokens`. Default `on_limit: handoff`.
+
+9. **Obsidian vault for handoff/memory (optional).** Path to local clone of personal vault (default remote `https://github.com/Ivlad003/obsidian-personal`). Empty = skip. Store under `session.vault.path`; `work_root: Work`; project name defaults to workspace folder.
+
+10. **Anything else the agents should know?** Free text (multi-line). Whatever the user writes lands in the `# Notes for agents` body verbatim. Examples to suggest if they hesitate:
    - per-workspace dev commands
    - env vars the agents shouldn't read but should know exist
    - flaky tests + acceptable retry counts
@@ -171,7 +175,7 @@ If the user skips a free-text question, the body stays as the template's placeho
 
 ### 5. Write artifacts
 
-- `_/sdlc-config.md` — render `templates/sdlc-config.template.md` with wizard answers; substitute `{{TODAY}}` etc.; substitute `{{PHASE_PROMPTS_INTAKE}}`, `{{PHASE_PROMPTS_IMPLEMENT}}`, `{{PHASE_PROMPTS_REVIEW}}`, `{{PHASE_PROMPTS_VALIDATE}}` with the Q9 answers (null for skipped phases, quoted strings for non-empty answers); place the user's free-text notes (from Q8) under the `# Notes for agents` heading, replacing the placeholder paragraph.
+- `_/sdlc-config.md` — render `templates/sdlc-config.template.md` with wizard answers; substitute `{{TODAY}}` etc.; phase_prompts from the overlay questions; `session.max_tokens` / `session.vault` from Q8–Q9; place free-text notes (Q10) under `# Notes for agents`.
 - `_/demo/credentials.template.json` — copy from `templates/demo-credentials.template.json` (skip if `_/demo/credentials.json` already exists).
 - `.gitignore` — update based on `tracks.gitignore`:
   - `true` → append `_/` (ignore everything).
@@ -179,6 +183,7 @@ If the user skips a free-text question, the body stays as the template's placeho
   - `false` → append only `_/demo/credentials.json` and `_/recordings/` (recordings are large binary artifacts; credentials must never be committed regardless of the choice above).
   Never remove existing gitignore lines — only add what's missing.
 - `_/tracks/` and `_/recordings/` — create with `.gitkeep`.
+- **Coding agents inventory** — run `/kosmo-sdlc:discover-agents` (or `scripts/discover-coding-agents.ps1|.sh`) so `_/coding-agents.md` + `.json` exist for **ai-judge**.
 
 Validate the parsed frontmatter against `schemas/sdlc-config.schema.json` before writing. Fail loudly on schema violation.
 
@@ -187,18 +192,18 @@ Validate the parsed frontmatter against `schemas/sdlc-config.schema.json` before
 Print a structured summary:
 
 ```
-agentic-sdlc initialized at /path/to/project
+kosmo-sdlc initialized at /path/to/project
 
 Ticketing:      jira (prefix TICKET) via Atlassian MCP
 Spec:           ticket-references-path (no default dir)
 Validation:     project-playwright @ http://localhost:3000
 Conventions:    <type>/<TICKET> branches · conventional commits · commit via <strategy> (<skill|command|prompt value>)
-PR body:        standard (per-PR override: /agentic-sdlc:pr <TICKET> --style concise)
+PR body:        standard (per-PR override: /kosmo-sdlc:pr <TICKET> --style concise)
 Notes:          8 lines captured (see _/sdlc-config.md)
 Phase prompts:  implement ✅ · review ✅ · intake — · validate —
 
 Next:
-  /agentic-sdlc:intake <TICKET-ID> [spec-path]
+  /kosmo-sdlc:intake <TICKET-ID> [spec-path]
 ```
 
 (The `Phase prompts:` line is omitted when all four overlays are null.)
@@ -206,43 +211,46 @@ Next:
 Then the usage primer (same as before — kept verbatim except for the artifact name change):
 
 ```
-How to use agentic-sdlc
+How to use kosmo-sdlc
 -----------------------
 
-One ticket = one track file at _/tracks/<TICKET>.md. Every /agentic-sdlc:* command
+One ticket = one track file at _/tracks/<TICKET>.md. Every /kosmo-sdlc:* command
 reads and writes that file. Run the phases in order, or run the whole cycle
-with /agentic-sdlc:cycle.
+with /kosmo-sdlc:cycle.
 
 Phases (each suggests the next when it finishes):
 
-  1. /agentic-sdlc:intake     <TICKET> [spec]   build the track from the ticket + spec
-  2. /agentic-sdlc:implement  <TICKET>          code the requirements; pipeline-gated
-  3. /agentic-sdlc:validate   <TICKET>          Playwright assertions + stakeholder demo
-  4. /agentic-sdlc:review     <TICKET>          parallel code/security/standards review
-  5. /agentic-sdlc:pr         <TICKET>          push branch + open PR with inlined report
-  5b. /agentic-sdlc:pr-comments [PR]            walk reviewer threads; verdict-prefixed replies
-  6. /agentic-sdlc:revalidate <TICKET>          drift check + final green-light before merge
+  1. /kosmo-sdlc:intake     <TICKET> [spec]   build the track from the ticket + spec
+  2. /kosmo-sdlc:implement  <TICKET>          code the requirements; pipeline-gated
+  3. /kosmo-sdlc:validate   <TICKET>          Playwright assertions + stakeholder demo
+  4. /kosmo-sdlc:review     <TICKET>          parallel code/security/standards review
+  5. /kosmo-sdlc:pr         <TICKET>          push branch + open PR with inlined report
+  5b. /kosmo-sdlc:pr-comments [PR]            walk reviewer threads; verdict-prefixed replies
+  6. /kosmo-sdlc:revalidate <TICKET>          drift check + final green-light before merge
 
 Shortcuts:
 
-  /agentic-sdlc:cycle <TICKET> [spec]           run all phases end-to-end, gated
-  /agentic-sdlc:cycle <TICKET> --resume         pick up at the last incomplete phase
-  /agentic-sdlc:cycle <TICKET> --auto           don't pause between phases (still stops on gate fails)
+  /kosmo-sdlc:cycle <TICKET> [spec]           run all phases end-to-end, gated
+  /kosmo-sdlc:cycle <TICKET> --resume         pick up at the last incomplete phase
+  /kosmo-sdlc:cycle <TICKET> --auto           don't pause between phases (still stops on gate fails)
 
 Where things live:
 
   _/sdlc-config.md          this file — project profile + freeform notes,
-                            regenerate with /agentic-sdlc:init --force
+                            regenerate with /kosmo-sdlc:init --force
   _/tracks/<TICKET>.md      per-ticket source of truth (gitignored)
   _/recordings/             validation reports, review reports, demo .webm
-  _/demo/credentials.json   fill this in before /agentic-sdlc:validate (template seeded for you)
+  _/demo/credentials.json   fill this in before /kosmo-sdlc:validate (template seeded for you)
 
 First run from here:
 
   1. Open _/demo/credentials.template.json, save it as _/demo/credentials.json,
      fill in a non-production test account.
-  2. /agentic-sdlc:intake <TICKET-ID>          (or paste the ticket body inline)
-  3. Follow the "Next:" line each command prints.
+  2. /kosmo-sdlc:discover-agents           # inventory CLIs → _/coding-agents.md (for judge)
+  3. /grill-me                               # DEFAULT planning
+  4. /kosmo-sdlc:intake <TICKET-ID>
+  5. Follow the "Next:" line each command prints.
+  Optional: set session.vault.path to your obsidian-personal clone for handoff/memory.
 ```
 
 ## Re-running on an existing project

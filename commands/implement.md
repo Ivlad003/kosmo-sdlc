@@ -4,7 +4,7 @@ argument-hint: "<ticket-id> [--requirement R1.1] [--no-pipeline]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
 
-# /agentic-sdlc:implement
+# /kosmo-sdlc:implement
 
 Phase 2 of the cycle. Reads the track, plans against §6, implements requirements one by one, runs the pipeline gate, and updates frontmatter as it goes. Refuses to mark a requirement `done` without test evidence when the project has a test script configured.
 
@@ -17,8 +17,8 @@ Phase 2 of the cycle. Reads the track, plans against §6, implements requirement
 
 ## Preconditions
 
-1. `_/sdlc-config.md` exists. If not → fail with "run /agentic-sdlc:init first". Read both the frontmatter and the Notes body — the Notes body often carries workspace-specific commands and gotchas that affect how requirements get implemented.
-2. `_/tracks/<TICKET>.md` exists and validates against `schemas/track.schema.json`. If not → fail with "run /agentic-sdlc:intake <TICKET> first".
+1. `_/sdlc-config.md` exists. If not → fail with "run /kosmo-sdlc:init first". Read both the frontmatter and the Notes body — the Notes body often carries workspace-specific commands and gotchas that affect how requirements get implemented.
+2. `_/tracks/<TICKET>.md` exists and validates against `schemas/track.schema.json`. If not → fail with "run /kosmo-sdlc:intake <TICKET> first".
 3. Git working tree is clean. If not → ask whether to stash or proceed.
 
 ## Workflow
@@ -50,16 +50,17 @@ For each requirement in order:
 
 1. Set `status: in_progress`, write track. Append journal row: `Started R1.1 — <text>`.
 2. Make the code change. Prefer editing existing files. Add tests in the same commit-able unit.
+   - Optional discipline: use the **`tdd`** skill (red → green at pre-agreed seams) for non-trivial behaviour. Do **not** switch to any generic implement skill — this command owns track status, evidence, and gates.
 3. Run targeted verification:
    - Backend requirement → service unit test, controller test if applicable.
-   - Frontend requirement → component test (Vitest), and a Playwright assertion will land in `/agentic-sdlc:validate`.
+   - Frontend requirement → component test (Vitest), and a Playwright assertion will land in `/kosmo-sdlc:validate`.
    - Shared requirement → typecheck + unit test.
    - Infra/docs requirement → manual check + commit.
 4. Run the pipeline gate (unless `--no-pipeline`). Resolve the pipeline command in this order:
    - `overrides.pipeline_command` from `_/sdlc-config.md` if set.
    - Else read root `package.json` and use `scripts.pipeline` → `scripts.ci` → `scripts.check` (first match).
    - Else chain `lint && typecheck && test && build`, each resolved from `package.json` scripts (typecheck falls back to `tsc --noEmit` when `tsconfig.json` exists).
-   - **Lint-coverage guarantee:** if the resolved command came from `scripts.pipeline|ci|check` or a pinned `overrides.pipeline_command` and it does not already run lint (no `lint`/`format` script and no `eslint`/`biome`/`prettier` in its body), append the detected lint step (`<pm> run lint`, else `biome check .` / `eslint .` / `prettier --check .` per config). The gate must lint — see [init-detection.md](../docs/init-detection.md#pipeline-command). If no lint capability exists at all, proceed but note it; `/agentic-sdlc:init` already warned.
+   - **Lint-coverage guarantee:** if the resolved command came from `scripts.pipeline|ci|check` or a pinned `overrides.pipeline_command` and it does not already run lint (no `lint`/`format` script and no `eslint`/`biome`/`prettier` in its body), append the detected lint step (`<pm> run lint`, else `biome check .` / `eslint .` / `prettier --check .` per config). The gate must lint — see [init-detection.md](../docs/init-detection.md#pipeline-command). If no lint capability exists at all, proceed but note it; `/kosmo-sdlc:init` already warned.
    - Prefix each command with the detected package manager (`npm run`, `pnpm`, `yarn`, `bun run`) per lockfile / `packageManager` field.
    - On failure → keep requirement at `in_progress`, surface the failure, ask user how to proceed.
 5. On pipeline pass:
@@ -87,7 +88,7 @@ Only when explicitly enabled. The goal is to overlap independent work, not to sk
    - Neither lists the other as a dependency in §6.
    - Both have `status: not_started`.
    Everything else stays sequential.
-2. **Dispatch one sub-agent per requirement in a batch**, in a single message with multiple `Agent` calls so they run concurrently. Use `subagent_type: agentic-sdlc:sdlc-impl-agent`. The prompt must scope the agent to **one requirement id only** (`--requirement R1.x --no-pipeline`) and forbid frontmatter writes — those are the coordinator's job.
+2. **Dispatch one sub-agent per requirement in a batch**, in a single message with multiple `Agent` calls so they run concurrently. Use `subagent_type: kosmo-sdlc:sdlc-impl-agent`. The prompt must scope the agent to **one requirement id only** (`--requirement R1.x --no-pipeline`) and forbid frontmatter writes — those are the coordinator's job.
 3. **Coordinator serializes the writes.** After all sub-agents in a batch return, the coordinator: applies any code patches the sub-agents staged, updates frontmatter (`status`, `evidence`) one requirement at a time, appends journal rows in id order, then runs the pipeline gate **once** for the whole batch.
 4. **On pipeline failure**: leave the batch's requirements at `in_progress`, surface which sub-agent's diff likely caused it, and fall back to sequential for the next batch.
 5. **Never parallelize** requirements that touch the same file, share migrations/schema, or are flagged `mixed` owner. When in doubt, run sequentially.
@@ -117,14 +118,14 @@ When all in-scope requirements are `done`:
 
 - If `git status` shows any uncommitted changes (e.g. track file updates, seed files added late), apply the commit strategy once more to capture them. For `via: skill/command`, draft `chore(TICKET-1): finalize implementation — track + fixture updates` (or equivalent per commit style). For `via: prompt`, apply the prompt instructions to whatever remains.
 - Set `frontmatter.status: in_review` (the act of finishing implementation moves us toward review).
-- Append journal row: `Implementation complete. <N> requirements done. Next: /agentic-sdlc:validate <TICKET>.`
+- Append journal row: `Implementation complete. <N> requirements done. Next: /kosmo-sdlc:validate <TICKET>.`
 - Print:
 
 ```
 TICKET-1 — implementation complete
 Done: R1.1, R1.2, R1.3, R1.4, R2.1, R2.2, R3.1
 Branch: feat/TICKET-1 (12 commits ahead of trunk)
-Next: /agentic-sdlc:validate TICKET-1
+Next: /kosmo-sdlc:validate TICKET-1
 ```
 
 ## Hard rules

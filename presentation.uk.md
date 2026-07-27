@@ -2,7 +2,7 @@
 marp: true
 theme: default
 paginate: true
-header: 'agentic-sdlc'
+header: 'kosmo-sdlc'
 ---
 
 <style>
@@ -162,7 +162,7 @@ section.lead p strong { color: var(--color-accent); }
 <!-- _class: lead -->
 <!-- _paginate: false -->
 
-# /agentic-sdlc
+# /kosmo-sdlc
 
 Плагін Claude Code. Сім фаз, кожен перехід з перевіркою.
 
@@ -216,15 +216,15 @@ merge
 
 | #   | Команда                     | Ідея фази                                                  |
 | --- | --------------------------- | ---------------------------------------------------------- |
-| 0   | `/agentic-sdlc:init`        | Налаштування SDLC під проєкт                               |
-| 1   | `/agentic-sdlc:intake`      | Формування track file. Уточнюючі питання                   |
-| 2   | `/agentic-sdlc:implement`   | Написання коду, та перевірки                               |
-| 3   | `/agentic-sdlc:validate`    | Playwright-тести  → запис відео 🎬 демо                     |
-| 4   | `/agentic-sdlc:review`      | Три ревʼюери: безпека, стандарти, загальне                 |
-| 5   | `/agentic-sdlc:pr`          | Пуш гілки та  відкрити PR                                  |
-| 5b  | `/agentic-sdlc:pr-comments` | Відповіді на коментарі з вердиктом (застосовано/відхилено) |
-| 6   | `/agentic-sdlc:revalidate`  | Повторна перевірка всього перед мержем                     |
-| ∗   | `/agentic-sdlc:cycle`       | Оркестрація фаз 1→6, пауза між кожною                      |
+| 0   | `/kosmo-sdlc:init`        | Налаштування SDLC під проєкт                               |
+| 1   | `/kosmo-sdlc:intake`      | Формування track file. Уточнюючі питання                   |
+| 2   | `/kosmo-sdlc:implement`   | Написання коду, та перевірки                               |
+| 3   | `/kosmo-sdlc:validate`    | Playwright-тести  → запис відео 🎬 демо                     |
+| 4   | `/kosmo-sdlc:review`      | Три ревʼюери: безпека, стандарти, загальне                 |
+| 5   | `/kosmo-sdlc:pr`          | Пуш гілки та  відкрити PR                                  |
+| 5b  | `/kosmo-sdlc:pr-comments` | Відповіді на коментарі з вердиктом (застосовано/відхилено) |
+| 6   | `/kosmo-sdlc:revalidate`  | Повторна перевірка всього перед мержем                     |
+| ∗   | `/kosmo-sdlc:cycle`       | Оркестрація фаз 1→6, пауза між кожною                      |
 
 ---
 
@@ -278,10 +278,10 @@ intake ────►├──► security reviewer   ├──► consolidator
 
 ---
 
-## /agentic-sdlc:cycle
+## /kosmo-sdlc:cycle
 
 ```bash
-/agentic-sdlc:cycle PROJ-123
+/kosmo-sdlc:cycle PROJ-123
 ```
 
 - Запускає фази 1 → 6 у **виділених субагентах** (чистий контекст на кожну фазу)
@@ -292,9 +292,9 @@ intake ────►├──► security reviewer   ├──► consolidator
 Можна просуватися вручну, якщо так зручніше:
 
 ```bash
-/agentic-sdlc:intake     PROJ-123 path/to/spec.md
-/agentic-sdlc:implement  PROJ-123
-/agentic-sdlc:validate   PROJ-123
+/kosmo-sdlc:intake     PROJ-123 path/to/spec.md
+/kosmo-sdlc:implement  PROJ-123
+/kosmo-sdlc:validate   PROJ-123
 ```
 
 ---
@@ -304,14 +304,14 @@ intake ────►├──► security reviewer   ├──► consolidator
 ```bash
 # встановлення
 /plugin marketplace add /path/to/sdlc
-/plugin install agentic-sdlc@agentic-sdlc
+/plugin install kosmo-sdlc@kosmo-sdlc
 
 # одноразове налаштування — визначає pkg manager, скрипти, префікс тікетів,
 # перевіряє доступні MCP та скіли, запитає: про gitignore та інше
-/agentic-sdlc:init
+/kosmo-sdlc:init
 
 # повний цикл, з перевірками, від і до
-/agentic-sdlc:cycle PROJ-123
+/kosmo-sdlc:cycle PROJ-123
 ```
 
 **Вимоги:** Claude Code v2.1+, Node 18+, `gh` CLI з авторизацією. Atlassian / Linear MCP — опційно.
@@ -334,6 +334,6 @@ intake ────►├──► security reviewer   ├──► consolidator
 
 # Спробуй
 
-**`/agentic-sdlc:cycle PROJ-123`**
+**`/kosmo-sdlc:cycle PROJ-123`**
 
 
