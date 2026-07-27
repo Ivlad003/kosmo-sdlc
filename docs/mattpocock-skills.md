@@ -47,7 +47,7 @@ npx skills@latest add mattpocock/skills \
 | --- | --- |
 | **`prototype`** | After grill: settle a UI/state question with throwaway code before intake |
 | **`research`** | Background cited research before or during grill |
-| **`wayfinder`** | Huge multi-session initiatives (foggy roadmap) → then collapse into tickets + agentic intake |
+| **`wayfinder`** | Huge multi-session initiatives (foggy roadmap) → then collapse into tickets + kosmo intake |
 | **`improve-codebase-architecture`** | Periodic deepening; output can feed grill-me |
 
 ## Full matt main flow (optional, host-only)
@@ -69,7 +69,7 @@ npx skills@latest add mattpocock/skills \
 grill-with-docs → to-spec → to-tickets → implement(+tdd) → code-review
 ```
 
-vs agentic:
+vs kosmo-sdlc:
 
 ```text
 grill-me → [ai-judge] → intake → implement → validate → review → pr

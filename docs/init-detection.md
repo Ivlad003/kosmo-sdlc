@@ -22,6 +22,10 @@ The wizard pre-fills every option with a detected default and asks the user to c
 | `conventions.branch_pattern` | recent branch names matching `<word>/<TICKET>` | free text, default `<type>/<TICKET>` |
 | `conventions.commit_style` | last 50 commits' Conventional Commits compliance ratio | conventional / freeform |
 | **Notes body** | not detected | freeform multi-line text |
+| `session.max_tokens` | not detected | optional soft session budget |
+| `session.vault.*` | not detected | optional Obsidian path for session-close |
+
+After init, prefer `/kosmo-sdlc:discover-agents` so `_/coding-agents.md` exists for **ai-judge**.
 
 The "Notes for agents" body is the killer feature: anything the user types lands verbatim under the heading and is read by every command going forward. Use it for "use `pnpm api:dev` in apps/api", "PR template's AC section is rendered, don't hand-edit", etc.
 

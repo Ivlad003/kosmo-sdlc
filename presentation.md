@@ -164,7 +164,7 @@ section.lead p strong { color: var(--color-accent); }
 
 # /kosmo-sdlc
 
-A Claude Code plugin. Seven phases, every transition gated.
+A multi-agent SDLC plugin (Claude Code, Codex, Grok, Cursor, …). Seven phases, every transition gated.
 
 **Spec & Ticket** → *ready PR with a narrated demo video.*
 
@@ -304,19 +304,20 @@ You can step through manually if you'd rather:
 ## Install + first run
 
 ```bash
-# install
-/plugin marketplace add /path/to/sdlc
-/plugin install kosmo-sdlc@kosmo-sdlc
+# Claude Code
+/plugin marketplace add Ivlad003/kosmo-sdlc
+/plugin install kosmo-sdlc
 
-# one-time setup — detects pkg manager, scripts, ticketing prefix,
-# checks available MCPs + skills, prompts about gitignore and other settings
+# Other agents (Codex, Grok, Cursor, Amp, …):
+# see docs/install.md — clone + skills/ + command playbooks
+
 /kosmo-sdlc:init
-
-# full loop, gated, end-to-end
+/kosmo-sdlc:discover-agents
+/grill-me                    # default planning
 /kosmo-sdlc:cycle PROJ-123
 ```
 
-**Requirements:** Claude Code v2.1+, Node 18+, `gh` CLI authenticated. Atlassian / Linear MCP optional.
+**Requirements:** coding agent (Claude Code v2.1+ / Codex / Grok / …), Node 18+, `gh` for PRs. Optional: peer CLIs for judge.
 
 ---
 

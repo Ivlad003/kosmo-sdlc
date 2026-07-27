@@ -25,6 +25,7 @@ All notable changes to `kosmo-sdlc` are documented here. Format follows [Keep a 
 - Init wizard: optional `session.max_tokens` + vault path; post-init discover-agents
 - `handoff` prefers session-close when vault configured
 - `tdd` / `codebase-design` / `diagnosing-bugs` are **user-invoked**
+- Full docs pass: **[docs/install.md](docs/install.md)** multi-agent install (Claude, Codex, Grok, Cursor, Windsurf, Amp, OpenCode, Aider, Copilot); cycle / adapting / design-rationale / presentations / README updated for **kosmo-sdlc**
 
 ### Removed (from plugin surface — install on host if needed)
 - Conflicting matt skills: `implement`, `code-review`, `to-spec`, `to-tickets`, `ask-matt`, `setup-matt-pocock-skills` (name/process collisions with the gated cycle)
