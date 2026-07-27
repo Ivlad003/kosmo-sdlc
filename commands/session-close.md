@@ -23,10 +23,10 @@ Full discipline: [`skills/session-close/SKILL.md`](../skills/session-close/SKILL
 3. Layout:
 
 ```text
-Work/{project}/handoff/{timestamp}.md
-Work/{project}/session/{timestamp}.md
-Work/{project}/memory/{timestamp}.md
-Work/{project}/teach/{timestamp}.md
+Work/{project}/handoff/{timestamp}.{ticket-number}.md
+Work/{project}/session/{timestamp}.{ticket-number}.md
+Work/{project}/memory/{timestamp}.{ticket-number}.md
+Work/{project}/teach/{timestamp}.{ticket-number}.md
 ```
 
 4. Print paths + whether commit/push happened.
