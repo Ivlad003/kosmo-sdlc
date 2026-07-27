@@ -1,0 +1,68 @@
+{
+    "version":  1,
+    "skills":  {
+                   "codebase-design":  {
+                                           "source":  "mattpocock/skills",
+                                           "sourceType":  "github",
+                                           "skillPath":  "skills/engineering/codebase-design/SKILL.md",
+                                           "computedHash":  "7709815ed91decfd09a0489798f937ee8a2a2872637eb6b861cdf4167384b02c",
+                                           "notes":  "local-adapted: disable-model-invocation"
+                                       },
+                   "diagnosing-bugs":  {
+                                           "source":  "mattpocock/skills",
+                                           "sourceType":  "github",
+                                           "skillPath":  "skills/engineering/diagnosing-bugs/SKILL.md",
+                                           "computedHash":  "5c49df925a37b511361f4683cf7450c43239bfe784a9bf7e2040bc7e745cbced",
+                                           "notes":  "local-adapted: disable-model-invocation; no improve-codebase-architecture pointer"
+                                       },
+                   "domain-modeling":  {
+                                           "source":  "mattpocock/skills",
+                                           "sourceType":  "github",
+                                           "skillPath":  "skills/engineering/domain-modeling/SKILL.md",
+                                           "computedHash":  "004d5cb6258658f2e9cbf0d9f90bdc9104f8b83bd296556783800c31d503814f",
+                                           "notes":  "vendored"
+                                       },
+                   "grill-me":  {
+                                    "source":  "mattpocock/skills",
+                                    "sourceType":  "github",
+                                    "skillPath":  "skills/productivity/grill-me/SKILL.md",
+                                    "computedHash":  "78de7e5361106c46c077eccdb848ffe290b1f5aca7af73a866ed70b16fbdd3c8",
+                                    "notes":  "local-adapted: kosmo-sdlc handoff wrapper"
+                                },
+                   "grill-with-docs":  {
+                                           "source":  "mattpocock/skills",
+                                           "sourceType":  "github",
+                                           "skillPath":  "skills/engineering/grill-with-docs/SKILL.md",
+                                           "computedHash":  "269376d5146332f597c4194fa1adef93b879ad62e0183c0d111a447e7af51be9",
+                                           "notes":  "vendored"
+                                       },
+                   "grilling":  {
+                                    "source":  "mattpocock/skills",
+                                    "sourceType":  "github",
+                                    "skillPath":  "skills/productivity/grilling/SKILL.md",
+                                    "computedHash":  "44331dda57f461db4fec3f2efb6ddabe7aaaa0a57ae0f88a883bc61aed8a0587",
+                                    "notes":  "upstream-pristine"
+                                },
+                   "handoff":  {
+                                   "source":  "mattpocock/skills",
+                                   "sourceType":  "github",
+                                   "skillPath":  "skills/productivity/handoff/SKILL.md",
+                                   "computedHash":  "65e80725923677f128b1d3cf23397b4bf0cc8659cd408aaee5ab285d01aa54af",
+                                   "notes":  "vendored"
+                               },
+                   "tdd":  {
+                               "source":  "mattpocock/skills",
+                               "sourceType":  "github",
+                               "skillPath":  "skills/engineering/tdd/SKILL.md",
+                               "computedHash":  "0ea191a7616c7cedf883f21b32cf8a7bc825920d79dfb09306d570364d3bb409",
+                               "notes":  "local-adapted: disable-model-invocation; review points to kosmo-sdlc:review"
+                           },
+                   "writing-great-skills":  {
+                                                "source":  "mattpocock/skills",
+                                                "sourceType":  "github",
+                                                "skillPath":  "skills/productivity/writing-great-skills/SKILL.md",
+                                                "computedHash":  "8c38389dbcfdb3605690c5ce2fe0fa433e7a2f2371a7f1e697d080d81d15fdea",
+                                                "notes":  "vendored"
+                                            }
+               }
+}

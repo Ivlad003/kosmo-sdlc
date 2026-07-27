@@ -1,6 +1,6 @@
 ---
 name: sdlc-pr-agent
-description: Sub-agent dispatched by /agentic-sdlc:cycle for the PR creation phase. Re-runs the pipeline, commits via the commit-work skill, pushes the branch, opens the PR with a body built from the track frontmatter, and returns a frontmatter delta.
+description: Sub-agent dispatched by /kosmo-sdlc:cycle for the PR creation phase. Re-runs the pipeline, commits via the commit-work skill, pushes the branch, opens the PR with a body built from the track frontmatter, and returns a frontmatter delta.
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
@@ -13,7 +13,7 @@ allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 
 ## Job
 
-Follow the [/agentic-sdlc:pr](../commands/pr.md) workflow:
+Follow the [/kosmo-sdlc:pr](../commands/pr.md) workflow:
 
 1. Re-run the pipeline command. Resolve it as: `overrides.pipeline_command` → `package.json:scripts.pipeline|ci|check` → chained `lint && typecheck && test && build` (each resolved from package.json scripts; typecheck falls back to `tsc --noEmit` when a `tsconfig.json` exists). Prefix with the detected package manager. Apply the **lint-coverage guarantee** ([init-detection.md](../docs/init-detection.md#pipeline-command)): if the resolved command doesn't already lint, append the detected lint step. Record the command, exit code, and summary line as a journal row (`Pre-PR gate: <command> — exit 0 (<summary>)`); abort the phase if it fails. Do not push or open the PR without a recorded exit-0 gate.
 2. Stage and commit any unstaged work via the [commit-work](../skills/commit-work/SKILL.md) skill — multiple Conventional Commits when appropriate, never a kitchen-sink commit.
@@ -39,7 +39,7 @@ phase_log_entry:
   outcome: pass
 ```
 
-Plus a one-paragraph summary with PR URL, title, requested reviewers (if any), and the next concrete action (wait for review, or run `/agentic-sdlc:revalidate` if CI fast).
+Plus a one-paragraph summary with PR URL, title, requested reviewers (if any), and the next concrete action (wait for review, or run `/kosmo-sdlc:revalidate` if CI fast).
 
 ## Hard rules
 

@@ -38,7 +38,7 @@ phase_log:
 
 # Where we at on this track
 
-Intake just completed. 0 of N requirements started. Next step: run `/agentic-sdlc:implement {{TICKET}}`.
+Intake just completed. 0 of N requirements started. Next step: run `/kosmo-sdlc:implement {{TICKET}}`.
 
 ## §1 Scope
 

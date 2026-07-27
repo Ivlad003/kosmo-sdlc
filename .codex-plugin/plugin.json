@@ -1,10 +1,10 @@
 {
-  "name": "agentic-sdlc",
+  "name": "kosmo-sdlc",
   "version": "0.2.1",
   "description": "Deterministic, gated SDLC loop for full-stack JavaScript projects. Track-driven, Playwright-validated, security-reviewed, PR-completed.",
   "author": {
-    "name": "Sergi",
-    "url": "https://github.com/inperegelion"
+    "name": "Vlad Kosmach",
+    "url": "https://github.com/Ivlad003"
   },
   "license": "MIT",
   "keywords": [
@@ -19,10 +19,10 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Agentic SDLC",
+    "displayName": "Kosmo SDLC",
     "shortDescription": "Run a gated ticket-to-PR development loop",
-    "longDescription": "Agentic SDLC guides Codex through a deterministic development cycle: intake, implementation, validation, review, PR creation, review comments, and revalidation. It uses the existing track-file, schema, command, agent, and template documentation in this plugin as the source of truth.",
-    "developerName": "Sergi",
+    "longDescription": "Kosmo SDLC guides Codex through a deterministic development cycle: intake, implementation, validation, review, PR creation, review comments, and revalidation. It uses the existing track-file, schema, command, agent, and template documentation in this plugin as the source of truth.",
+    "developerName": "Vlad Kosmach",
     "category": "Engineering",
     "capabilities": [
       "Interactive",
@@ -30,9 +30,9 @@
       "Write"
     ],
     "defaultPrompt": [
-      "Initialize agentic-sdlc for this repo",
-      "Run agentic-sdlc intake for PROJ-123",
-      "Continue the agentic-sdlc cycle"
+      "Initialize kosmo-sdlc for this repo",
+      "Run kosmo-sdlc intake for PROJ-123",
+      "Continue the kosmo-sdlc cycle"
     ],
     "brandColor": "#2563EB",
     "screenshots": []

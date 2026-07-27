@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "agentic-sdlc track file frontmatter",
+  "title": "kosmo-sdlc track file frontmatter",
   "description": "YAML frontmatter contract for _/tracks/<TICKET>.md. Every cycle command reads and writes this frontmatter — the body of the markdown file is for humans.",
   "type": "object",
   "required": ["ticket", "title", "status", "created", "updated", "acs"],
@@ -44,7 +44,7 @@
     },
     "branch": {
       "type": ["string", "null"],
-      "description": "Set by /agentic-sdlc:implement when the branch is created."
+      "description": "Set by /kosmo-sdlc:implement when the branch is created."
     },
     "spec": {
       "type": ["object", "null"],
@@ -54,7 +54,7 @@
         "url": { "type": ["string", "null"] },
         "hash": {
           "type": ["string", "null"],
-          "description": "SHA-256 of the spec slice captured at intake; /agentic-sdlc:revalidate uses it to detect drift."
+          "description": "SHA-256 of the spec slice captured at intake; /kosmo-sdlc:revalidate uses it to detect drift."
         },
         "rows": {
           "type": ["string", "null"],
@@ -67,7 +67,7 @@
     },
     "pr": {
       "type": ["string", "null"],
-      "description": "PR URL once /agentic-sdlc:pr opens one."
+      "description": "PR URL once /kosmo-sdlc:pr opens one."
     },
     "demo": {
       "type": "object",
@@ -79,7 +79,7 @@
         "applicable": {
           "type": "boolean",
           "default": true,
-          "description": "False when the feature has no UI surface; /agentic-sdlc:validate writes a 'na' report and skips recording."
+          "description": "False when the feature has no UI surface; /kosmo-sdlc:validate writes a 'na' report and skips recording."
         }
       }
     },
@@ -123,7 +123,7 @@
     },
     "phase_log": {
       "type": "array",
-      "description": "One entry per cycle phase that ran. Append-only; /agentic-sdlc:cycle and individual commands both write here.",
+      "description": "One entry per cycle phase that ran. Append-only; /kosmo-sdlc:cycle and individual commands both write here.",
       "items": {
         "type": "object",
         "required": ["phase", "at", "note"],

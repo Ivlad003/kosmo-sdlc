@@ -38,14 +38,18 @@ Splitting them:
 - Assertions are the truth source. They use real visibility checks, no `force`, and console/network logs are mined for new defects.
 - The demo is regenerated **only when assertions pass**. A failed run still produces a "failed.webm" for debugging, but it's not the artifact reviewers see.
 
-## Sub-agents in worktrees
+## Sub-agents in worktrees (cycle only)
 
-`/agentic-sdlc:cycle` dispatches each phase to a dedicated sub-agent running in a git worktree. Two benefits:
+`/kosmo-sdlc:cycle` *may* dispatch each phase to a dedicated sub-agent in a git worktree. This is **orchestrator isolation**, not a global rule for all skills.
 
-1. **Context isolation.** Each phase has its own context window. Intake's verbose ticket body doesn't pollute the implementer's window; the implementer's edit log doesn't push the reviewer out of context.
-2. **Phase independence.** Phases can be retried, swapped (e.g. a different review agent), or run by different models without coordination overhead.
+Benefits when worktrees are used:
 
-Cost: each sub-agent reads `_/tracks/<TICKET>.md` and `_/sdlc-config.md` afresh. The track is small (< 50KB typically); this is cheap.
+1. **Context isolation.** Intake's verbose ticket body doesn't pollute the implementer's window.
+2. **Phase independence.** Phases can be retried or swapped without coordination overhead.
+
+**Not required** for manual phase commands (`intake`, `implement`, `validate`, …), grill-me, kosmo-ralph, ai-judge, or session-close. If worktrees are unavailable, run phases in-process.
+
+Cost when used: each sub-agent re-reads `_/tracks/<TICKET>.md` and `_/sdlc-config.md` (cheap).
 
 ## `_/` is gitignored
 
@@ -59,7 +63,7 @@ Tracks, demos, recordings, scenarios, and the project config all live under `_/`
 
 **No bundled MCP servers.** The plugin documents which user MCPs improve which phase (Atlassian for intake, Playwright for validate) but doesn't ship them. Different teams use different ticketing systems; bundling locks users into one.
 
-**No knowledge-graph indexing.** `code-review-graph` is a great companion for `/agentic-sdlc:review` on large diffs, but it's a separate plugin with its own setup. Bundling would double the install surface.
+**No knowledge-graph indexing.** `code-review-graph` is a great companion for `/kosmo-sdlc:review` on large diffs, but it's a separate plugin with its own setup. Bundling would double the install surface.
 
 **No hooks.** Everything is on-demand. Hooks (pre-commit, post-edit) are tempting but increase the failure surface and slow developer feedback. The cycle's gates are explicit invocations, not background processes. Open door for v1.x.
 
@@ -67,13 +71,17 @@ Tracks, demos, recordings, scenarios, and the project config all live under `_/`
 
 **No multi-harness manifests.** Claude Code first. Codex / Cursor / Gemini ports happen if there's demand and a contributor; they're not v0 priorities. The track format and `_/sdlc-config.md` schema are harness-neutral, so porting is mostly command-prompt translation.
 
-**No spec-pressure-testing skill baked in.** `vibe-testing` is a recommended companion (see [adapting.md](adapting.md)), not a bundled feature. Pressure-testing a spec before intake is good practice but adds another command and another gate; it's optional.
+**No mandatory pre-intake gate.** Alignment before coding uses **`grill-me` / `grilling`** (from [mattpocock/skills](https://github.com/mattpocock/skills), bundled under `skills/`) instead of brainstorming. Grilling is advisory and user-invoked — one decision at a time until shared understanding — then hand off to `/kosmo-sdlc:intake`. It is not a cycle gate; skipping it is fine when the ticket already has clear ACs.
+
+**No second SDLC in the plugin.** We deliberately **do not ship** mattpocock's parallel main flow (`to-spec` → `to-tickets` → `implement` → `code-review`) or its router/`setup` skills. Those conflict with track gates, size tiers, and `/kosmo-sdlc:implement` / `:review`. Hosts can still install them via skills.sh for non-cycle work.
+
+**Multi-CLI AI judge is advisory.** `/kosmo-sdlc:judge` fans a plan or diff out to peer agent CLIs (excluding the host family when possible) and synthesizes ranked verdicts. It does **not** replace `/kosmo-sdlc:review` gates or pipeline/Playwright — it is a second court for high-stakes decisions and alternative ranking.
 
 ## Size adaptivity — proportional rigor, never silent
 
 A one-line copy fix and a multi-AC feature don't deserve the same ceremony. `frontmatter.size` (`s`/`m`/`l`, proposed at intake, confirmed by the user) scales the cycle:
 
-- **`s`** reuses machinery that already existed: `/agentic-sdlc:validate` already drops Playwright/demo and runs only the automated-checks pipeline track for backend-only / `manual` changes. `s` is just one more trigger into that path, plus skipping the 3-agent review. The verification a small ticket gets is the project's **own quality gates re-run** — the same lint/typecheck/test/build the team already trusts — confirming nothing broke. No new e2e is authored for a change that doesn't warrant it.
+- **`s`** reuses machinery that already existed: `/kosmo-sdlc:validate` already drops Playwright/demo and runs only the automated-checks pipeline track for backend-only / `manual` changes. `s` is just one more trigger into that path, plus skipping the 3-agent review. The verification a small ticket gets is the project's **own quality gates re-run** — the same lint/typecheck/test/build the team already trusts — confirming nothing broke. No new e2e is authored for a change that doesn't warrant it.
 - **`m`** is the default and is untouched. A track with no `size` field is treated as `m`, so this feature is fully backward compatible.
 - **`l`** splits one mother track into a sub-track **per AC group**, each run as its own (smaller) cycle. The split is by AC because that's the unit the spec already defines and the unit a reviewer reasons about; splitting by owner tends to produce sub-tracks that can't be validated independently.
 
@@ -86,9 +94,9 @@ Tuning lives in the optional `sizing` block of `_/sdlc-config.md` (thresholds, a
 
 ## What we'd add in v1.x
 
-- Spec-pressure-testing as an opt-in `/agentic-sdlc:prespec` phase (zero gate, advisory only).
+- Optional orchestrated "grill then intake" prompt in `/kosmo-sdlc:cycle` when freeform input has no ACs (still zero gate — user can skip).
 - Hooks: pre-commit pipeline gate, post-merge revalidation trigger.
-- Multi-track view: a `/agentic-sdlc:status` command that summarizes all tracks across `_/tracks/`.
+- Multi-track view: a `/kosmo-sdlc:status` command that summarizes all tracks across `_/tracks/`.
 - Release notes generator from the journal entries since the last release tag.
 - Multi-harness manifests for Codex / Cursor / Gemini.
 
@@ -103,11 +111,11 @@ Tuning lives in the optional `sizing` block of `_/sdlc-config.md` (thresholds, a
 - **`/feature-track`** (the predecessor) — verbatim-everything discipline, append-only journal, TBD-not-omitted. Kept all of it.
 - **`/pr-comments`** — verdict-first replies, read-before-decide, no auto-resolve on `Applied`. Kept verbatim.
 - **`/demo-video`** — Playwright helpers, log capture, fake-cursor overlays. Kept the helpers; split the demo from the assertions.
-- **`/qa-test-backend`** — parallel sub-agent phases with consolidated reporting. Adopted for `/agentic-sdlc:review`.
-- **`/visual-qa`** — console + network log scanning. Adopted for `/agentic-sdlc:validate`.
+- **`/qa-test-backend`** — parallel sub-agent phases with consolidated reporting. Adopted for `/kosmo-sdlc:review`.
+- **`/visual-qa`** — console + network log scanning. Adopted for `/kosmo-sdlc:validate`.
 - **`commit-work` skill** — staging discipline, Conventional Commits, sanity checks. Kept and added the pipeline gate the original lacked.
-- **`superpowers`** (obra) — skill-as-curriculum philosophy. Took the modularity, skipped the multi-harness fragmentation.
+- **`superpowers`** (obra) — skill-as-curriculum philosophy. Took the modularity; **replaced brainstorm-before-build with mattpocock-style grilling**.
+- **`mattpocock/skills`** — pruned bundle: `/grill-me` + `/grilling` as design alignment; optional `tdd`, `diagnosing-bugs`, `domain-modeling`, `grill-with-docs`, `codebase-design`, `handoff`. **Not** the full matt main flow (that collides with the cycle).
 - **`everything-claude-code`** (affaan-m) — marketplace.json schema, command frontmatter conventions. Direct borrowings.
-- **`oh-my-claudecode`** — `/team` and `/autopilot` orchestrator patterns. Inspired `/agentic-sdlc:cycle` but with explicit gates rather than autonomous best-effort.
-- **`vibe-testing`** — scenario-driven validation. Adapted into the assertions half of `/agentic-sdlc:validate`; the full pressure-testing pattern is recommended as a separate companion.
+- **`oh-my-claudecode`** — `/team` and `/autopilot` orchestrator patterns. Inspired `/kosmo-sdlc:cycle` but with explicit gates rather than autonomous best-effort.
 - **`code-review-graph`** — blast-radius queries. Documented as an optional pairing; not bundled to keep the install surface small.

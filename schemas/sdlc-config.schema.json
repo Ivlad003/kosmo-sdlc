@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "agentic-sdlc project profile (frontmatter)",
-  "description": "Schema for the YAML frontmatter of _/sdlc-config.md. Captures user decisions only — project state (package manager, node version, default branch, CI workflows) is re-detected at use site by each /agentic-sdlc:* command, so it stays fresh without re-running /agentic-sdlc:init. The freeform markdown body below the frontmatter is read verbatim by every /agentic-sdlc:* command and inlined into sub-agent prompts.",
+  "title": "kosmo-sdlc project profile (frontmatter)",
+  "description": "Schema for the YAML frontmatter of _/sdlc-config.md. Captures user decisions only — project state (package manager, node version, default branch, CI workflows) is re-detected at use site by each /kosmo-sdlc:* command, so it stays fresh without re-running /kosmo-sdlc:init. The freeform markdown body below the frontmatter is read verbatim by every /kosmo-sdlc:* command and inlined into sub-agent prompts.",
   "type": "object",
   "required": ["detected_at", "ticketing", "spec", "validation", "conventions"],
   "additionalProperties": false,
@@ -19,7 +19,7 @@
         "prefix": { "type": ["string", "null"] },
         "mcp": {
           "type": ["string", "null"],
-          "description": "MCP server name (e.g. 'atlassian', 'linear') used by /agentic-sdlc:intake to fetch ticket bodies."
+          "description": "MCP server name (e.g. 'atlassian', 'linear') used by /kosmo-sdlc:intake to fetch ticket bodies."
         }
       }
     },
@@ -43,7 +43,7 @@
         "mode": {
           "type": "string",
           "enum": ["project-playwright", "standalone-playwright", "manual"],
-          "description": "How /agentic-sdlc:validate runs. 'project-playwright' reuses the host project's playwright config and dependencies. 'standalone-playwright' has sdlc install and run its own playwright instance against base_url — the project itself doesn't need any playwright setup. 'manual' skips the validation phase entirely (the assertions/demo are produced out-of-band, or the feature is non-UI)."
+          "description": "How /kosmo-sdlc:validate runs. 'project-playwright' reuses the host project's playwright config and dependencies. 'standalone-playwright' has sdlc install and run its own playwright instance against base_url — the project itself doesn't need any playwright setup. 'manual' skips the validation phase entirely (the assertions/demo are produced out-of-band, or the feature is non-UI)."
         },
         "base_url": {
           "type": ["string", "null"],
@@ -100,7 +100,7 @@
     },
     "pr": {
       "type": "object",
-      "description": "Per-project preferences applied by /agentic-sdlc:pr when rendering the PR body. Can be overridden per-run via the command's --style flag.",
+      "description": "Per-project preferences applied by /kosmo-sdlc:pr when rendering the PR body. Can be overridden per-run via the command's --style flag.",
       "additionalProperties": false,
       "properties": {
         "body_style": {
@@ -132,7 +132,7 @@
     },
     "sizing": {
       "type": "object",
-      "description": "Optional policy for ticket size adaptivity (see /agentic-sdlc:intake §4b). Tunes how intake proposes a size and what the 's' tier drops. Omit the whole block to use built-in defaults: small ⇒ ≤2 ACs and ≤3 requirements with no frontend/mixed requirement; 's' skips e2e/demo and the 3-agent review (pipeline rerun is the gate); 'l' triggers at >4 ACs spanning distinct concerns.",
+      "description": "Optional policy for ticket size adaptivity (see /kosmo-sdlc:intake §4b). Tunes how intake proposes a size and what the 's' tier drops. Omit the whole block to use built-in defaults: small ⇒ ≤2 ACs and ≤3 requirements with no frontend/mixed requirement; 's' skips e2e/demo and the 3-agent review (pipeline rerun is the gate); 'l' triggers at >4 ACs spanning distinct concerns.",
       "additionalProperties": false,
       "properties": {
         "small_max_requirements": {

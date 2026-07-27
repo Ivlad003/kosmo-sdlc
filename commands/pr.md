@@ -4,7 +4,7 @@ argument-hint: "<ticket-id> [--draft] [--reviewers user1,user2] [--style concise
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
-# /agentic-sdlc:pr
+# /kosmo-sdlc:pr
 
 Phase 5 of the cycle. Turns the track + branch into a PR with a body the reviewer doesn't need to ask questions about.
 
@@ -28,7 +28,7 @@ Phase 5 of the cycle. Turns the track + branch into a PR with a body the reviewe
 
 ### 1. Re-run the pipeline gate
 
-Resolve the pipeline command (same order as `/agentic-sdlc:implement`: `overrides.pipeline_command` → `package.json:scripts.pipeline|ci|check` → chained `lint && typecheck && test && build`). Apply the **lint-coverage guarantee** (see [init-detection.md](../docs/init-detection.md#pipeline-command)): if the resolved command doesn't already lint, append the detected lint step so the gate can't open a PR that CI will reject on style. Run it. On failure → abort with the output. The user fixes and re-runs.
+Resolve the pipeline command (same order as `/kosmo-sdlc:implement`: `overrides.pipeline_command` → `package.json:scripts.pipeline|ci|check` → chained `lint && typecheck && test && build`). Apply the **lint-coverage guarantee** (see [init-detection.md](../docs/init-detection.md#pipeline-command)): if the resolved command doesn't already lint, append the detected lint step so the gate can't open a PR that CI will reject on style. Run it. On failure → abort with the output. The user fixes and re-runs.
 
 **Record the result as evidence, then gate on it.** Capture the exact command run, its exit code, and the summary/last line of output. Append a journal row: `Pre-PR gate: <command> — exit 0 (<one-line summary>)`. If lint was unavailable, record `lint: none (no lint capability detected)` so the skip is visible rather than silent. Do **not** proceed to `gh pr create` without a recorded exit-0 gate row — "the pipeline passed" is only credible when the green output is in the journal.
 
@@ -97,7 +97,7 @@ Title format derives from the track's commit type (feat / fix / refactor / chore
 - `frontmatter.pr` → the PR URL.
 - `frontmatter.status` → `in_review`.
 - Append journal row: `PR opened: <url>. Awaiting review.`
-- Update "Where we at": "PR open; waiting for review. Run `/agentic-sdlc:pr-comments <PR>` to walk reviewer threads."
+- Update "Where we at": "PR open; waiting for review. Run `/kosmo-sdlc:pr-comments <PR>` to walk reviewer threads."
 
 ### 7. Report
 
@@ -106,8 +106,8 @@ PR opened: https://github.com/<org>/<repo>/pull/123
 Title: feat(TICKET-1): Add prices grid to customer page
 Status: ready for review · 7/7 requirements done · 0 CRITICAL findings
 Next:
-  - /agentic-sdlc:pr-comments 123 — when reviewers (human or bot) comment
-  - /agentic-sdlc:revalidate TICKET-1 — once the PR is approved and CI is green, before merge
+  - /kosmo-sdlc:pr-comments 123 — when reviewers (human or bot) comment
+  - /kosmo-sdlc:revalidate TICKET-1 — once the PR is approved and CI is green, before merge
 ```
 
 ## Hard rules

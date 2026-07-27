@@ -1,8 +1,8 @@
 # Detection rules
 
-`/agentic-sdlc:init` writes `_/sdlc-config.md` once. The frontmatter captures **user decisions** (ticketing system, spec convention, validation strategy, branch pattern, commit style); the Notes body captures **project-specific guidance** the user wants every agent to read.
+`/kosmo-sdlc:init` writes `_/sdlc-config.md` once. The frontmatter captures **user decisions** (ticketing system, spec convention, validation strategy, branch pattern, commit style); the Notes body captures **project-specific guidance** the user wants every agent to read.
 
-Project state that's cheap to re-read — package manager, Node version, default branch, root scripts, CI workflows — is **not** persisted. Each `/agentic-sdlc:*` command re-detects it at use site. This way the config never goes stale, and `/agentic-sdlc:init` doesn't have to be re-run after a `package.json` change.
+Project state that's cheap to re-read — package manager, Node version, default branch, root scripts, CI workflows — is **not** persisted. Each `/kosmo-sdlc:*` command re-detects it at use site. This way the config never goes stale, and `/kosmo-sdlc:init` doesn't have to be re-run after a `package.json` change.
 
 This document describes both halves: what init asks (for the persisted decisions), and what each command re-detects (for the ephemeral state).
 
@@ -46,7 +46,7 @@ These values are NOT in `_/sdlc-config.md`. Every command runs the same resoluti
 3. `git config --get init.defaultBranch`.
 4. Ask the user.
 
-Used by `/agentic-sdlc:review`, `/agentic-sdlc:pr`, the impl/pr agents.
+Used by `/kosmo-sdlc:review`, `/kosmo-sdlc:pr`, the impl/pr agents.
 
 ### Package manager
 
@@ -75,7 +75,7 @@ Used to prefix all `scripts.*` invocations.
 
 The chained fallback (form 5) already includes lint, so the guarantee only matters when a `pipeline`/`ci`/`check` script or a pinned `pipeline_command` was selected. If **no** lint capability exists at all (no `lint` script and no eslint/biome/prettier config), the gate can't catch style failures — surface this once at `init` (see [init](../commands/init.md) Missing signals) rather than silently shipping a gate that lints nothing.
 
-Used by `/agentic-sdlc:implement` per-requirement gate and by `/agentic-sdlc:pr` re-gate.
+Used by `/kosmo-sdlc:implement` per-requirement gate and by `/kosmo-sdlc:pr` re-gate.
 
 ### Dev command
 
@@ -83,7 +83,7 @@ Used by `/agentic-sdlc:implement` per-requirement gate and by `/agentic-sdlc:pr`
 2. `package.json:scripts.dev`.
 3. `package.json:scripts.start`.
 
-Used by `/agentic-sdlc:validate` when it needs to launch the dev server before running Playwright.
+Used by `/kosmo-sdlc:validate` when it needs to launch the dev server before running Playwright.
 
 ### Project type / workspaces
 
@@ -94,15 +94,15 @@ Cheap to re-read on the rare command that needs it (intake's "where's the closes
 
 ### CI workflows / required checks
 
-Read `.github/workflows/*.yml` on demand (in `/agentic-sdlc:revalidate` and when the impact set heuristic in `/agentic-sdlc:review` wants to compare). Parse `jobs.*.name` for required check names. Best-effort — some matrices have dynamic names.
+Read `.github/workflows/*.yml` on demand (in `/kosmo-sdlc:revalidate` and when the impact set heuristic in `/kosmo-sdlc:review` wants to compare). Parse `jobs.*.name` for required check names. Best-effort — some matrices have dynamic names.
 
 ### Standards-review eligibility
 
-`standards-review-agent` fires in `/agentic-sdlc:review` when any of these exist: `CLAUDE.md`, `AGENTS.md`, `.claude/rules/*.md`, `docs/conventions.md`. Re-checked each run.
+`standards-review-agent` fires in `/kosmo-sdlc:review` when any of these exist: `CLAUDE.md`, `AGENTS.md`, `.claude/rules/*.md`, `docs/conventions.md`. Re-checked each run.
 
 ### PR template
 
-Existence of `.github/pull_request_template.md` is checked at PR time. If absent, `/agentic-sdlc:pr` falls back to `templates/pr-body.template.md`.
+Existence of `.github/pull_request_template.md` is checked at PR time. If absent, `/kosmo-sdlc:pr` falls back to `templates/pr-body.template.md`.
 
 ## Pinned overrides
 
@@ -114,7 +114,7 @@ Existence of `.github/pull_request_template.md` is checked at PR time. If absent
 
 Leave them null otherwise. Re-detection is the simpler, less-stale answer.
 
-## Re-running `/agentic-sdlc:init`
+## Re-running `/kosmo-sdlc:init`
 
 Re-running diffs:
 

@@ -2,7 +2,7 @@
 # Frontmatter validates against ../schemas/sdlc-config.schema.json
 # Captures user decisions only. Project state (package manager, Node version,
 # default branch, CI workflows, root scripts) is re-detected at use site by
-# each /agentic-sdlc:* command, so this file stays small and doesn't go stale.
+# each /kosmo-sdlc:* command, so this file stays small and doesn't go stale.
 detected_at: {{TODAY}}
 
 ticketing:
@@ -59,12 +59,39 @@ phase_prompts:
   implement: {{PHASE_PROMPTS_IMPLEMENT}}  # e.g. "Every requirement must include a unit test. Never skip test files."
   review: {{PHASE_PROMPTS_REVIEW}}        # e.g. "Flag any use of raw SQL as CRITICAL regardless of parameterisation."
   validate: {{PHASE_PROMPTS_VALIDATE}}    # e.g. "Use /en/ locale prefix for all routes. Site is localised."
+
+# Optional multi-CLI AI judge (/kosmo-sdlc:judge). Peers come from _/coding-agents.json
+# (refreshed by /kosmo-sdlc:discover-agents). Omit to use auto-detect defaults.
+# judge:
+#   peers: null                 # null = use inventory judge_peers
+#   # peers: [claude, codex]
+#   exclude_host: true
+#   timeout_seconds: 300
+#   default_mode: plan          # plan | code | both
+#   on_cycle: false
+#   inventory_max_age_hours: 24
+
+# Session budgets + Obsidian personal vault (handoff/session/memory/teach)
+# session:
+#   max_tokens: 200000          # soft session budget; null = unlimited
+#   max_iterations: 20          # kosmo-ralph outer-loop default
+#   warn_tokens_ratio: 0.8
+#   on_limit: handoff           # handoff | stop | ask
+#   close_on_cycle_end: false
+#   vault:
+#     path: null                # local clone of obsidian-personal
+#     clone_dir: null           # e.g. ~/vaults/obsidian-personal
+#     remote: https://github.com/Ivlad003/obsidian-personal
+#     work_root: Work
+#     project_name: null        # default: workspace folder slug
+#     git_commit: false
+#     git_push: false
 ---
 
 # Notes for agents
 
 <!--
-  Every /agentic-sdlc:* command reads this section verbatim and inlines it into
+  Every /kosmo-sdlc:* command reads this section verbatim and inlines it into
   sub-agent prompts. Capture anything the agents should know that doesn't fit
   the frontmatter above. Free-form markdown — no required structure.
 

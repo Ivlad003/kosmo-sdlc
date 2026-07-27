@@ -39,7 +39,7 @@ phase_log:
 
 # Where we at on this track
 
-Intake just completed. This is an **L (large)** mother track — the work is split into {{N_CHILDREN}} sub-tracks, one per AC group. Each sub-track runs its own cycle; this track aggregates their gate outcomes. Next step: run `/agentic-sdlc:cycle {{TICKET}}` to fan out over the sub-tracks (or run each sub-track individually).
+Intake just completed. This is an **L (large)** mother track — the work is split into {{N_CHILDREN}} sub-tracks, one per AC group. Each sub-track runs its own cycle; this track aggregates their gate outcomes. Next step: run `/kosmo-sdlc:cycle {{TICKET}}` to fan out over the sub-tracks (or run each sub-track individually).
 
 ## §0 Sub-tracks
 

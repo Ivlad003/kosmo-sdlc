@@ -4,7 +4,7 @@ argument-hint: "[pr-number]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep"]
 ---
 
-# /agentic-sdlc:pr-comments
+# /kosmo-sdlc:pr-comments
 
 Phase 5b of the cycle. Replies start with a single verdict word. Bot comments and human comments follow the same ceremony.
 
@@ -148,8 +148,8 @@ Code changes:
 Pending: commit + push
 Next:
   - commit + push the applied changes (use the `commit-work` skill)
-  - /agentic-sdlc:pr-comments 295 — re-run when new comments arrive
-  - /agentic-sdlc:revalidate TICKET-1 — once the PR is approved and CI is green, before merge
+  - /kosmo-sdlc:pr-comments 295 — re-run when new comments arrive
+  - /kosmo-sdlc:revalidate TICKET-1 — once the PR is approved and CI is green, before merge
 ```
 
 ## Hard rules

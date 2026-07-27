@@ -4,14 +4,14 @@ argument-hint: "<ticket-id> [--no-demo] [--update-baseline]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
 
-# /agentic-sdlc:validate
+# /kosmo-sdlc:validate
 
 Phase 3 of the cycle. Two outputs in one command:
 
 1. **Assertions report** (`_/recordings/<TICKET>.validation.md`) — real `expect()` calls per UI requirement; console + network log scan; pass/fail table.
 2. **Stakeholder demo** (`_/recordings/<TICKET>.<run-id>.webm`) — narrated overlays, fake cursor, highlights. Recorded **only if assertions pass**.
 
-If `frontmatter.size: s`, `frontmatter.demo.applicable: false`, or all requirements have `owner: backend|shared|infra|docs`, the command skips scenario generation, Playwright, and the `.webm`, writes a `na` demo report, and runs **only** the automated-checks (pipeline) track. For `size: s` this pipeline rerun *is* the verification the user signed up for — lint/prettier/typecheck/test/build confirming nothing broke, no new e2e authored. Backend-only changes are likewise validated by `/agentic-sdlc:implement`'s test runs, not Playwright.
+If `frontmatter.size: s`, `frontmatter.demo.applicable: false`, or all requirements have `owner: backend|shared|infra|docs`, the command skips scenario generation, Playwright, and the `.webm`, writes a `na` demo report, and runs **only** the automated-checks (pipeline) track. For `size: s` this pipeline rerun *is* the verification the user signed up for — lint/prettier/typecheck/test/build confirming nothing broke, no new e2e authored. Backend-only changes are likewise validated by `/kosmo-sdlc:implement`'s test runs, not Playwright.
 
 ## Arguments
 
@@ -40,10 +40,10 @@ Playwright is the long pole — Pass 1 + Pass 2 typically take minutes. `/valida
 
 | Track | Sub-agent | Scope | Output |
 | ----- | --------- | ----- | ------ |
-| Playwright | `agentic-sdlc:sdlc-validate-agent` | Two-pass Playwright per §1–§5 below | assertions report, `.webm` (if green), console + network defects |
-| Automated checks | `agentic-sdlc:sdlc-impl-agent` scoped `--pipeline-only --no-frontmatter` | Re-runs `lint` / `typecheck` / unit tests / `build` against post-implement state | pass/fail per stage, log paths |
+| Playwright | `kosmo-sdlc:sdlc-validate-agent` | Two-pass Playwright per §1–§5 below | assertions report, `.webm` (if green), console + network defects |
+| Automated checks | `kosmo-sdlc:sdlc-impl-agent` scoped `--pipeline-only --no-frontmatter` | Re-runs `lint` / `typecheck` / unit tests / `build` against post-implement state | pass/fail per stage, log paths |
 
-Why re-run automated checks when `/agentic-sdlc:implement` already ran them?
+Why re-run automated checks when `/kosmo-sdlc:implement` already ran them?
 
 - `implement --parallel` may have skipped the integrated pipeline gate between batches.
 - Manual edits or review-phase fixes can land between implement and validate.
@@ -54,7 +54,7 @@ The two sub-agents share **no writes**: automated-checks doesn't touch `_/record
 Skip rules:
 
 - `frontmatter.size: s` → skip the Playwright track; run **only** the automated-checks (pipeline) track and write a `na` demo report. The quality-gate rerun is the gate for small tickets.
-- `validation.mode: manual` or all requirements backend-only → skip Playwright; automated-checks already ran during `/agentic-sdlc:implement`, so the command writes a `na` report and exits.
+- `validation.mode: manual` or all requirements backend-only → skip Playwright; automated-checks already ran during `/kosmo-sdlc:implement`, so the command writes a `na` report and exits.
 - Project profile has no pipeline scripts (`scripts.lint`, `scripts.typecheck`, `scripts.test`, `scripts.build` all missing) → skip automated-checks track; mark it `na` in the report and only dispatch Playwright.
 
 ## Workflow
@@ -151,11 +151,11 @@ Merge both sub-agent deltas (Playwright + automated checks). The coordinator is 
 
 - Per requirement: set `evidence` to "validated by `R1.1` in _/recordings/<TICKET>.validation.md" when `evidence` was previously null.
 - Append a journal row that names both tracks, e.g.: `Validation pass — Playwright 7/7 green, 1 console warning, demo recorded; automated checks lint/typecheck/test/build all green.`
-- Update "Where we at": next step is `/agentic-sdlc:review <TICKET>`.
+- Update "Where we at": next step is `/kosmo-sdlc:review <TICKET>`.
 
 If either track fails:
 - Append journal row with the failing requirement ids (Playwright) and/or failing pipeline stage (automated checks) and the new console/network defects.
-- Set the relevant requirements back to `in_progress`. The user re-runs `/agentic-sdlc:implement` to fix.
+- Set the relevant requirements back to `in_progress`. The user re-runs `/kosmo-sdlc:implement` to fix.
 - The overall phase outcome is `fail` if **either** track failed.
 
 ### 7. Report
@@ -166,7 +166,7 @@ On pass:
 Validation complete — _/recordings/TICKET-1.validation.md
 ✅ 7 passed · 0 failed · 0 skipped · 1 console warning
 Demo: _/recordings/TICKET-1.20260513-211900.webm
-Next: /agentic-sdlc:review TICKET-1
+Next: /kosmo-sdlc:review TICKET-1
 ```
 
 On fail — name the failing requirements and point at the fix command:
@@ -174,7 +174,7 @@ On fail — name the failing requirements and point at the fix command:
 ```
 Validation failed — _/recordings/TICKET-1.validation.md
 ❌ 6 passed · 1 failed (R1.4)
-Next: /agentic-sdlc:implement TICKET-1 --requirement R1.4
+Next: /kosmo-sdlc:implement TICKET-1 --requirement R1.4
 ```
 
 ## Hard rules
@@ -186,6 +186,6 @@ Next: /agentic-sdlc:implement TICKET-1 --requirement R1.4
 - Console errors and network 4xx/5xx fail the report (warnings are surfaced but don't fail by default; the user can promote them via config).
 - The .webm is regenerated only when assertions pass. A demo of a broken state is worse than no demo.
 - The Playwright script is generated under `_/`, never under `apps/*/playwright/` or any other project-test directory. The script is throw-away; the report is the artifact.
-- When `validation.mode: manual` → exit with a `na` report; the validation phase is opted out at the project level. The user can re-run `/agentic-sdlc:init` to change the mode if they later want UI checks.
+- When `validation.mode: manual` → exit with a `na` report; the validation phase is opted out at the project level. The user can re-run `/kosmo-sdlc:init` to change the mode if they later want UI checks.
 - When `frontmatter.size: s` → never author a Playwright scenario or record a `.webm`. Run the automated-checks (pipeline) track only and write a `na` demo report. The user explicitly chose the lighter flow at intake; don't second-guess it by spinning up a demo.
 - `standalone-playwright` mode means the host project does **not** need a `playwright.config.*`. A reachable `validation.base_url` is the only requirement. Don't refuse to validate just because the project lacks a Playwright setup.

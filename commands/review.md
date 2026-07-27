@@ -4,7 +4,7 @@ argument-hint: "<ticket-id> [--strict]"
 allowed-tools: ["Bash", "Read", "Write", "Edit", "Glob", "Grep", "Agent"]
 ---
 
-# /agentic-sdlc:review
+# /kosmo-sdlc:review
 
 Phase 4 of the cycle. Pre-emptive review — fixes issues before reviewers see them, not after. Produces `_/recordings/<TICKET>.review.md`.
 
@@ -94,7 +94,7 @@ Sub-agents dispatched: code, security, standards
 | MEDIUM   |    5 |        2 |         2 |     9 |
 | LOW      |    3 |        1 |         4 |     8 |
 
-> 1 CRITICAL finding must be addressed before advancing to /agentic-sdlc:pr.
+> 1 CRITICAL finding must be addressed before advancing to /kosmo-sdlc:pr.
 
 ## Findings — code-review-agent
 ...
@@ -116,7 +116,7 @@ First, group findings by severity and ask the user which to apply now vs defer:
 - HIGH → recommend applying; user can defer with explicit acknowledgement.
 - MEDIUM/LOW → user's call.
 
-Then dispatch **one** `Agent` call with `subagent_type: agentic-sdlc:sdlc-impl-agent`, scoped to the approved findings only. The prompt must include:
+Then dispatch **one** `Agent` call with `subagent_type: kosmo-sdlc:sdlc-impl-agent`, scoped to the approved findings only. The prompt must include:
 
 - The consolidated report path (`_/recordings/<TICKET>.review.md`).
 - The exact list of finding ids to apply (e.g. `CRITICAL-1, HIGH-1, HIGH-2`).
@@ -137,7 +137,7 @@ On return, the coordinator (this command):
 ### 6. Update the track
 
 - Append journal row: `Review pass — 1 CRITICAL applied, 2 HIGH applied, 1 HIGH deferred (logged in <followup>); 9 MEDIUM, 8 LOW.`
-- Update "Where we at": next step is `/agentic-sdlc:pr <TICKET>`.
+- Update "Where we at": next step is `/kosmo-sdlc:pr <TICKET>`.
 - If CRITICAL findings remain unaddressed → set `status` back to `in_progress` and **refuse** to advance the cycle.
 
 ### 7. Report
@@ -145,7 +145,7 @@ On return, the coordinator (this command):
 ```
 Review complete — _/recordings/TICKET-1.review.md
 1 CRITICAL applied · 2 HIGH applied · 1 HIGH deferred · 11 MEDIUM/LOW remaining
-Next: /agentic-sdlc:pr TICKET-1
+Next: /kosmo-sdlc:pr TICKET-1
 ```
 
 ## Hard rules
