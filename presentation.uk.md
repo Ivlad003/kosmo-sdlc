@@ -302,19 +302,20 @@ intake ────►├──► security reviewer   ├──► consolidator
 ## Встановлення та перший запуск
 
 ```bash
-# встановлення
-/plugin marketplace add /path/to/sdlc
-/plugin install kosmo-sdlc@kosmo-sdlc
+# Claude Code
+/plugin marketplace add Ivlad003/kosmo-sdlc
+/plugin install kosmo-sdlc
 
-# одноразове налаштування — визначає pkg manager, скрипти, префікс тікетів,
-# перевіряє доступні MCP та скіли, запитає: про gitignore та інше
+# Інші агенти (Codex, Grok, Cursor, Amp, …):
+# див. docs/install.md
+
 /kosmo-sdlc:init
-
-# повний цикл, з перевірками, від і до
+/kosmo-sdlc:discover-agents
+/grill-me
 /kosmo-sdlc:cycle PROJ-123
 ```
 
-**Вимоги:** Claude Code v2.1+, Node 18+, `gh` CLI з авторизацією. Atlassian / Linear MCP — опційно.
+**Вимоги:** coding agent (Claude Code / Codex / Grok / …), Node 18+, `gh` для PR. Опційно: peer CLI для judge.
 
 ---
 
