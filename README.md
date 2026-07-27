@@ -174,7 +174,7 @@ session:
   on_limit: handoff
   vault:
     path: null   # local clone of your vault
-    remote: https://github.com/Ivlad003/obsidian-personal
+    remote: {your-obsidian-vault}
     work_root: Work
     project_name: null
 ```
