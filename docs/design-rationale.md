@@ -67,9 +67,9 @@ Tracks, demos, recordings, scenarios, and the project config all live under `_/`
 
 **No hooks.** Everything is on-demand. Hooks (pre-commit, post-edit) are tempting but increase the failure surface and slow developer feedback. The cycle's gates are explicit invocations, not background processes. Open door for v1.x.
 
-**No CLI binary.** In-session only. The plugin is for users who already live inside Claude Code; building a separate `omc`-style CLI doubles the maintenance.
+**No standalone CLI binary.** Workflows run *inside* coding agents (Claude Code, Codex, Grok, Cursor, …). A separate `omc`-style binary is out of scope; [install.md](install.md) documents multi-harness loading of the same markdown skills/commands.
 
-**No multi-harness manifests.** Claude Code first. Codex / Cursor / Gemini ports happen if there's demand and a contributor; they're not v0 priorities. The track format and `_/sdlc-config.md` schema are harness-neutral, so porting is mostly command-prompt translation.
+**Multi-harness via docs + skills, not N plugins.** Claude Code and Codex ship first-class manifests; other agents load `skills/` + `commands/` as playbooks (Cursor, Grok, Amp, Windsurf, Copilot, Aider). The track format and `_/sdlc-config.md` stay harness-neutral.
 
 **No mandatory pre-intake gate.** Alignment before coding uses **`grill-me` / `grilling`** (from [mattpocock/skills](https://github.com/mattpocock/skills), bundled under `skills/`) instead of brainstorming. Grilling is advisory and user-invoked — one decision at a time until shared understanding — then hand off to `/kosmo-sdlc:intake`. It is not a cycle gate; skipping it is fine when the ticket already has clear ACs.
 
@@ -98,7 +98,7 @@ Tuning lives in the optional `sizing` block of `_/sdlc-config.md` (thresholds, a
 - Hooks: pre-commit pipeline gate, post-merge revalidation trigger.
 - Multi-track view: a `/kosmo-sdlc:status` command that summarizes all tracks across `_/tracks/`.
 - Release notes generator from the journal entries since the last release tag.
-- Multi-harness manifests for Codex / Cursor / Gemini.
+- Deeper native plugins for Cursor / Windsurf / Amp (beyond skills copy + rules).
 
 ## What we'd never add
 
@@ -115,7 +115,8 @@ Tuning lives in the optional `sizing` block of `_/sdlc-config.md` (thresholds, a
 - **`/visual-qa`** — console + network log scanning. Adopted for `/kosmo-sdlc:validate`.
 - **`commit-work` skill** — staging discipline, Conventional Commits, sanity checks. Kept and added the pipeline gate the original lacked.
 - **`superpowers`** (obra) — skill-as-curriculum philosophy. Took the modularity; **replaced brainstorm-before-build with mattpocock-style grilling**.
-- **`mattpocock/skills`** — pruned bundle: `/grill-me` + `/grilling` as design alignment; optional `tdd`, `diagnosing-bugs`, `domain-modeling`, `grill-with-docs`, `codebase-design`, `handoff`. **Not** the full matt main flow (that collides with the cycle).
+- **`mattpocock/skills`** — pruned bundle: `grill-me` + `grilling` as design alignment; optional `tdd`, `diagnosing-bugs`, `domain-modeling`, `grill-with-docs`, `codebase-design`, `handoff`. **Not** the full matt main flow (that collides with the cycle).
+- **`snarktank/ralph`** — `prd.json` + one-story-per-iteration loop; forked as **`kosmo-ralph`** (non-conflicting skill id).
 - **`everything-claude-code`** (affaan-m) — marketplace.json schema, command frontmatter conventions. Direct borrowings.
 - **`oh-my-claudecode`** — `/team` and `/autopilot` orchestrator patterns. Inspired `/kosmo-sdlc:cycle` but with explicit gates rather than autonomous best-effort.
 - **`code-review-graph`** — blast-radius queries. Documented as an optional pairing; not bundled to keep the install surface small.

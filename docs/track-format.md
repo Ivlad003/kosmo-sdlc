@@ -1,6 +1,8 @@
 # Track file format
 
-`_/tracks/<TICKET>.md` is the single source of truth for one feature. Every `/kosmo-sdlc:*` command queries the YAML frontmatter; the body of the file is for human readers. The frontmatter contract is enforced by `schemas/track.schema.json` — commands validate before writing.
+`_/tracks/<TICKET>.md` is the single source of truth for one feature. Every `/kosmo-sdlc:*` command (and any agent following the cycle playbooks) queries the YAML frontmatter; the body is for human readers. The frontmatter contract is enforced by `schemas/track.schema.json` — validate before writing.
+
+Harness-neutral: Claude Code slash commands, Codex/Grok skill adapters, and manual agents all share this file. See [install.md](install.md).
 
 ## Frontmatter — the contract
 
