@@ -164,7 +164,7 @@ section.lead p strong { color: var(--color-accent); }
 
 # /kosmo-sdlc
 
-Плагін Claude Code. Сім фаз, кожен перехід з перевіркою.
+Мульти-агентний SDLC-плагін (Claude Code, Codex, Grok, Cursor, …). Сім фаз, кожен перехід з перевіркою.
 
 **Специфікація та тікет** → *готовий PR із записаним демо-відео.*
 

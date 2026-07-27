@@ -114,55 +114,36 @@ Unsure which skill? **`ask-kosmo-sdlc`**.
 
 ## Install
 
-### Claude Code
+Full multi-agent guide: **[docs/install.md](docs/install.md)**  
+(Claude Code · Codex · Grok · Cursor · Windsurf · Amp · OpenCode · Aider · Copilot · skills.sh)
+
+### Claude Code (quick)
 
 ```
 /plugin marketplace add Ivlad003/kosmo-sdlc
 /plugin install kosmo-sdlc
 ```
 
-Update:
-
 ```
 /plugin update kosmo-sdlc
 ```
 
-### Codex
+### Codex (quick)
 
 ```bash
 mkdir -p ~/plugins ~/.agents/plugins
 git clone https://github.com/Ivlad003/kosmo-sdlc.git ~/plugins/kosmo-sdlc
 ```
 
-Add to `~/.agents/plugins/marketplace.json`:
+Register in `~/.agents/plugins/marketplace.json` (see [docs/install.md](docs/install.md#2-openai-codex)), then install via Codex UI.
 
-```json
-{
-  "name": "personal",
-  "interface": {
-    "displayName": "Personal"
-  },
-  "plugins": [
-    {
-      "name": "kosmo-sdlc",
-      "source": {
-        "source": "local",
-        "path": "./plugins/kosmo-sdlc"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Engineering"
-    }
-  ]
-}
-```
+### Other agents (quick)
 
-Then open (replace `<you>`):
-
-```
-codex://plugins/kosmo-sdlc?marketplacePath=/Users/<you>/.agents/plugins/marketplace.json
+```bash
+git clone https://github.com/Ivlad003/kosmo-sdlc.git ~/plugins/kosmo-sdlc
+# Copy or symlink skills/ into your harness skills root, e.g.:
+#   .agents/skills  ·  .cursor/skills  ·  ~/.config/amp/skills
+# Follow commands/*.md as playbooks when slash commands are unavailable.
 ```
 
 ## Bundled skills (high level)
@@ -211,6 +192,7 @@ Work/{project}/teach/{timestamp}.md
 
 | Doc | Topic |
 | --- | --- |
+| **[docs/install.md](docs/install.md)** | **Install on Claude, Codex, Grok, Cursor, Amp, …** |
 | [docs/cycle.md](docs/cycle.md) | Cycle phases and gates |
 | [docs/track-format.md](docs/track-format.md) | Track file contract |
 | [docs/init-detection.md](docs/init-detection.md) | What init detects |
