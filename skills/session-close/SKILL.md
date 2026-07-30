@@ -97,6 +97,18 @@ If the **`teach`** skill from mattpocock is installed, align structure with it; 
 
 Never write: API keys, tokens, passwords, `.env`, credentials.json, private URLs with secrets, personal data.
 
+## What never goes into the vault
+
+The vault is a **text** archive. Copy markdown, and only the screenshots a report actually needs.
+
+- **No video.** `*.webm`, `*.mp4`, `*.mov` — demo recordings stay where the cycle wrote them
+  (`_/recordings/`). Reference them by filename in the session log or handoff instead:
+  `demo: _/recordings/<TICKET>.<run-id>.webm (local)`.
+- No other binaries either: archives, dumps, build output, node_modules.
+
+Why: a handful of recordings outweighs years of notes. 62 demos once turned a markdown vault into a
+242 MB repo, and git keeps every byte forever — a video deleted later still bloats history.
+
 ## Process
 
 1. Read config + resolve vault + project-name.  
@@ -118,4 +130,5 @@ Never write: API keys, tokens, passwords, `.env`, credentials.json, private URLs
 
 - [ ] Four markdown files exist under the vault paths (or user declined vault → only `_/session-close/`)  
 - [ ] No secrets in content  
+- [ ] No video or other binaries copied into the vault  
 - [ ] User told next exact step for the following session  
